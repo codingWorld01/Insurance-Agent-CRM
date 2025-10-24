@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Settings {
+  id           String   @id @default(uuid())
+  passwordHash String
+  agentName    String   @default("Agent")
+  agentEmail   String   @default("agent@example.com")
+  updatedAt    DateTime @updatedAt
+}
+
+model Lead {
+  id                String   @id @default(uuid())
+  name              String
+  email             String   @unique
+  phone             String
+  insuranceInterest String
+  status            String   @default("New")
+  priority          String   @default("Warm")
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  name        String
+  email       String   @unique
+  phone       String
+  dateOfBirth DateTime
+  age         Int?
+  address     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  policies    Policy[]
+  policyInstances PolicyInstance[]
+
+  @@index([name])
+  @@index([createdAt])
+}
+
+// Policy Template - Master policy information
+model PolicyTemplate {
+  id           String            @id @default(uuid())
+  policyNumber String            @unique
+  policyType   String
+  provider     String
+  description  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  instances    PolicyInstance[]
+
+  @@index([policyType])
+  @@index([provider])
+  @@index([createdAt])
+  @@index([policyType, provider])
+  @@index([provider, createdAt])
+}
+
+// Policy Instance - Client-specific policy details
+model PolicyInstance {
+  id               String          @id @default(uuid())
+  policyTemplateId String
+  clientId         String
+  premiumAmount    Float
+  status           String          @default("Active")
+  startDate        DateTime
+  expiryDate       DateTime
+  commissionAmount Float
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  
+  policyTemplate   PolicyTemplate  @relation(fields: [policyTemplateId], references: [id], onDelete: Cascade)
+  client           Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  
+  @@unique([policyTemplateId, clientId])
+  @@index([policyTemplateId])
+  @@index([clientId])
+  @@index([status])
+  @@index([startDate])
+  @@index([expiryDate])
+  @@index([createdAt])
+  @@index([policyTemplateId, status])
+  @@index([clientId, status])
+  @@index([status, expiryDate])
+  @@index([expiryDate, status])
+}
+
+// Temporary: Keep old Policy model for backward compatibility during transition
+model Policy {
+  id               String   @id @default(uuid())
+  policyNumber     String   @unique
+  policyType       String
+  provider         String
+  premiumAmount    Float
+  status           String   @default("Active")
+  startDate        DateTime
+  expiryDate       DateTime
+  commissionAmount Float
+  clientId         String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  client           Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id          String   @id @default(uuid())
+  action      String
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([action])
+}
