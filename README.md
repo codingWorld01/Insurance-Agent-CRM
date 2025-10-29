@@ -1,4 +1,4 @@
-# Insurance CRM MVP
+# Insurance CRM 
 
 A modern, single-user Customer Relationship Management system designed specifically for insurance agents. Built with Next.js, Express.js, and PostgreSQL.
 
