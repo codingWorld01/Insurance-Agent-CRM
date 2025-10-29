@@ -61,6 +61,7 @@ export const leadSchema = z.object({
   notes: z.string().optional()
 });
 
+// Legacy client schema for backward compatibility
 export const clientSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   email: z.string().email('Invalid email format'),
@@ -71,6 +72,48 @@ export const clientSchema = z.object({
   }, 'Date of birth must be a valid date in the past'),
   age: z.number().int().min(1, 'Age must be at least 1').max(120, 'Age must be less than 120').optional(),
   address: z.string().optional()
+});
+
+// Unified client schema for enhanced client management
+export const unifiedClientSchema = z.object({
+  // Mandatory fields (always required)
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name must be less than 50 characters'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name must be less than 50 characters'),
+  dateOfBirth: z.string().refine((date) => {
+    const parsed = new Date(date);
+    return !isNaN(parsed.getTime()) && parsed < new Date();
+  }, 'Date of birth must be a valid date in the past'),
+  phoneNumber: z.string().regex(/^[6-9]\d{9}$/, 'Phone number must be a valid 10-digit Indian mobile number'),
+  whatsappNumber: z.string().regex(/^[6-9]\d{9}$/, 'WhatsApp number must be a valid 10-digit Indian mobile number'),
+  
+  // Optional personal fields
+  middleName: z.string().max(50, 'Middle name must be less than 50 characters').optional(),
+  email: z.string().email('Invalid email format').optional(),
+  state: z.string().max(50, 'State must be less than 50 characters').optional(),
+  city: z.string().max(50, 'City must be less than 50 characters').optional(),
+  address: z.string().max(500, 'Address must be less than 500 characters').optional(),
+  birthPlace: z.string().max(100, 'Birth place must be less than 100 characters').optional(),
+  age: z.number().int().min(1, 'Age must be at least 1').max(120, 'Age must be less than 120').optional(),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  height: z.number().positive('Height must be positive').max(10, 'Height must be less than 10 feet').optional(),
+  weight: z.number().positive('Weight must be positive').max(500, 'Weight must be less than 500 kg').optional(),
+  education: z.string().max(100, 'Education must be less than 100 characters').optional(),
+  maritalStatus: z.enum(['SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED']).optional(),
+  businessJob: z.string().max(100, 'Business/Job must be less than 100 characters').optional(),
+  nameOfBusiness: z.string().max(100, 'Name of business must be less than 100 characters').optional(),
+  typeOfDuty: z.string().max(100, 'Type of duty must be less than 100 characters').optional(),
+  annualIncome: z.number().positive('Annual income must be positive').max(100000000, 'Annual income cannot exceed ₹10,00,00,000').optional(),
+  panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, 'PAN number must be in valid format (e.g., ABCDE1234F)').optional(),
+  gstNumber: z.string().regex(/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/, 'GST number must be in valid format').optional(),
+  
+  // Optional corporate fields
+  companyName: z.string().max(200, 'Company name must be less than 200 characters').optional(),
+  
+  // Optional family/employee fields
+  relationship: z.enum(['SPOUSE', 'CHILD', 'PARENT', 'SIBLING', 'EMPLOYEE', 'DEPENDENT', 'OTHER']).optional(),
+  
+  // System fields (optional for updates)
+  profileImage: z.string().url('Profile image must be a valid URL').optional()
 });
 
 export const uuidSchema = z.object({

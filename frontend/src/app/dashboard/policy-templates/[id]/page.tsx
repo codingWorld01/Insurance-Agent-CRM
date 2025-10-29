@@ -347,7 +347,7 @@ export default function PolicyDetailPage() {
       if (result.success) {
         toast({
           title: "Policy Instance Updated",
-          description: `Policy instance for ${selectedInstance.client.name} has been updated successfully.`,
+          description: `Policy instance for ${selectedInstance.client.firstName} ${selectedInstance.client.lastName} has been updated successfully.`,
         });
 
         // Log activity
@@ -360,7 +360,7 @@ export default function PolicyDetailPage() {
             },
             body: JSON.stringify({
               action: "policy_instance_updated",
-              description: `Updated policy instance for client ${selectedInstance.client.name}`,
+              description: `Updated policy instance for client ${selectedInstance.client.firstName} ${selectedInstance.client.lastName}`,
             }),
           });
         } catch (activityError) {
@@ -415,7 +415,7 @@ export default function PolicyDetailPage() {
       if (result.success) {
         toast({
           title: "Policy Instance Deleted",
-          description: `Policy instance for ${selectedInstance.client.name} has been deleted successfully.`,
+          description: `Policy instance for ${selectedInstance.client.firstName} ${selectedInstance.client.lastName} has been deleted successfully.`,
         });
 
         // Log activity
@@ -428,7 +428,7 @@ export default function PolicyDetailPage() {
             },
             body: JSON.stringify({
               action: "policy_instance_deleted",
-              description: `Deleted policy instance for client ${selectedInstance.client.name}`,
+              description: `Deleted policy instance for client ${selectedInstance.client.firstName} ${selectedInstance.client.lastName}`,
             }),
           });
         } catch (activityError) {

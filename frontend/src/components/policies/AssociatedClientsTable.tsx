@@ -90,8 +90,8 @@ export const AssociatedClientsTable = memo(function AssociatedClientsTable({
     let bValue: string | number;
 
     if (sortField === 'clientName') {
-      aValue = a.client.name.toLowerCase();
-      bValue = b.client.name.toLowerCase();
+      aValue = `${a.client.firstName} ${a.client.lastName}`.toLowerCase();
+      bValue = `${b.client.firstName} ${b.client.lastName}`.toLowerCase();
     } else {
       const aFieldValue = a[sortField as keyof PolicyInstanceWithClient];
       const bFieldValue = b[sortField as keyof PolicyInstanceWithClient];
@@ -223,7 +223,7 @@ export const AssociatedClientsTable = memo(function AssociatedClientsTable({
                       onClick={() => onClientClick(instance.client.id)}
                       className="font-medium p-0 h-auto text-left justify-start"
                     >
-                      {instance.client.name}
+                      {`${instance.client.firstName} ${instance.client.lastName}`}
                     </Button>
                     <ExternalLink className="h-3 w-3 text-gray-400" />
                   </div>

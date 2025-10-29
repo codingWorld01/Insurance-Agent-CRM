@@ -276,7 +276,8 @@ export function PolicyTemplateSearchModal({
         premiumAmount: formData.premiumAmount,
         startDate: formData.startDate,
         expiryDate: calculatedExpiryDate!,
-        commissionAmount: formData.commissionAmount
+        commissionAmount: formData.commissionAmount,
+        durationMonths: formData.durationMonths
       };
 
       const response = await fetch(`/api/clients/${clientId}/policy-instances`, {

@@ -19,10 +19,32 @@ export class ClientsController {
       const where: Prisma.ClientWhereInput = {};
       
       if (search) {
-        where.name = {
-          contains: String(search),
-          mode: 'insensitive'
-        };
+        where.OR = [
+          {
+            firstName: {
+              contains: String(search),
+              mode: 'insensitive'
+            }
+          },
+          {
+            lastName: {
+              contains: String(search),
+              mode: 'insensitive'
+            }
+          },
+          {
+            email: {
+              contains: String(search),
+              mode: 'insensitive'
+            }
+          },
+          {
+            companyName: {
+              contains: String(search),
+              mode: 'insensitive'
+            }
+          }
+        ];
       }
 
       // Get clients with pagination and policy count
@@ -50,13 +72,19 @@ export class ClientsController {
         prisma.client.count({ where })
       ]);
 
-      // Transform data to include policy count (both legacy policies and policy instances)
-      const clientsWithPolicyCount = clients.map(client => ({
-        ...client,
-        policyCount: client.policies.length + client.policyInstances.length,
-        policies: undefined, // Remove policies array, only keep count
-        policyInstances: undefined // Remove policy instances array, only keep count
-      }));
+      // Transform data to include policy count and computed fields
+      const clientsWithPolicyCount = clients.map(client => {
+        // Calculate age from dateOfBirth if not already set
+        const calculatedAge = client.age || Math.floor((new Date().getTime() - client.dateOfBirth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+        
+        return {
+          ...client,
+          age: calculatedAge,
+          policyCount: client.policies.length + client.policyInstances.length,
+          policies: undefined, // Remove policies array, only keep count
+          policyInstances: undefined // Remove policy instances array, only keep count
+        };
+      });
 
       res.json({
         success: true,
@@ -91,12 +119,20 @@ export class ClientsController {
         dateOfBirth: new Date(req.body.dateOfBirth)
       };
 
+      // Calculate age from dateOfBirth if not provided
+      if (!clientData.age) {
+        const birthDate = new Date(clientData.dateOfBirth);
+        const today = new Date();
+        clientData.age = Math.floor((today.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+      }
+
       const client = await prisma.client.create({
         data: clientData
       });
 
-      // Log activity
-      await ActivityService.logClientCreated(client.name);
+      // Log activity using firstName and lastName
+      const clientName = `${client.firstName} ${client.lastName}`;
+      await ActivityService.logClientCreated(clientName);
 
       res.status(201).json({
         success: true,
@@ -149,6 +185,18 @@ export class ClientsController {
             orderBy: {
               createdAt: 'desc'
             }
+          },
+          // Include documents and audit logs
+          documents: {
+            orderBy: {
+              uploadedAt: 'desc'
+            }
+          },
+          auditLogs: {
+            orderBy: {
+              changedAt: 'desc'
+            },
+            take: 10 // Limit to recent 10 audit entries
           }
         }
       });
@@ -162,9 +210,15 @@ export class ClientsController {
         return;
       }
 
+      // Calculate age from dateOfBirth if not already set
+      const calculatedAge = client.age || Math.floor((new Date().getTime() - client.dateOfBirth.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
+
       res.json({
         success: true,
-        data: client
+        data: {
+          ...client,
+          age: calculatedAge
+        }
       });
     } catch (error) {
       console.error('Error fetching client:', error);
@@ -202,6 +256,11 @@ export class ClientsController {
       const updateData: any = { ...req.body };
       if (req.body.dateOfBirth) {
         updateData.dateOfBirth = new Date(req.body.dateOfBirth);
+        
+        // Recalculate age if dateOfBirth is being updated
+        const birthDate = new Date(updateData.dateOfBirth);
+        const today = new Date();
+        updateData.age = Math.floor((today.getTime() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
       }
 
       const updatedClient = await prisma.client.update({
@@ -209,8 +268,9 @@ export class ClientsController {
         data: updateData
       });
 
-      // Log activity for client update
-      await ActivityService.logClientUpdated(updatedClient.name);
+      // Log activity for client update using firstName and lastName
+      const clientName = `${updatedClient.firstName} ${updatedClient.lastName}`;
+      await ActivityService.logClientUpdated(clientName);
 
       res.json({
         success: true,
@@ -279,7 +339,8 @@ export class ClientsController {
 
       // Log activity (include both legacy policies and policy instances)
       const totalPolicies = existingClient.policies.length + existingClient.policyInstances.length;
-      await ActivityService.logClientDeleted(existingClient.name, totalPolicies);
+      const clientName = `${existingClient.firstName} ${existingClient.lastName}`;
+      await ActivityService.logClientDeleted(clientName, totalPolicies);
 
       res.json({
         success: true,
@@ -312,7 +373,6 @@ export class ClientsController {
 
       const instance = await PolicyInstanceService.createInstance(clientId, {
         policyTemplateId,
-        clientId,
         premiumAmount: Number(premiumAmount),
         startDate,
         durationMonths: Number(durationMonths),

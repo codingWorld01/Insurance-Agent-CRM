@@ -447,9 +447,10 @@ export class PolicyTemplateService {
             client: {
               select: {
                 id: true,
-                name: true,
+                firstName: true,
+                lastName: true,
                 email: true,
-                phone: true
+                phoneNumber: true
               }
             }
           },
@@ -477,7 +478,13 @@ export class PolicyTemplateService {
       commissionAmount: instance.commissionAmount,
       createdAt: instance.createdAt,
       updatedAt: instance.updatedAt,
-      client: instance.client
+      client: {
+        id: instance.client.id,
+        firstName: instance.client.firstName,
+        lastName: instance.client.lastName,
+        email: instance.client.email,
+        phone: instance.client.phoneNumber
+      }
     }));
 
     return {

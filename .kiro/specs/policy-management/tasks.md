@@ -148,7 +148,6 @@
 
 - [x] 10. Write comprehensive tests for policy management
 
-
   - [x] 10.1 Create component unit tests
 
     - Write tests for PolicyModal form validation and submission

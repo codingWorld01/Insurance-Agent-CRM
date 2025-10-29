@@ -8,10 +8,13 @@ import authRoutes from './routes/auth';
 import dashboardRoutes from './routes/dashboard';
 import leadsRoutes from './routes/leads';
 import clientsRoutes from './routes/clients';
+import enhancedClientsRoutes from './routes/enhancedClients';
+import documentsRoutes from './routes/documents';
 import policiesRoutes from './routes/policies';
 import policyTemplatesRoutes from './routes/policyTemplates';
 import policyInstancesRoutes from './routes/policyInstances';
 import settingsRoutes from './routes/settings';
+import uploadRoutes from './routes/upload';
 import healthRoutes from './routes/health';
 
 const app = express();
@@ -32,10 +35,13 @@ app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/leads', leadsRoutes);
 app.use('/api/clients', clientsRoutes);
+app.use('/api/enhanced-clients', enhancedClientsRoutes);
+app.use('/api', documentsRoutes);
 app.use('/api/policies', policiesRoutes);
 app.use('/api/policy-templates', policyTemplatesRoutes);
 app.use('/api/policy-instances', policyInstancesRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

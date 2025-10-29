@@ -57,8 +57,7 @@ export default function LeadsPage() {
   };
 
   const handleAddLead = () => {
-    setEditingLead(null);
-    setShowModal(true);
+    router.push('/dashboard/leads/create');
   };
 
   const handleModalClose = () => {

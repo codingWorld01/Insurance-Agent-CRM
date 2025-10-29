@@ -29,31 +29,109 @@ model Lead {
 }
 
 model Client {
-  id          String   @id @default(uuid())
-  name        String
-  email       String   @unique
-  phone       String
-  dateOfBirth DateTime
-  age         Int?
-  address     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  policies    Policy[]
+  id              String            @id @default(uuid())
+  
+  // Mandatory fields (always required)
+  firstName       String            // Mandatory
+  lastName        String            // Mandatory  
+  dateOfBirth     DateTime          // Mandatory (DOB)
+  phoneNumber     String            // Mandatory
+  whatsappNumber  String            // Mandatory
+  
+  // Optional personal fields
+  middleName      String?
+  email           String?
+  state           String?
+  city            String?
+  address         String?
+  birthPlace      String?
+  age             Int?              // Calculated from DOB
+  gender          Gender?
+  height          Float?            // In feet
+  weight          Float?            // In kg
+  education       String?
+  maritalStatus   MaritalStatus?
+  businessJob     String?
+  nameOfBusiness  String?
+  typeOfDuty      String?
+  annualIncome    Float?
+  panNumber       String?
+  gstNumber       String?
+  
+  // Optional corporate fields
+  companyName     String?
+  
+  // Optional family/employee fields  
+  relationship    Relationship?
+  
+  // System fields
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  // Documents and images
+  documents       Document[]
+  profileImage    String?           // Cloudinary URL
+  
+  // Audit trail
+  auditLogs       AuditLog[]
+  
+  // Policy relationships
+  policies        Policy[]
   policyInstances PolicyInstance[]
-
-  @@index([name])
+  
+  @@index([email])
+  @@index([phoneNumber])
+  @@index([companyName])
+  @@index([firstName, lastName])
+  @@index([dateOfBirth])
+  @@index([panNumber])
+  @@index([gstNumber])
   @@index([createdAt])
 }
 
-// Policy Template - Master policy information
+
+
+model Document {
+  id            String       @id @default(uuid())
+  clientId      String
+  documentType  DocumentType
+  fileName      String
+  originalName  String
+  cloudinaryUrl String
+  cloudinaryId  String
+  fileSize      Int
+  mimeType      String
+  uploadedAt    DateTime     @default(now())
+  client        Client       @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([documentType])
+  @@index([uploadedAt])
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  clientId  String
+  action    String
+  fieldName String?
+  oldValue  String?
+  newValue  String?
+  changedAt DateTime @default(now())
+  client    Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  @@index([clientId])
+  @@index([changedAt])
+  @@index([action])
+}
+
 model PolicyTemplate {
-  id           String            @id @default(uuid())
-  policyNumber String            @unique
+  id           String           @id @default(uuid())
+  policyNumber String           @unique
   policyType   String
   provider     String
   description  String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
   instances    PolicyInstance[]
 
   @@index([policyType])
@@ -63,22 +141,20 @@ model PolicyTemplate {
   @@index([provider, createdAt])
 }
 
-// Policy Instance - Client-specific policy details
 model PolicyInstance {
-  id               String          @id @default(uuid())
+  id               String         @id @default(uuid())
   policyTemplateId String
   clientId         String
   premiumAmount    Float
-  status           String          @default("Active")
+  status           String         @default("Active")
   startDate        DateTime
   expiryDate       DateTime
   commissionAmount Float
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  
-  policyTemplate   PolicyTemplate  @relation(fields: [policyTemplateId], references: [id], onDelete: Cascade)
-  client           Client          @relation(fields: [clientId], references: [id], onDelete: Cascade)
-  
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  client           Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  policyTemplate   PolicyTemplate @relation(fields: [policyTemplateId], references: [id], onDelete: Cascade)
+
   @@unique([policyTemplateId, clientId])
   @@index([policyTemplateId])
   @@index([clientId])
@@ -92,7 +168,6 @@ model PolicyInstance {
   @@index([expiryDate, status])
 }
 
-// Temporary: Keep old Policy model for backward compatibility during transition
 model Policy {
   id               String   @id @default(uuid())
   policyNumber     String   @unique
@@ -117,4 +192,38 @@ model Activity {
 
   @@index([createdAt])
   @@index([action])
+}
+
+
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum MaritalStatus {
+  SINGLE
+  MARRIED
+  DIVORCED
+  WIDOWED
+}
+
+enum Relationship {
+  SPOUSE
+  CHILD
+  PARENT
+  SIBLING
+  EMPLOYEE
+  DEPENDENT
+  OTHER
+}
+
+enum DocumentType {
+  IDENTITY_PROOF
+  ADDRESS_PROOF
+  INCOME_PROOF
+  MEDICAL_REPORT
+  POLICY_DOCUMENT
+  OTHER
 }

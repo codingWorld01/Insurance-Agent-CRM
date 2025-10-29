@@ -292,7 +292,7 @@ export function PolicyInstanceModal({
           <DialogTitle>Edit Policy Instance</DialogTitle>
           <div className="text-sm text-gray-600 space-y-1">
             <p>
-              <strong>Client:</strong> {instance.client.name}
+              <strong>Client:</strong> {`${instance.client.firstName} ${instance.client.lastName}`}
             </p>
             <p>
               <strong>Policy:</strong> {instance.policyTemplate?.policyNumber || 'Unknown Policy'}

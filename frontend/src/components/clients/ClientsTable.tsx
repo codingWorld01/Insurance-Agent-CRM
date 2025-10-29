@@ -8,8 +8,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Eye, Edit, Trash2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Eye, Edit, Trash2, MoreHorizontal } from 'lucide-react';
 import { formatDistanceToNow, differenceInYears } from 'date-fns';
+
+// Use Client type directly from types/index.ts
 
 interface ClientsTableProps {
   clients: Client[];
@@ -23,6 +31,20 @@ export function ClientsTable({ clients, loading, onView, onEdit, onDelete }: Cli
   const getAge = (client: Client): number => {
     // Use age from database if available, otherwise calculate from date of birth
     return client.age || differenceInYears(new Date(), new Date(client.dateOfBirth));
+  };
+
+  const getClientName = (client: Client): string => {
+    // Use company name if available, otherwise use personal name
+    if (client.companyName) {
+      return client.companyName;
+    }
+    const fullName = `${client.firstName || ''} ${client.lastName || ''}`.trim();
+    return fullName || client.name || 'Unnamed Client';
+  };
+
+  const getClientPhone = (client: Client): string => {
+    // Use whatsappNumber or phoneNumber from unified model
+    return client.whatsappNumber || client.phoneNumber || client.phone || '';
   };
 
   if (loading) {
@@ -50,41 +72,41 @@ export function ClientsTable({ clients, loading, onView, onEdit, onDelete }: Cli
       {/* Mobile card view for small screens */}
       <div className="block sm:hidden">
         <div className="space-y-4 p-4">
-          {clients.map((client) => (
+          {clients.map((client) => {
+            return (
             <div key={client.id} className="bg-card border rounded-lg p-4 shadow-sm">
               <div className="flex justify-between items-start mb-3">
                 <div className="min-w-0 flex-1">
-                  <h3 className="font-medium text-foreground truncate">{client.name}</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="font-medium text-foreground truncate">{getClientName(client)}</h3>
+                  </div>
                   <p className="text-sm text-muted-foreground truncate">{client.email}</p>
-                  <p className="text-sm text-muted-foreground">{client.phone}</p>
+                  <p className="text-sm text-muted-foreground">{getClientPhone(client)}</p>
                 </div>
-                <div className="flex gap-1 ml-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onView(client)}
-                    aria-label={`View details for ${client.name}`}
-                  >
-                    <Eye className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onEdit(client)}
-                    aria-label={`Edit ${client.name}`}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => onDelete(client)}
-                    className="text-destructive hover:text-destructive/80"
-                    aria-label={`Delete ${client.name}`}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" aria-label={`Actions for ${getClientName(client)}`}>
+                      <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onView(client)}>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(client)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Client
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => onDelete(client)}
+                      className="text-red-600"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Client
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
               <div className="text-xs text-muted-foreground space-y-1">
                 <div>Age: {getAge(client)} years</div>
@@ -94,7 +116,8 @@ export function ClientsTable({ clients, loading, onView, onEdit, onDelete }: Cli
                 <div>{formatDistanceToNow(new Date(client.createdAt), { addSuffix: true })}</div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -113,15 +136,16 @@ export function ClientsTable({ clients, loading, onView, onEdit, onDelete }: Cli
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.map((client) => (
+            {clients.map((client) => {
+              return (
               <TableRow key={client.id}>
                 <TableCell className="font-medium">
-                  <div className="truncate max-w-32">{client.name}</div>
+                  <div className="truncate max-w-32">{getClientName(client)}</div>
                 </TableCell>
                 <TableCell>
                   <div className="truncate max-w-40">{client.email}</div>
                 </TableCell>
-                <TableCell className="hidden md:table-cell">{client.phone}</TableCell>
+                <TableCell className="hidden md:table-cell">{getClientPhone(client)}</TableCell>
                 <TableCell className="hidden lg:table-cell">{getAge(client)} years</TableCell>
                 <TableCell className="hidden md:table-cell">
                   {'policyCount' in client ? (client as Client & { policyCount: number }).policyCount : client.policies?.length || 0}
@@ -130,38 +154,39 @@ export function ClientsTable({ clients, loading, onView, onEdit, onDelete }: Cli
                   {formatDistanceToNow(new Date(client.createdAt), { addSuffix: true })}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onView(client)}
-                      aria-label={`View details for ${client.name}`}
-                      className="focus:ring-2 focus:ring-primary focus:ring-offset-1"
-                    >
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onEdit(client)}
-                      aria-label={`Edit ${client.name}`}
-                      className="focus:ring-2 focus:ring-primary focus:ring-offset-1"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onDelete(client)}
-                      className="text-destructive hover:text-destructive/80 focus:ring-2 focus:ring-destructive focus:ring-offset-1"
-                      aria-label={`Delete ${client.name}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Actions for ${getClientName(client)}`}
+                        className="focus:ring-2 focus:ring-primary focus:ring-offset-1"
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => onView(client)}>
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onEdit(client)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Client
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => onDelete(client)}
+                        className="text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        Delete Client
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
       </div>

@@ -5,6 +5,16 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 
+// Extend Request interface to include user
+interface AuthenticatedRequest extends Request {
+  user?: {
+    userId: string;
+    email: string;
+    id?: string;
+    [key: string]: any;
+  };
+}
+
 const prisma = new PrismaClient()
 
 export interface AuditLogEntry {
@@ -67,7 +77,7 @@ export async function createAuditLog(entry: AuditLogEntry): Promise<void> {
  * Middleware to automatically log policy page operations
  */
 export function auditPolicyPageOperation(action: string, resourceType: string = 'policy') {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const startTime = Date.now()
     const originalSend = res.send
     

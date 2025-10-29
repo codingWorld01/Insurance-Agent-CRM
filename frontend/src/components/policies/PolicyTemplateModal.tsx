@@ -34,7 +34,8 @@ export function PolicyTemplateModal({
     premiumAmount: 0,
     startDate: '',
     expiryDate: '',
-    commissionAmount: 0
+    commissionAmount: 0,
+    durationMonths: 12
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -50,7 +51,8 @@ export function PolicyTemplateModal({
         premiumAmount: 0,
         startDate: '',
         expiryDate: '',
-        commissionAmount: 0
+        commissionAmount: 0,
+        durationMonths: 12
       });
       setErrors({});
     }

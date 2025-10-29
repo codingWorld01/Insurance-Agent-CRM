@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { authenticateToken } from '../middleware/auth';
-import { validateRequest, clientSchema, uuidSchema, paginationSchema, policySchema, policyInstanceSchema } from '../middleware/validation';
+import { validateRequest, unifiedClientSchema, uuidSchema, paginationSchema, policySchema, policyInstanceSchema } from '../middleware/validation';
 import { asyncHandler } from '../middleware/errorHandler';
 import { ClientsController } from '../controllers/clientsController';
 import { PoliciesController } from '../controllers/policiesController';
@@ -24,7 +24,7 @@ router.get('/',
  * Create a new client
  */
 router.post('/',
-  validateRequest({ body: clientSchema }),
+  validateRequest({ body: unifiedClientSchema }),
   asyncHandler(ClientsController.createClient)
 );
 
@@ -44,7 +44,7 @@ router.get('/:id',
 router.put('/:id',
   validateRequest({ 
     params: uuidSchema,
-    body: clientSchema.partial()
+    body: unifiedClientSchema.partial()
   }),
   asyncHandler(ClientsController.updateClient)
 );

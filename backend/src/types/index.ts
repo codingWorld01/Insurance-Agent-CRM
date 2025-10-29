@@ -118,7 +118,6 @@ export interface PolicyInstance {
 
 export interface CreatePolicyInstanceRequest {
   policyTemplateId: string;
-  clientId: string;
   premiumAmount: number;
   startDate: string;
   durationMonths: number;

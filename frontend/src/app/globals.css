@@ -459,16 +459,16 @@
     }
   }
 
-  /* Toast notification styles - White descriptions */
+  /* Toast notification styles - Theme-aware descriptions */
   [data-sonner-toast] [data-description] {
-    color: #ffffff !important;
+    color: #000000 !important;
   }
 
-  [data-sonner-toast] .text-white {
-    color: #ffffff !important;
+  [data-sonner-toast] .text-black {
+    color: #000000 !important;
   }
 
-  /* Ensure white text in both light and dark modes */
+  /* Dark mode toast descriptions */
   .dark [data-sonner-toast] [data-description] {
     color: #ffffff !important;
   }
@@ -479,9 +479,68 @@
 
   /* Additional specificity for Sonner toast descriptions */
   .sonner-toast [data-description],
-  .sonner-toast .text-white,
+  .sonner-toast .text-black,
   [data-sonner-toaster] [data-sonner-toast] [data-description],
-  [data-sonner-toaster] [data-sonner-toast] .text-white {
+  [data-sonner-toaster] [data-sonner-toast] .text-black {
+    color: #000000 !important;
+  }
+
+  .dark .sonner-toast [data-description],
+  .dark .sonner-toast .text-white,
+  .dark [data-sonner-toaster] [data-sonner-toast] [data-description],
+  .dark [data-sonner-toaster] [data-sonner-toast] .text-white {
     color: #ffffff !important;
+  }
+
+  /* React Day Picker Custom Styles */
+  .rdp-custom {
+    --rdp-cell-size: 36px;
+    --rdp-accent-color: hsl(var(--primary));
+    --rdp-background-color: hsl(var(--background));
+    --rdp-accent-color-dark: hsl(var(--primary));
+    --rdp-background-color-dark: hsl(var(--background));
+    --rdp-outline: 2px solid hsl(var(--ring));
+    --rdp-outline-selected: 2px solid hsl(var(--primary));
+    margin: 0;
+  }
+
+  .rdp-custom .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
+    @apply bg-accent text-accent-foreground;
+  }
+
+  .rdp-custom .rdp-button:focus-visible:not([disabled]) {
+    @apply ring-2 ring-ring ring-offset-2;
+  }
+
+  .rdp-custom .rdp-day_today:not(.rdp-day_selected) {
+    @apply bg-accent text-accent-foreground font-semibold;
+  }
+
+  .rdp-custom .rdp-day_selected {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .rdp-custom .rdp-day_selected:hover {
+    @apply bg-primary text-primary-foreground;
+  }
+
+  .rdp-custom .rdp-day_outside {
+    @apply text-muted-foreground opacity-50;
+  }
+
+  .rdp-custom .rdp-day_disabled {
+    @apply text-muted-foreground opacity-50 cursor-not-allowed;
+  }
+
+  .rdp-custom .rdp-nav_button {
+    @apply border border-input bg-background hover:bg-accent hover:text-accent-foreground;
+  }
+
+  .rdp-custom .rdp-head_cell {
+    @apply text-muted-foreground font-medium;
+  }
+
+  .rdp-custom .rdp-caption_label {
+    @apply text-foreground font-semibold;
   }
 }

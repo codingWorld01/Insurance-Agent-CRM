@@ -10,7 +10,6 @@ import {
 
 export interface CreatePolicyInstanceRequest {
   policyTemplateId: string;
-  clientId: string;
   premiumAmount: number;
   startDate: string;
   durationMonths: number;
@@ -54,8 +53,9 @@ export interface PolicyInstanceWithClient {
   updatedAt: Date;
   client: {
     id: string;
-    name: string;
-    email: string;
+    firstName: string;
+    lastName: string;
+    email: string | null;
   };
 }
 
@@ -70,7 +70,7 @@ export class PolicyInstanceService {
     // Validate that client exists
     const client = await prisma.client.findUnique({
       where: { id: clientId },
-      select: { id: true, name: true }
+      select: { id: true, firstName: true, lastName: true }
     });
 
     if (!client) {
@@ -166,7 +166,7 @@ export class PolicyInstanceService {
     // Log activity
     await ActivityService.logPolicyInstanceCreated(
       policyTemplate.policyNumber,
-      client.name
+      `${client.firstName} ${client.lastName}`
     );
 
     // Invalidate caches
@@ -201,7 +201,8 @@ export class PolicyInstanceService {
         client: {
           select: {
             id: true,
-            name: true
+            firstName: true,
+            lastName: true
           }
         }
       }
@@ -309,7 +310,7 @@ export class PolicyInstanceService {
     // Log activity
     await ActivityService.logPolicyInstanceUpdated(
       existingInstance.policyTemplate.policyNumber,
-      existingInstance.client.name
+      `${existingInstance.client.firstName} ${existingInstance.client.lastName}`
     );
 
     // Invalidate caches
@@ -341,7 +342,8 @@ export class PolicyInstanceService {
         },
         client: {
           select: {
-            name: true
+            firstName: true,
+            lastName: true
           }
         }
       }
@@ -359,7 +361,7 @@ export class PolicyInstanceService {
     // Log activity
     await ActivityService.logPolicyInstanceDeleted(
       existingInstance.policyTemplate.policyNumber,
-      existingInstance.client.name
+      `${existingInstance.client.firstName} ${existingInstance.client.lastName}`
     );
 
     // Invalidate caches
@@ -380,7 +382,8 @@ export class PolicyInstanceService {
         client: {
           select: {
             id: true,
-            name: true,
+            firstName: true,
+            lastName: true,
             email: true
           }
         }
@@ -456,7 +459,8 @@ export class PolicyInstanceService {
         },
         client: {
           select: {
-            name: true
+            firstName: true,
+            lastName: true
           }
         }
       }
@@ -474,7 +478,7 @@ export class PolicyInstanceService {
     // Log status change activity
     await ActivityService.logPolicyInstanceStatusChanged(
       existingInstance.policyTemplate.policyNumber,
-      existingInstance.client.name,
+      `${existingInstance.client.firstName} ${existingInstance.client.lastName}`,
       status
     );
 

@@ -21,7 +21,7 @@ export async function GET(
     }
 
     const { id } = await params;
-    const response = await fetch(`${BACKEND_URL}/api/clients/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/enhanced-clients/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ export async function PUT(
     const body = await request.json();
     const { id } = await params;
 
-    const response = await fetch(`${BACKEND_URL}/api/clients/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/enhanced-clients/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -110,7 +110,7 @@ export async function DELETE(
     }
 
     const { id } = await params;
-    const response = await fetch(`${BACKEND_URL}/api/clients/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/enhanced-clients/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

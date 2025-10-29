@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // Forward query parameters
     const { searchParams } = new URL(request.url);
     const queryString = searchParams.toString();
-    const url = `${BACKEND_URL}/api/clients${queryString ? `?${queryString}` : ''}`;
+    const url = `${BACKEND_URL}/api/enhanced-clients${queryString ? `?${queryString}` : ''}`;
 
     const response = await fetch(url, {
       method: 'GET',
@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    const response = await fetch(`${BACKEND_URL}/api/clients`, {
+    const response = await fetch(`${BACKEND_URL}/api/enhanced-clients`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

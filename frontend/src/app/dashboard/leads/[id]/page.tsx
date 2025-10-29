@@ -5,7 +5,13 @@ import { useRouter, useParams } from 'next/navigation';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Edit, Trash2, UserPlus } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { ArrowLeft, Edit, Trash2, UserPlus, MoreHorizontal } from 'lucide-react';
 import { Lead, CreateLeadRequest } from '@/types';
 import { StatusBadge, PriorityBadge } from '@/components/common/StatusBadge';
 import { LeadModal } from '@/components/leads/LeadModal';
@@ -221,26 +227,35 @@ export default function LeadDetailPage() {
             Leads / {lead.name}
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleEdit}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-          {lead.status !== 'Won' && (
-            <Button onClick={() => setShowConvertDialog(true)}>
-              <UserPlus className="h-4 w-4 mr-2" />
-              Convert to Client
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" aria-label={`Actions for ${lead.name}`}>
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
-          )}
-          <Button 
-            variant="outline" 
-            onClick={() => setShowDeleteDialog(true)}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            Delete
-          </Button>
-        </div>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={handleEdit}>
+              <Edit className="h-4 w-4 mr-2" />
+              Edit Lead
+            </DropdownMenuItem>
+            {lead.status !== 'Won' && (
+              <DropdownMenuItem 
+                onClick={() => setShowConvertDialog(true)}
+                className="text-green-600"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Convert to Client
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuItem 
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-red-600"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Delete Lead
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {/* Lead Details Card */}

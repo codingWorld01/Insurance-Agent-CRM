@@ -69,27 +69,83 @@ export interface CreateLeadRequest {
   notes?: string;
 }
 
-// Client types
+// Client types - Unified model
 export interface Client {
   id: string;
-  name: string;
-  email: string;
-  phone: string;
+  // Mandatory fields
+  firstName: string;
+  lastName: string;
   dateOfBirth: string;
-  age?: number;
+  phoneNumber: string;
+  whatsappNumber: string;
+  
+  // Optional personal fields
+  middleName?: string;
+  email?: string;
+  state?: string;
+  city?: string;
   address?: string;
+  birthPlace?: string;
+  age?: number;
+  gender?: string;
+  height?: number;
+  weight?: number;
+  education?: string;
+  maritalStatus?: string;
+  businessJob?: string;
+  nameOfBusiness?: string;
+  typeOfDuty?: string;
+  annualIncome?: number;
+  panNumber?: string;
+  gstNumber?: string;
+  
+  // Optional corporate fields
+  companyName?: string;
+  
+  // Optional family/employee fields
+  relationship?: string;
+  
+  // System fields
+  profileImage?: string;
   createdAt: string;
   updatedAt: string;
   policies?: Policy[];
+  
+  // Computed field for backward compatibility
+  name: string; // Computed from firstName + lastName or companyName
+  phone: string; // Computed from phoneNumber or whatsappNumber
 }
 
 export interface CreateClientRequest {
-  name: string;
-  email: string;
-  phone: string;
+  // Mandatory fields
+  firstName: string;
+  lastName: string;
   dateOfBirth: string;
-  age?: number;
+  phoneNumber: string;
+  whatsappNumber: string;
+  
+  // Optional fields
+  middleName?: string;
+  email?: string;
+  state?: string;
+  city?: string;
   address?: string;
+  birthPlace?: string;
+  age?: number;
+  gender?: string;
+  height?: number;
+  weight?: number;
+  education?: string;
+  maritalStatus?: string;
+  businessJob?: string;
+  nameOfBusiness?: string;
+  typeOfDuty?: string;
+  annualIncome?: number;
+  panNumber?: string;
+  gstNumber?: string;
+  companyName?: string;
+  relationship?: string;
+  profileImage?: string;
 }
 
 export interface ClientWithPolicies extends Client {
@@ -163,6 +219,7 @@ export interface CreatePolicyInstanceRequest {
   startDate: string;
   expiryDate: string;
   commissionAmount: number;
+  durationMonths: number;
 }
 
 export interface UpdatePolicyInstanceRequest extends Partial<CreatePolicyInstanceRequest> {
@@ -413,20 +470,40 @@ export interface PolicyTemplateResponse {
 }
 
 // Policy Detail Page types
-export interface PolicyInstanceWithClient extends PolicyInstance {
+export interface PolicyInstanceWithClient {
+  id: string;
+  policyTemplateId: string;
+  premiumAmount: number;
+  status: string;
+  startDate: string;
+  expiryDate: string;
+  commissionAmount: number;
+  createdAt: string;
+  updatedAt: string;
   client: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone?: string;
   };
 }
 
-export interface PolicyInstanceWithTemplate extends PolicyInstance {
+export interface PolicyInstanceWithTemplate {
+  id: string;
+  policyTemplateId: string;
+  premiumAmount: number;
+  status: string;
+  startDate: string;
+  expiryDate: string;
+  commissionAmount: number;
+  createdAt: string;
+  updatedAt: string;
   policyTemplate?: PolicyTemplate;
   client?: {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     email: string;
     phone?: string;
   };
