@@ -82,6 +82,35 @@ export default function CreateClientPage() {
 
       {/* Unified Form */}
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
       <UnifiedClientForm onSubmit={handleSubmit} isLoading={isSubmitting} />
     </div>
   );
