@@ -40,6 +40,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   // Check for existing token on mount
   useEffect(() => {
+    // Only run in browser environment
+    if (typeof window === 'undefined') {
+      setIsLoading(false);
+      return;
+    }
+
     const storedToken = localStorage.getItem('auth_token');
     if (storedToken) {
       verifyToken(storedToken);
@@ -63,10 +69,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data.success && data.user) {
         setUser(data.user);
         setToken(tokenToVerify);
-        localStorage.setItem('auth_token', tokenToVerify);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('auth_token', tokenToVerify);
+        }
       } else {
         // Token is invalid, remove it
-        localStorage.removeItem('auth_token');
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth_token');
+        }
         setUser(null);
         setToken(null);
       }
@@ -78,7 +88,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         handleAuthError(error, router);
       }
       
-      localStorage.removeItem('auth_token');
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token');
+      }
       setUser(null);
       setToken(null);
     } finally {
@@ -101,7 +113,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (data.success && data.token && data.user) {
         setUser(data.user);
         setToken(data.token);
-        localStorage.setItem('auth_token', data.token);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('auth_token', data.token);
+        }
         showSuccess(`Welcome back, ${data.user.name}!`);
       } else {
         showError(data.message || 'Login failed');
@@ -132,7 +146,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('auth_token');
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('auth_token');
+    }
     showSuccess('You have been logged out successfully');
     router.push('/login');
   };
