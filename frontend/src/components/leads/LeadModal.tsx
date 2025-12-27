@@ -22,7 +22,6 @@ const priorities: Priority[] = ['Hot', 'Warm', 'Cold'];
 export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: LeadModalProps) {
   const [formData, setFormData] = useState<CreateLeadRequest>({
     name: '',
-    email: '',
     phone: '',
     insuranceInterest: 'Life',
     status: 'New',
@@ -40,7 +39,6 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
         // Edit mode - populate with existing lead data
         setFormData({
           name: lead.name,
-          email: lead.email,
           phone: lead.phone,
           insuranceInterest: lead.insuranceInterest,
           status: lead.status,
@@ -51,7 +49,6 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
         // Add mode - reset to defaults
         setFormData({
           name: '',
-          email: '',
           phone: '',
           insuranceInterest: 'Life',
           status: 'New',
@@ -69,12 +66,6 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
     // Required field validation
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
     }
 
     if (!formData.phone.trim()) {
@@ -156,25 +147,6 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
             />
             {errors.name && (
               <p id="name-error" className="text-sm text-red-600" role="alert">{errors.name}</p>
-            )}
-          </div>
-
-          {/* Email Field */}
-          <div className="space-y-2">
-            <Label htmlFor="email">Email *</Label>
-            <Input
-              id="email"
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange('email', e.target.value)}
-              placeholder="Enter email address"
-              className={errors.email ? 'border-red-500' : ''}
-              aria-invalid={!!errors.email}
-              aria-describedby={errors.email ? 'email-error' : undefined}
-              required
-            />
-            {errors.email && (
-              <p id="email-error" className="text-sm text-red-600" role="alert">{errors.email}</p>
             )}
           </div>
 

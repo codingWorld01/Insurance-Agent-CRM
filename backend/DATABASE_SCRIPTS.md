@@ -66,7 +66,7 @@ npm run db:reset         # Reset database (Prisma default)
 
 After running any seeding script, you can log in with:
 - **Email**: demo@insurance.com
-- **Password**: password123
+- **Password**: Amit@123
 
 ## Data Structure
 

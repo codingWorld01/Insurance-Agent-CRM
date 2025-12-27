@@ -260,28 +260,20 @@ export class LeadsController {
         return;
       }
 
-      // Check if client with same email already exists
-      const existingClient = await prisma.client.findUnique({
-        where: { email: lead.email }
-      });
-
-      if (existingClient) {
-        res.status(400).json({
-          success: false,
-          message: 'A client with this email already exists',
-          statusCode: 400
-        });
-        return;
-      }
-
       // Use transaction to ensure data consistency
       const result = await prisma.$transaction(async (tx) => {
+        // Split name into firstName and lastName
+        const nameParts = lead.name.trim().split(' ');
+        const firstName = nameParts[0] || lead.name;
+        const lastName = nameParts.slice(1).join(' ') || firstName;
+
         // Create client from lead data
         const client = await tx.client.create({
           data: {
-            name: lead.name,
-            email: lead.email,
-            phone: lead.phone,
+            firstName,
+            lastName,
+            phoneNumber: lead.phone,
+            whatsappNumber: lead.phone,
             dateOfBirth: new Date('1990-01-01'), // Default date - should be updated by user
             address: lead.notes || undefined
           }

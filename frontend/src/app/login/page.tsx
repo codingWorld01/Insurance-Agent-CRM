@@ -145,7 +145,7 @@ export default function LoginPage() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
-                Demo credentials: agent@example.com / password123
+                Demo credentials: amitulhe@gmail.com / Amit@123
               </p>
             </div>
           </CardContent>

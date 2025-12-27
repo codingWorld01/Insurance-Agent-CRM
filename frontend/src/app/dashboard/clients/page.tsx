@@ -196,7 +196,7 @@ export default function ClientsPage() {
                 )}
               </Button>
               <Button onClick={handleAddClient}>
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-4 w-4 mr-2 cursor-pointer" />
                 Add Client
               </Button>
             </div>

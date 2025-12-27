@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Edit, Plus, ArrowLeft } from "lucide-react";
 import { PolicyTemplateCreateModal } from "@/components/policies/PolicyTemplateCreateModal";
-import { PolicyInstanceModal } from "@/components/policies/PolicyInstanceModal";
+// import { PolicyInstanceModal } from "@/components/policies/PolicyInstanceModal";
+import { PolicyInstanceEditModal } from "@/components/policies/PolicyInstanceEditModal";  
 import { PolicyInstanceDeleteDialog } from "@/components/policies/PolicyInstanceDeleteDialog";
 import { ConfirmDialog } from "@/components/common/ConfirmDialog";
 import { EnhancedErrorMessage } from "@/components/common/EnhancedErrorMessage";
@@ -107,6 +108,15 @@ export default function PolicyDetailPage() {
       fetchPolicyDetails();
     }
   }, [templateId, fetchPolicyDetails]);
+
+  // Update document title
+  useEffect(() => {
+    if (template) {
+      document.title = `Policy Template - ${template.policyNumber} | Insurance CRM`;
+    } else {
+      document.title = "Policy Template | Insurance CRM";
+    }
+  }, [template]);
 
   // Log page access
   const logPageAccess = useCallback(async () => {
@@ -587,21 +597,12 @@ export default function PolicyDetailPage() {
             </div>
             <div className="flex flex-col sm:flex-row gap-2">
               <Button
-                variant="outline"
                 onClick={handleEditTemplate}
                 className="flex items-center gap-2"
                 disabled={isOffline}
               >
                 <Edit className="h-4 w-4" />
                 Edit Template
-              </Button>
-              <Button
-                onClick={handleAddClient}
-                className="flex items-center gap-2"
-                disabled={isOffline}
-              >
-                <Plus className="h-4 w-4" />
-                Add Client
               </Button>
             </div>
           </div>
@@ -683,7 +684,7 @@ export default function PolicyDetailPage() {
       />
 
       {/* Policy Instance Modal */}
-      <PolicyInstanceModal
+      <PolicyInstanceEditModal
         open={showInstanceModal}
         onClose={handleInstanceModalClose}
         onSubmit={handleInstanceSubmit}

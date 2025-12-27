@@ -5,7 +5,7 @@ test.describe('Policy Template System E2E Tests', () => {
     // Navigate to login and authenticate
     await page.goto('/login');
     await page.fill('input[type="email"]', 'test@agent.com');
-    await page.fill('input[type="password"]', 'password123');
+    await page.fill('input[type="password"]', 'Amit@123');
     await page.click('button[type="submit"]');
     
     // Wait for dashboard to load

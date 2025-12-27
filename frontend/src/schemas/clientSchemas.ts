@@ -135,6 +135,7 @@ export const unifiedClientSchema = z.object({
   annualIncome: z.number().min(0).optional(),
   panNumber: z.string().optional().refine((val) => !val || validatePAN(val), "Invalid PAN format"),
   gstNumber: z.string().optional().refine((val) => !val || validateGST(val), "Invalid GST format"),
+  additionalInfo: z.string().max(1000, "Additional information too long").optional(),
   
   // Optional corporate fields
   companyName: z.string().max(200, "Company name too long").optional(),

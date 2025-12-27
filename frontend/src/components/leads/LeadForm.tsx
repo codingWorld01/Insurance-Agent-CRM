@@ -20,7 +20,6 @@ const priorities: Priority[] = ['Hot', 'Warm', 'Cold'];
 export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadFormProps) {
   const [formData, setFormData] = useState<CreateLeadRequest>({
     name: '',
-    email: '',
     phone: '',
     insuranceInterest: 'Life',
     status: 'New',
@@ -37,7 +36,6 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
       // Edit mode - populate with existing lead data
       setFormData({
         name: lead.name,
-        email: lead.email,
         phone: lead.phone,
         insuranceInterest: lead.insuranceInterest,
         status: lead.status,
@@ -48,7 +46,6 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
       // Add mode - reset to defaults
       setFormData({
         name: '',
-        email: '',
         phone: '',
         insuranceInterest: 'Life',
         status: 'New',
@@ -65,12 +62,6 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
     // Required field validation
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = 'Invalid email format';
     }
 
     if (!formData.phone.trim()) {
@@ -144,25 +135,6 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
           />
           {errors.name && (
             <p id="name-error" className="text-sm text-red-600" role="alert">{errors.name}</p>
-          )}
-        </div>
-
-        {/* Email Field */}
-        <div className="space-y-2">
-          <Label htmlFor="email">Email *</Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => handleInputChange('email', e.target.value)}
-            placeholder="Enter email address"
-            className={errors.email ? 'border-red-500' : ''}
-            aria-invalid={!!errors.email}
-            aria-describedby={errors.email ? 'email-error' : undefined}
-            required
-          />
-          {errors.email && (
-            <p id="email-error" className="text-sm text-red-600" role="alert">{errors.email}</p>
           )}
         </div>
 

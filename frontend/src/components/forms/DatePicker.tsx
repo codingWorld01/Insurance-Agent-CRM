@@ -3,10 +3,10 @@
 import * as React from "react"
 import { format, differenceInYears, parseISO, isValid } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
+import ReactDatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import "@/styles/datepicker.css"
 import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
 import { useMobileDetection } from "@/hooks/useMobileDetection"
 
@@ -33,8 +33,6 @@ export function DatePicker({
   showAgeCalculation = false,
   onAgeChange,
 }: DatePickerProps) {
-  const [open, setOpen] = React.useState(false)
-  const [inputValue, setInputValue] = React.useState("")
   const { isMobile, isTouchDevice } = useMobileDetection()
   
   // Convert string to Date if needed
@@ -56,46 +54,8 @@ export function DatePicker({
     }
   }, [dateValue, showAgeCalculation, onAgeChange])
 
-  // Update input value when date changes
-  React.useEffect(() => {
-    if (dateValue) {
-      setInputValue(format(dateValue, "dd/MM/yyyy"))
-    } else {
-      setInputValue("")
-    }
-  }, [dateValue])
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target.value
-    setInputValue(input)
-
-    // Try to parse the input as DD/MM/YYYY
-    const parts = input.split('/')
-    if (parts.length === 3) {
-      const [day, month, year] = parts
-      const date = new Date(parseInt(year), parseInt(month) - 1, parseInt(day))
-      
-      if (isValid(date) && 
-          date.getDate() === parseInt(day) && 
-          date.getMonth() === parseInt(month) - 1 && 
-          date.getFullYear() === parseInt(year)) {
-        onChange(date)
-      }
-    }
-  }
-
-  const handleInputBlur = () => {
-    // If input is invalid, reset to current date value
-    if (dateValue) {
-      setInputValue(format(dateValue, "dd/MM/yyyy"))
-    } else {
-      setInputValue("")
-    }
-  }
-
-  const handleDateSelect = (date: Date | undefined) => {
-    onChange(date)
-    setOpen(false)
+  const handleDateChange = (date: Date | null) => {
+    onChange(date || undefined)
   }
 
   // Use native date input on mobile for better UX
@@ -113,7 +73,7 @@ export function DatePicker({
           max={maxDate ? format(maxDate, "yyyy-MM-dd") : undefined}
           min={minDate ? format(minDate, "yyyy-MM-dd") : undefined}
           className={cn(
-            "w-full text-base", // Larger text for mobile
+            "w-full text-base",
             !dateValue && "text-muted-foreground"
           )}
         />
@@ -128,55 +88,36 @@ export function DatePicker({
 
   return (
     <div className={cn("relative", className)}>
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full justify-start text-left font-normal",
-              !dateValue && "text-muted-foreground",
-              isMobile && "h-12 text-base" // Larger touch targets on mobile
-            )}
-            disabled={disabled}
-          >
-            <CalendarIcon className={cn("mr-2", isMobile ? "h-5 w-5" : "h-4 w-4")} />
-            {dateValue ? format(dateValue, "dd/MM/yyyy") : placeholder}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent 
-          className={cn(
-            "w-auto p-0",
-            isMobile && "w-screen max-w-sm" // Full width on mobile
-          )} 
-          align={isMobile ? "center" : "start"}
-        >
-          <Calendar
-            mode="single"
-            selected={dateValue}
-            onSelect={handleDateSelect}
-            disabled={(date) => {
-              if (maxDate && date > maxDate) return true
-              if (minDate && date < minDate) return true
-              return false
-            }}
-            initialFocus
-            className={isMobile ? "scale-110" : undefined} // Larger calendar on mobile
-          />
-        </PopoverContent>
-      </Popover>
-      
-      {/* Alternative input for manual entry - hidden on mobile */}
-      {!isMobile && (
-        <Input
-          type="text"
-          placeholder="DD/MM/YYYY"
-          value={inputValue}
-          onChange={handleInputChange}
-          onBlur={handleInputBlur}
+      <div className="relative">
+        <ReactDatePicker
+          selected={dateValue}
+          onChange={handleDateChange}
+          dateFormat="dd/MM/yyyy"
+          placeholderText={placeholder}
           disabled={disabled}
-          className="mt-2"
+          maxDate={maxDate}
+          minDate={minDate}
+          showYearDropdown
+          showMonthDropdown
+          dropdownMode="select"
+          className={cn(
+            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+            "file:border-0 file:bg-transparent file:text-sm file:font-medium",
+            "placeholder:text-muted-foreground",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "disabled:cursor-not-allowed disabled:opacity-50",
+            isMobile && "h-12 text-base"
+          )}
+          wrapperClassName="w-full"
+          calendarClassName="!font-sans"
         />
-      )}
+        <CalendarIcon 
+          className={cn(
+            "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-muted-foreground",
+            isMobile ? "h-5 w-5" : "h-4 w-4"
+          )} 
+        />
+      </div>
       
       {showAgeCalculation && dateValue && (
         <p className="text-xs text-muted-foreground mt-1">

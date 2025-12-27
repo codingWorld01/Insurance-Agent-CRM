@@ -27,6 +27,8 @@ export default function CreateClientPage() {
 
     setIsSubmitting(true);
     try {
+
+      console.log("just before submitting ", data)
       const response = await fetch("/api/clients", {
         method: "POST",
         headers: {
@@ -41,8 +43,9 @@ export default function CreateClientPage() {
       }
 
       const result = await response.json();
+      // console.log("result ", result);
       showSuccess("Client created successfully!");
-      router.push(`/dashboard/clients/${result.id}`);
+      router.push(`/dashboard/clients/${result.data.id}`);
     } catch (error) {
       showError(
         `Failed to create client: ${
@@ -57,7 +60,7 @@ export default function CreateClientPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      {/* <div className="flex items-center gap-4"> */}
         <Button
           variant="outline"
           size="sm"
@@ -78,7 +81,7 @@ export default function CreateClientPage() {
             </p>
           </div>
         </div>
-      </div>
+      {/* </div> */}
 
       {/* Unified Form */}
 

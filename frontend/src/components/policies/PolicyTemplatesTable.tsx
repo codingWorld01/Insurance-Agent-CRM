@@ -142,7 +142,8 @@ export const PolicyTemplatesTable = memo(function PolicyTemplatesTable({
     formatDate: (dateString: string) => string;
   }) => (
     <TableRow 
-      className="transition-colors hover:bg-accent/50"
+      className="transition-colors hover:bg-accent/50 cursor-pointer"
+      onClick={() => onViewDetails(template)}
     >
       <TableCell className="font-medium">
         <button
@@ -182,6 +183,7 @@ export const PolicyTemplatesTable = memo(function PolicyTemplatesTable({
         {formatDate(template.createdAt)}
       </TableCell>
       <TableCell className="text-right">
+        <div onClick={(e) => e.stopPropagation()}>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
@@ -210,6 +212,7 @@ export const PolicyTemplatesTable = memo(function PolicyTemplatesTable({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        </div>
       </TableCell>
     </TableRow>
   ));
@@ -310,7 +313,8 @@ export const PolicyTemplatesTable = memo(function PolicyTemplatesTable({
             {templates.map((template) => (
               <div 
                 key={template.id} 
-                className="bg-card border rounded-lg p-4 shadow-sm transition-colors hover:bg-accent/50"
+                className="bg-card border rounded-lg p-4 shadow-sm transition-colors hover:bg-accent/50 cursor-pointer"
+                onClick={() => onViewDetails(template)}
               >
                 <div className="flex items-start gap-3 mb-3">
                   <div className="min-w-0 flex-1">
@@ -340,6 +344,7 @@ export const PolicyTemplatesTable = memo(function PolicyTemplatesTable({
                       </Badge>
                     </div>
                   </div>
+                  <div onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" size="sm">
@@ -364,6 +369,7 @@ export const PolicyTemplatesTable = memo(function PolicyTemplatesTable({
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
+                  </div>
                 </div>
                 
                 <div className="text-xs text-muted-foreground">

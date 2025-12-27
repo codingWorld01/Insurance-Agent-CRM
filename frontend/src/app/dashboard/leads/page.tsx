@@ -117,7 +117,7 @@ export default function LeadsPage() {
             <CardTitle className="text-xl sm:text-2xl">Leads Management</CardTitle>
             <Button 
               onClick={handleAddLead}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto cursor-pointer"
               aria-label="Add new lead"
             >
               <Plus className="h-4 w-4 mr-2" aria-hidden="true" />

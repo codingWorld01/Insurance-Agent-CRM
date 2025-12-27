@@ -19,7 +19,7 @@ export function ResponsiveFormWrapper({ children, className }: ResponsiveFormWra
         // Mobile-first responsive spacing
         isMobile && "px-4 py-2",
         isTablet && "px-6 py-4",
-        !isMobile && !isTablet && "px-8 py-6",
+        !isMobile && !isTablet && "",
         className
       )}
     >

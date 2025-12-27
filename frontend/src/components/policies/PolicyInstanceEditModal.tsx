@@ -1,22 +1,22 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { format, addMonths, differenceInDays, parseISO } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { PolicyInstanceWithTemplate, UpdatePolicyInstanceRequest } from '@/types';
-import { AlertCircle, Calendar, DollarSign, Loader2, Clock, ExternalLink } from 'lucide-react';
-import { formatCurrency } from '@/utils/currencyUtils';
+import { formatCurrency } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Badge } from '@/components/ui/badge';
+import { ExternalLink, DollarSign, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+
+type PolicyStatus = 'Active' | 'Expired';
 
 interface PolicyInstanceEditModalProps {
   open: boolean;
@@ -26,123 +26,139 @@ interface PolicyInstanceEditModalProps {
   loading?: boolean;
 }
 
-const statusOptions = [
-  { value: 'Active', label: 'Active', description: 'Policy is currently active' },
-  { value: 'Expired', label: 'Expired', description: 'Policy has expired' },
-  { value: 'Cancelled', label: 'Cancelled', description: 'Policy has been cancelled' },
-];
-
-const durationOptions = [
-  { value: 3, label: '3 months' },
-  { value: 6, label: '6 months' },
-  { value: 12, label: '1 year' },
-  { value: 18, label: '18 months' },
-  { value: 24, label: '2 years' },
-  { value: 36, label: '3 years' },
-  { value: 48, label: '4 years' },
-  { value: 60, label: '5 years' },
-];
-
-export function PolicyInstanceEditModal({ 
-  open, 
-  onClose, 
-  onSubmit, 
-  instance, 
-  loading = false 
-}: PolicyInstanceEditModalProps) {
+const PolicyInstanceEditModal = ({ open, onClose, onSubmit, instance, loading = false }: PolicyInstanceEditModalProps) => {
   const [formData, setFormData] = useState<UpdatePolicyInstanceRequest & {
     premiumAmount: number;
     commissionAmount: number;
     startDate: string;
-    status: 'Active' | 'Expired' | 'Cancelled';
+    status: PolicyStatus;
+    durationMonths: number;
   }>({
     premiumAmount: 0,
     startDate: '',
     commissionAmount: 0,
-    status: 'Active'
+    status: 'Active',
+    durationMonths: 12
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [calculatedExpiryDate, setCalculatedExpiryDate] = useState<string>('');
-  const [durationMonths, setDurationMonths] = useState<number>(12);
   const [useCustomExpiry, setUseCustomExpiry] = useState(false);
+
+  // Calculate duration in months between two dates
+  const calculateDurationFromDates = useCallback((startDate: string, expiryDate: string): number => {
+    if (!startDate || !expiryDate) return 12;
+    
+    try {
+      const start = new Date(startDate);
+      const end = new Date(expiryDate);
+      // Add 1 day to make it inclusive of the end date
+      end.setDate(end.getDate() + 1);
+      
+      // Calculate months difference
+      const yearDiff = end.getFullYear() - start.getFullYear();
+      const monthDiff = end.getMonth() - start.getMonth();
+      return yearDiff * 12 + monthDiff;
+    } catch (error) {
+      console.error('Error calculating duration:', error);
+      return 12;
+    }
+  }, []);
 
   // Calculate expiry date from start date and duration
   const calculateExpiryDate = useCallback((startDate: string, months: number): string => {
     if (!startDate) return '';
     
-    const start = new Date(startDate);
-    const expiry = new Date(start);
-    expiry.setMonth(expiry.getMonth() + months);
-    
-    return expiry.toISOString().split('T')[0];
+    try {
+      const date = new Date(startDate);
+      if (isNaN(date.getTime())) return '';
+      
+      const expiryDate = addMonths(date, months);
+      // Subtract one day to make it inclusive of the last day
+      expiryDate.setDate(expiryDate.getDate() - 1);
+      return format(expiryDate, 'yyyy-MM-dd');
+    } catch (error) {
+      console.error('Error calculating expiry date:', error);
+      return '';
+    }
   }, []);
+
+  // Calculate duration in days for display
+  const durationInDays = useMemo(() => {
+    if (!formData.startDate || !calculatedExpiryDate) return 0;
+    try {
+      const start = parseISO(formData.startDate);
+      const end = parseISO(calculatedExpiryDate);
+      return differenceInDays(end, start) + 1; // +1 to include both start and end dates
+    } catch (error) {
+      return 0;
+    }
+  }, [formData.startDate, calculatedExpiryDate]);
+
+  // Format duration for display (e.g., "1 year 3 months" or "6 months")
+  const formatDuration = (months: number): string => {
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+    
+    if (years > 0 && remainingMonths > 0) {
+      return `${years} year${years > 1 ? 's' : ''} ${remainingMonths} month${remainingMonths > 1 ? 's' : ''} (${months} months)`;
+    } else if (years > 0) {
+      return `${years} year${years > 1 ? 's' : ''} (${months} months)`;
+    } else {
+      return `${months} month${months > 1 ? 's' : ''}`;
+    }
+  };
 
   // Update calculated expiry date when start date or duration changes
   useEffect(() => {
-    if (formData.startDate && durationMonths && !useCustomExpiry) {
-      const newExpiryDate = calculateExpiryDate(formData.startDate, durationMonths);
-      setCalculatedExpiryDate(newExpiryDate);
-      setFormData(prev => ({ ...prev, expiryDate: newExpiryDate }));
+    if (formData.startDate) {
+      if (!useCustomExpiry && formData.durationMonths) {
+        const newExpiryDate = calculateExpiryDate(formData.startDate, formData.durationMonths);
+        setCalculatedExpiryDate(newExpiryDate);
+        setFormData(prev => ({ ...prev, expiryDate: newExpiryDate }));
+      } else if (useCustomExpiry && formData.expiryDate) {
+        // Calculate and update duration when in custom date mode and expiry date changes
+        const duration = calculateDurationFromDates(formData.startDate, formData.expiryDate);
+        setFormData(prev => ({ ...prev, durationMonths: duration }));
+      }
     }
-  }, [formData.startDate, durationMonths, useCustomExpiry, calculateExpiryDate]);
+  }, [formData.startDate, useCustomExpiry, formData.durationMonths, formData.expiryDate]);
 
-  // Calculate duration from existing dates when modal opens
-  const calculateDurationFromDates = useCallback((startDate: string, expiryDate: string): number => {
-    if (!startDate || !expiryDate) return 12;
-    
-    const start = new Date(startDate);
-    const end = new Date(expiryDate);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const months = Math.round(diffDays / 30.44); // Average days per month
-    
-    // Find the closest duration option
-    const closestDuration = durationOptions.reduce((prev, curr) => 
-      Math.abs(curr.value - months) < Math.abs(prev.value - months) ? curr : prev
-    );
-    
-    return closestDuration.value;
-  }, []);
-
-  // Reset form when modal opens/closes or instance changes
+  // Reset form when modal opens or instance changes
   useEffect(() => {
-    if (open && instance) {
-      const calculatedDuration = calculateDurationFromDates(instance.startDate, instance.expiryDate);
-      const calculatedExpiry = calculateExpiryDate(instance.startDate, calculatedDuration);
+    if (instance) {
+      const startDate = instance.startDate ? format(new Date(instance.startDate), 'yyyy-MM-dd') : '';
+      const expiryDate = instance.expiryDate ? format(new Date(instance.expiryDate), 'yyyy-MM-dd') : '';
       
-      // Check if the existing expiry date matches the calculated one (within 1 day tolerance)
-      const existingExpiry = new Date(instance.expiryDate);
-      const calculatedExpiryObj = new Date(calculatedExpiry);
-      const daysDiff = Math.abs(existingExpiry.getTime() - calculatedExpiryObj.getTime()) / (1000 * 60 * 60 * 24);
-      const isCustomExpiry = daysDiff > 1;
+      // Calculate duration in months if we have both dates
+      let durationMonths = 12; // default
+      if (instance.startDate && instance.expiryDate) {
+        durationMonths = calculateDurationFromDates(instance.startDate, instance.expiryDate);
+        
+        // Ensure minimum 1 month duration
+        durationMonths = Math.max(1, durationMonths);
+      }
+      
+      // Ensure status is one of the allowed values, default to 'Active' if not
+      const status: PolicyStatus = ['Active', 'Expired'].includes(instance.status || '')
+        ? instance.status as PolicyStatus
+        : 'Active';
       
       setFormData({
-        premiumAmount: instance.premiumAmount,
-        startDate: instance.startDate.split('T')[0],
-        expiryDate: instance.expiryDate.split('T')[0],
-        commissionAmount: instance.commissionAmount,
-        status: instance.status
+        premiumAmount: instance.premiumAmount || 0,
+        commissionAmount: instance.commissionAmount || 0,
+        startDate,
+        status,
+        expiryDate,
+        durationMonths
       });
       
-      setDurationMonths(calculatedDuration);
-      setUseCustomExpiry(isCustomExpiry);
-      setCalculatedExpiryDate(isCustomExpiry ? '' : calculatedExpiry);
-      setErrors({});
-    } else if (open && !instance) {
-      // Reset for new instance (shouldn't happen in this modal, but good to have)
-      setFormData({
-        premiumAmount: 0,
-        startDate: '',
-        commissionAmount: 0,
-        status: 'Active'
-      });
-      setDurationMonths(12);
-      setUseCustomExpiry(false);
-      setCalculatedExpiryDate('');
-      setErrors({});
+      if (startDate) {
+        const calculatedExpiry = calculateExpiryDate(startDate, durationMonths);
+        setCalculatedExpiryDate(calculatedExpiry);
+      }
     }
-  }, [open, instance, calculateDurationFromDates, calculateExpiryDate]);
+  }, [instance, calculateDurationFromDates, calculateExpiryDate]);
 
   // Validate form
   const validateForm = (): boolean => {
@@ -151,18 +167,6 @@ export function PolicyInstanceEditModal({
     // Start date validation
     if (!formData.startDate) {
       newErrors.startDate = 'Start date is required';
-    } else {
-      const startDate = new Date(formData.startDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      
-      // Allow past dates but warn if too far in the past
-      const oneYearAgo = new Date();
-      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-      
-      if (startDate < oneYearAgo) {
-        newErrors.startDate = 'Start date seems unusually old. Please verify.';
-      }
     }
 
     // Expiry date validation
@@ -208,12 +212,17 @@ export function PolicyInstanceEditModal({
       newErrors.status = 'Status is required';
     }
 
+    // Duration validation
+    if (formData.durationMonths <= 0) {
+      newErrors.duration = 'Duration must be at least 1 month';
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validateForm()) {
@@ -221,65 +230,59 @@ export function PolicyInstanceEditModal({
     }
 
     setSubmitting(true);
-    try {
-      await onSubmit({
-        premiumAmount: formData.premiumAmount,
-        startDate: formData.startDate,
-        expiryDate: formData.expiryDate,
-        commissionAmount: formData.commissionAmount,
-        status: formData.status
-      });
-      onClose();
-    } catch (error) {
-      console.error('Error updating policy instance:', error);
-      // Error handling is done in the parent component
-    } finally {
-      setSubmitting(false);
-    }
+    
+    // Calculate expiry date if not using custom date
+    const expiryDate = useCustomExpiry 
+      ? formData.expiryDate 
+      : calculateExpiryDate(formData.startDate, formData.durationMonths);
+    
+    // Ensure status is properly typed
+    const status: PolicyStatus = formData.status || 'Active';
+    
+    // Prepare the data to submit
+    const submitData: UpdatePolicyInstanceRequest = {
+      ...formData,
+      expiryDate,
+      status,
+    };
+    
+    onSubmit(submitData);
   };
 
-  // Handle input change
-  const handleInputChange = (field: keyof UpdatePolicyInstanceRequest, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  // Handle form field changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
     
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: '' }));
+    setFormData(prev => ({
+      ...prev, 
+      [name]: value,
+      // If we're changing the expiry date in custom mode, update the duration
+      ...(name === 'expiryDate' && useCustomExpiry && formData.startDate && {
+        durationMonths: calculateDurationFromDates(formData.startDate, value)
+      })
+    }));
+    
+    // Clear error when field is updated
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
   // Handle duration change
   const handleDurationChange = (months: number) => {
-    setDurationMonths(months);
-    setUseCustomExpiry(false);
-    
-    if (formData.startDate) {
-      const newExpiryDate = calculateExpiryDate(formData.startDate, months);
-      setCalculatedExpiryDate(newExpiryDate);
-      setFormData(prev => ({ ...prev, expiryDate: newExpiryDate }));
-    }
-  };
-
-  // Handle custom expiry toggle
-  const handleCustomExpiryToggle = () => {
-    setUseCustomExpiry(!useCustomExpiry);
-    
-    if (!useCustomExpiry && formData.startDate) {
-      // Switching to custom, keep current expiry date
-      setCalculatedExpiryDate('');
-    } else {
-      // Switching to duration-based, recalculate
-      const newExpiryDate = calculateExpiryDate(formData.startDate, durationMonths);
-      setCalculatedExpiryDate(newExpiryDate);
-      setFormData(prev => ({ ...prev, expiryDate: newExpiryDate }));
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    setFormData(prev => {
+      const newDuration = Math.max(1, Math.min(120, months)); // Ensure between 1-120 months
+      let newExpiryDate = '';
+      
+      if (formData.startDate) {
+        newExpiryDate = calculateExpiryDate(formData.startDate, newDuration);
+      }
+      
+      return {
+        ...prev,
+        durationMonths: newDuration,
+        expiryDate: newExpiryDate
+      };
     });
   };
 
@@ -293,10 +296,6 @@ export function PolicyInstanceEditModal({
         <DialogHeader>
           <DialogTitle>Edit Policy Instance</DialogTitle>
           <div className="text-sm text-gray-600 space-y-2">
-            <div className="flex items-center gap-2">
-              <strong>Client:</strong> 
-              <span>{instance.client?.name || 'Unknown Client'}</span>
-            </div>
             <div className="flex items-center gap-2">
               <strong>Policy Template:</strong> 
               <span>{instance.policyTemplate?.policyNumber || 'Unknown Policy'}</span>
@@ -330,87 +329,86 @@ export function PolicyInstanceEditModal({
           {/* Start Date */}
           <div className="space-y-2">
             <Label htmlFor="startDate">Start Date *</Label>
-            <div className="relative">
-              <Input
-                id="startDate"
-                type="date"
-                value={formData.startDate}
-                onChange={(e) => handleInputChange('startDate', e.target.value)}
-                className={errors.startDate ? 'border-red-500' : ''}
-                disabled={submitting || loading}
-                required
-              />
-              <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
+            <Input
+              id="startDate"
+              name="startDate"
+              type="date"
+              value={formData.startDate}
+              onChange={handleChange}
+              className={errors.startDate ? 'border-red-500' : ''}
+            />
             {errors.startDate && (
-              <p className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.startDate}
-              </p>
+              <p className="text-sm text-red-500">{errors.startDate}</p>
             )}
           </div>
 
-          {/* Duration Selection */}
+          {/* Duration */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label>Duration</Label>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleCustomExpiryToggle}
-                className="text-xs"
-              >
-                {useCustomExpiry ? 'Use Duration' : 'Set Custom Date'}
-              </Button>
+              <Label htmlFor="duration">Duration (months)</Label>
+              <div className="flex items-center space-x-2">
+                <Switch 
+                  id="custom-expiry" 
+                  checked={useCustomExpiry} 
+                  onCheckedChange={setUseCustomExpiry} 
+                />
+                <Label htmlFor="custom-expiry">Set Custom Date</Label>
+              </div>
             </div>
             
-            {!useCustomExpiry && (
-              <Select
-                value={durationMonths.toString()}
-                onValueChange={(value) => handleDurationChange(parseInt(value))}
-                disabled={submitting || loading}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select duration" />
-                </SelectTrigger>
-                <SelectContent>
-                  {durationOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value.toString()}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-
-          {/* Expiry Date */}
-          <div className="space-y-2">
-            <Label htmlFor="expiryDate">Expiry Date *</Label>
-            <div className="relative">
+            {!useCustomExpiry ? (
+              <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="number"
+                    id="duration"
+                    name="durationMonths"
+                    min="1"
+                    max="120"
+                    value={formData.durationMonths}
+                    onChange={(e) => handleDurationChange(parseInt(e.target.value) || 1)}
+                    className="w-24"
+                  />
+                  <span>months</span>
+                </div>
+                <Slider
+                  value={[formData.durationMonths]}
+                  min={1}
+                  max={60}
+                  step={1}
+                  onValueChange={([value]) => handleDurationChange(value)}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>1 month</span>
+                  <span>12 months</span>
+                  <span>24 months</span>
+                  <span>36 months</span>
+                  <span>48 months</span>
+                  <span>60 months</span>
+                </div>
+                {calculatedExpiryDate && (
+                  <p className="text-sm text-muted-foreground">
+                    Expiry: {format(new Date(calculatedExpiryDate), 'MMMM d, yyyy')}
+                  </p>
+                )}
+              </div>
+            ) : (
               <Input
                 id="expiryDate"
+                name="expiryDate"
                 type="date"
-                value={formData.expiryDate}
-                onChange={(e) => handleInputChange('expiryDate', e.target.value)}
+                value={formData.expiryDate || ''}
+                onChange={handleChange}
+                min={formData.startDate}
                 className={errors.expiryDate ? 'border-red-500' : ''}
-                disabled={submitting || loading || !useCustomExpiry}
-                required
               />
-              <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
-            </div>
-            {errors.expiryDate && (
-              <p className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.expiryDate}
-              </p>
             )}
-            {!useCustomExpiry && calculatedExpiryDate && (
-              <p className="text-sm text-blue-600 flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                Calculated: {formatDate(calculatedExpiryDate)}
-              </p>
+            {errors.duration && (
+              <p className="text-sm text-red-500">{errors.duration}</p>
+            )}
+            {errors.expiryDate && (
+              <p className="text-sm text-red-500">{errors.expiryDate}</p>
             )}
           </div>
 
@@ -426,18 +424,16 @@ export function PolicyInstanceEditModal({
                 min="0"
                 max="1000000"
                 value={formData.premiumAmount || ''}
-                onChange={(e) => handleInputChange('premiumAmount', parseFloat(e.target.value) || 0)}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  premiumAmount: parseFloat(e.target.value) || 0
+                }))}
                 className={`pl-10 ${errors.premiumAmount ? 'border-red-500' : ''}`}
                 placeholder="0.00"
-                disabled={submitting || loading}
-                required
               />
             </div>
             {errors.premiumAmount && (
-              <p className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.premiumAmount}
-              </p>
+              <p className="text-sm text-red-500">{errors.premiumAmount}</p>
             )}
             {formData.premiumAmount > 0 && !isNaN(formData.premiumAmount) && (
               <p className="text-sm text-gray-500">
@@ -458,18 +454,15 @@ export function PolicyInstanceEditModal({
                 min="0"
                 max={formData.premiumAmount || 1000000}
                 value={formData.commissionAmount || ''}
-                onChange={(e) => handleInputChange('commissionAmount', parseFloat(e.target.value) || 0)}
+                onChange={(e) => setFormData(prev => ({
+                  ...prev,
+                  commissionAmount: parseFloat(e.target.value) || 0
+                }))}
                 className={`pl-10 ${errors.commissionAmount ? 'border-red-500' : ''}`}
-                placeholder="0.00"
-                disabled={submitting || loading}
-                required
               />
             </div>
             {errors.commissionAmount && (
-              <p className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.commissionAmount}
-              </p>
+              <p className="text-sm text-red-500">{errors.commissionAmount}</p>
             )}
             {formData.commissionAmount > 0 && !isNaN(formData.commissionAmount) && (
               <div className="flex justify-between text-sm text-gray-500">
@@ -488,28 +481,18 @@ export function PolicyInstanceEditModal({
             <Label htmlFor="status">Status *</Label>
             <Select
               value={formData.status}
-              onValueChange={(value) => handleInputChange('status', value)}
-              disabled={submitting || loading}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
             >
               <SelectTrigger className={errors.status ? 'border-red-500' : ''}>
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                {statusOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <div className="flex flex-col">
-                      <span>{option.label}</span>
-                      <span className="text-xs text-gray-500">{option.description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
+                <SelectItem value="Active">Active</SelectItem>
+                <SelectItem value="Expired">Expired</SelectItem>
               </SelectContent>
             </Select>
             {errors.status && (
-              <p className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.status}
-              </p>
+              <p className="text-sm text-red-500">{errors.status}</p>
             )}
           </div>
 
@@ -518,16 +501,24 @@ export function PolicyInstanceEditModal({
             <div className="p-4 bg-gray-50 rounded-lg space-y-2">
               <h4 className="font-medium text-gray-900">Summary</h4>
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="text-gray-500">Policy Period:</span>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Policy Period:</p>
                   <p className="font-medium">
-                    {formatDate(formData.startDate)} - {formatDate(formData.expiryDate)}
+                    {formData.startDate 
+                      ? format(new Date(formData.startDate), 'MMMM d, yyyy')
+                      : 'N/A'} 
+                    - 
+                    {calculatedExpiryDate 
+                      ? format(new Date(calculatedExpiryDate), 'MMMM d, yyyy')
+                      : 'N/A'}
                   </p>
                 </div>
-                <div>
-                  <span className="text-gray-500">Duration:</span>
+                
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Duration:</p>
                   <p className="font-medium">
-                    {Math.ceil((new Date(formData.expiryDate).getTime() - new Date(formData.startDate).getTime()) / (1000 * 60 * 60 * 24))} days
+                    {formatDuration(formData.durationMonths)}
+                    <span className="text-muted-foreground ml-2">({durationInDays} days)</span>
                   </p>
                 </div>
                 <div>
@@ -571,3 +562,5 @@ export function PolicyInstanceEditModal({
     </Dialog>
   );
 }
+
+export { PolicyInstanceEditModal };

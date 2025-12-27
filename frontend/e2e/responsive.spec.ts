@@ -4,8 +4,8 @@ test.describe('Mobile Responsiveness Tests', () => {
   test.beforeEach(async ({ page }) => {
     // Login before each test
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     await expect(page).toHaveURL('/dashboard');
   });
@@ -40,8 +40,8 @@ test.describe('Mobile Responsiveness Tests', () => {
     
     // Login
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     
     await expect(page).toHaveURL('/dashboard');
@@ -77,8 +77,8 @@ test.describe('Mobile Responsiveness Tests', () => {
     
     // Login
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     
     await expect(page).toHaveURL('/dashboard');
@@ -104,8 +104,8 @@ test.describe('Mobile Responsiveness Tests', () => {
     
     // Login and navigate to leads
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     await page.getByRole('link', { name: /leads/i }).click();
     
@@ -128,8 +128,8 @@ test.describe('Mobile Responsiveness Tests', () => {
     
     // Login and navigate to leads
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     await page.getByRole('link', { name: /leads/i }).click();
     
@@ -162,8 +162,8 @@ test.describe('Mobile Responsiveness Tests', () => {
     
     // Login
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     
     await expect(page).toHaveURL('/dashboard');

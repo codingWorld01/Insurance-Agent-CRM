@@ -110,30 +110,41 @@ export class PolicyTemplateStatsService {
         prisma.policyTemplate.count({ where }),
         
         // Total instances count
-        prisma.policyInstance.count({
-          where: {
-            policyTemplate: where
-          }
-        }),
+        Object.keys(where).length === 0 
+          ? prisma.policyInstance.count()
+          : prisma.policyInstance.count({
+              where: {
+                policyTemplate: where
+              }
+            }),
         
-        // Active instances count
-        prisma.policyInstance.count({
-          where: {
-            status: 'Active',
-            policyTemplate: where
-          }
-        }),
+        // Active instances count (not expired based on expiry date)
+        Object.keys(where).length === 0
+          ? prisma.policyInstance.count({
+              where: { 
+                expiryDate: { gte: new Date() }
+              }
+            })
+          : prisma.policyInstance.count({
+              where: {
+                expiryDate: { gte: new Date() },
+                policyTemplate: where
+              }
+            }),
         
         // Total unique clients
-        prisma.policyInstance.findMany({
-          where: {
-            policyTemplate: where
-          },
-          select: {
-            clientId: true
-          },
-          distinct: ['clientId']
-        }).then(clients => clients.length),
+        Object.keys(where).length === 0
+          ? prisma.policyInstance.findMany({
+              select: { clientId: true },
+              distinct: ['clientId']
+            }).then(clients => clients.length)
+          : prisma.policyInstance.findMany({
+              where: {
+                policyTemplate: where
+              },
+              select: { clientId: true },
+              distinct: ['clientId']
+            }).then(clients => clients.length),
         
         // Top providers with template and instance counts
         this.getTopProvidersWithCounts(where),
@@ -150,6 +161,8 @@ export class PolicyTemplateStatsService {
         topProviders,
         policyTypeDistribution
       };
+
+
 
       // Cache the result if it's the default query
       if (isDefaultQuery) {
@@ -192,19 +205,23 @@ export class PolicyTemplateStatsService {
           where: { policyTemplateId: templateId }
         }),
         
-        // Active instances count
+        // Active instances count (not expired based on expiry date)
         prisma.policyInstance.count({
           where: { 
             policyTemplateId: templateId,
-            status: 'Active' 
+            expiryDate: {
+              gte: new Date()
+            }
           }
         }),
         
-        // Expired instances count
+        // Expired instances count (based on expiry date, not status)
         prisma.policyInstance.count({
           where: { 
             policyTemplateId: templateId,
-            status: 'Expired' 
+            expiryDate: {
+              lt: new Date()
+            }
           }
         }),
         
@@ -270,10 +287,9 @@ export class PolicyTemplateStatsService {
         expiredLastMonth,
         expiringInstances
       ] = await Promise.all([
-        // Expiring this week
+        // Expiring this week (not yet expired)
         prisma.policyInstance.count({
           where: {
-            status: 'Active',
             expiryDate: {
               gte: now,
               lte: oneWeekFromNow
@@ -281,10 +297,9 @@ export class PolicyTemplateStatsService {
           }
         }),
         
-        // Expiring this month
+        // Expiring this month (not yet expired)
         prisma.policyInstance.count({
           where: {
-            status: 'Active',
             expiryDate: {
               gte: now,
               lte: oneMonthFromNow
@@ -292,10 +307,9 @@ export class PolicyTemplateStatsService {
           }
         }),
         
-        // Expiring next month
+        // Expiring next month (not yet expired)
         prisma.policyInstance.count({
           where: {
-            status: 'Active',
             expiryDate: {
               gte: oneMonthFromNow,
               lte: twoMonthsFromNow
@@ -303,18 +317,13 @@ export class PolicyTemplateStatsService {
           }
         }),
         
-        // Expired last month
+        // Expired last month (based on expiry date)
         prisma.policyInstance.count({
           where: {
-            OR: [
-              { status: 'Expired' },
-              {
-                expiryDate: {
-                  gte: oneMonthAgo,
-                  lte: now
-                }
-              }
-            ]
+            expiryDate: {
+              gte: oneMonthAgo,
+              lte: now
+            }
           }
         }),
         
@@ -588,14 +597,22 @@ export class PolicyTemplateStatsService {
 
       const providersWithInstances = await Promise.all(
         providers.map(async (provider) => {
-          const instanceCount = await prisma.policyInstance.count({
-            where: {
-              policyTemplate: {
-                provider: provider.provider,
-                ...where
-              }
-            }
-          });
+          const instanceCount = Object.keys(where).length === 0
+            ? await prisma.policyInstance.count({
+                where: {
+                  policyTemplate: {
+                    provider: provider.provider
+                  }
+                }
+              })
+            : await prisma.policyInstance.count({
+                where: {
+                  policyTemplate: {
+                    provider: provider.provider,
+                    ...where
+                  }
+                }
+              });
           
           return {
             provider: provider.provider,
@@ -630,14 +647,22 @@ export class PolicyTemplateStatsService {
 
       const typesWithInstances = await Promise.all(
         policyTypes.map(async (type) => {
-          const instanceCount = await prisma.policyInstance.count({
-            where: {
-              policyTemplate: {
-                policyType: type.policyType,
-                ...where
-              }
-            }
-          });
+          const instanceCount = Object.keys(where).length === 0
+            ? await prisma.policyInstance.count({
+                where: {
+                  policyTemplate: {
+                    policyType: type.policyType
+                  }
+                }
+              })
+            : await prisma.policyInstance.count({
+                where: {
+                  policyTemplate: {
+                    policyType: type.policyType,
+                    ...where
+                  }
+                }
+              });
           
           return {
             type: type.policyType,
@@ -682,7 +707,6 @@ export class PolicyTemplateStatsService {
       return await prisma.policyInstance.count({
         where: {
           policyTemplateId: templateId,
-          status: 'Active',
           expiryDate: {
             gte: startDate,
             lte: endDate
@@ -714,7 +738,8 @@ export class PolicyTemplateStatsService {
         include: {
           client: {
             select: {
-              name: true
+              firstName: true,
+              lastName: true
             }
           },
           policyTemplate: {
@@ -736,7 +761,7 @@ export class PolicyTemplateStatsService {
 
         return {
           id: instance.id,
-          clientName: instance.client.name,
+          clientName: `${instance.client.firstName} ${instance.client.lastName}`,
           policyNumber: instance.policyTemplate.policyNumber,
           expiryDate: instance.expiryDate,
           daysUntilExpiry

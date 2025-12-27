@@ -19,7 +19,7 @@ export async function GET(
 
     // Get policy template details
     const templateResponse = await fetch(
-      `${process.env.BACKEND_URL}/api/policy-templates/${templateId}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/policy-templates/${templateId}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -47,7 +47,7 @@ export async function GET(
 
     // Get associated clients/instances
     const instancesResponse = await fetch(
-      `${process.env.BACKEND_URL}/api/policy-templates/${templateId}/clients`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/policy-templates/${templateId}/clients`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -102,7 +102,7 @@ export async function PUT(
     const body = await request.json();
 
     const response = await fetch(
-      `${process.env.BACKEND_URL}/api/policy-templates/${templateId}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/policy-templates/${templateId}`,
       {
         method: "PUT",
         headers: {
@@ -149,7 +149,7 @@ export async function DELETE(
     const { id: templateId } = await params;
 
     const response = await fetch(
-      `${process.env.BACKEND_URL}/api/policy-templates/${templateId}`,
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/policy-templates/${templateId}`,
       {
         method: "DELETE",
         headers: {

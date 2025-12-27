@@ -64,6 +64,7 @@ export const unifiedClientValidationSchema = z.object({
   annualIncome: z.number().positive('Annual income must be positive').max(100000000, 'Annual income cannot exceed ₹10,00,00,000').optional(),
   panNumber: panNumberValidation,
   gstNumber: gstNumberValidation,
+  additionalInfo: z.string().optional(),
   
   // Optional corporate fields
   companyName: z.string().max(200, 'Company name must be less than 200 characters').optional().or(z.literal('')),

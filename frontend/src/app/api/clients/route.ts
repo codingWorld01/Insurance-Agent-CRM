@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:5000';
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
 
 export async function GET(request: NextRequest) {
   try {
@@ -63,6 +63,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    console.log("in route.js body ", body)
     const response = await fetch(`${BACKEND_URL}/api/enhanced-clients`, {
       method: 'POST',
       headers: {

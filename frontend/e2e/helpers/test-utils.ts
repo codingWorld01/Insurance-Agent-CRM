@@ -3,7 +3,7 @@ import { Page, expect } from '@playwright/test';
 /**
  * Helper function to login to the application
  */
-export async function login(page: Page, email = 'agent@example.com', password = 'password123') {
+export async function login(page: Page, email = 'amitulhe@gmail.com', password = 'Amit@123') {
   await page.goto('/login');
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/password/i).fill(password);

@@ -180,8 +180,13 @@ export default function ClientDetailPage() {
   };
 
   const handlePolicyTemplateSearchSuccess = async () => {
-    // Refresh client data when a new policy instance is created
-    await fetchClient();
+    // Refresh both client data and policy instances when a new policy is added
+    await Promise.all([
+      fetchClient(),
+      // Force refresh policy instances by calling fetchInstances if it exists
+      // or let the usePolicyInstances hook handle the refresh
+      new Promise(resolve => setTimeout(resolve, 500)) // Small delay to ensure backend has processed the new policy
+    ]);
   };
 
   // Calculate policy statistics for the client using the hook

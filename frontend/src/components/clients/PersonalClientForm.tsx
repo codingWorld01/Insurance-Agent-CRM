@@ -17,8 +17,6 @@ import { Separator } from "@/components/ui/separator"
 
 import { DatePicker } from "@/components/forms/DatePicker"
 import { PhoneInput } from "@/components/forms/PhoneInput"
-import { StateSelector } from "@/components/forms/StateSelector"
-import { CitySelector } from "@/components/forms/CitySelector"
 import { ProfileImageUpload } from "@/components/forms/ProfileImageUpload"
 import { DocumentUpload, type DocumentFile as DocumentUploadFile } from "@/components/forms/DocumentUpload"
 import { ResponsiveFormWrapper, ResponsiveGrid } from "@/components/forms/ResponsiveFormWrapper"
@@ -56,7 +54,6 @@ export function PersonalClientForm({
   const [profileImageUrl, setProfileImageUrl] = React.useState<string | undefined>(initialData?.profileImage)
   const [documents, setDocuments] = React.useState<DocumentFile[]>([])
   const [showRecoveryBanner, setShowRecoveryBanner] = React.useState(false)
-  const [selectedState, setSelectedState] = React.useState<string>("")
   const { upload, isUploading } = useCloudinaryUpload()
   const { isMobile } = useMobileDetection()
 
@@ -112,7 +109,7 @@ export function PersonalClientForm({
     }
   }, [getSavedDataInfo, initialData])
 
-  // Auto-calculate age when birth date changes and track state changes
+  // Auto-calculate age when birth date changes
   React.useEffect(() => {
     const subscription = form.watch((data, { name }) => {
       if (name === "birthDate" && data.birthDate) {
@@ -121,20 +118,10 @@ export function PersonalClientForm({
           form.setValue("age", age, { shouldDirty: false })
         }
       }
-      
-      if (name === "state" && data.state !== selectedState) {
-        setSelectedState(data.state || "")
-      }
     })
 
-    // Initialize state value
-    const currentState = form.getValues("state")
-    if (currentState) {
-      setSelectedState(currentState)
-    }
-
     return () => subscription.unsubscribe()
-  }, [form, selectedState])
+  }, [form])
 
   const handleFormSubmit = async (data: PersonalClientFormData) => {
     try {
@@ -441,45 +428,6 @@ export function PersonalClientForm({
                 )}>
                   Address Information
                 </h3>
-                <ResponsiveGrid mobileColumns={1} tabletColumns={2} desktopColumns={2}>
-                  <FormField
-                    control={form.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>State</FormLabel>
-                        <FormControl>
-                          <StateSelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            placeholder="Select state"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>City</FormLabel>
-                        <FormControl>
-                          <CitySelector
-                            value={field.value}
-                            onChange={field.onChange}
-                            selectedState={selectedState}
-                            placeholder="Select city"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </ResponsiveGrid>
-
                 <FormField
                   control={form.control}
                   name="address"

@@ -107,19 +107,7 @@ export function useEnhancedToast() {
     });
   }, []);
 
-  const showUploadProgress = useCallback((
-    fileName: string, 
-    progress: number,
-    onCancel?: () => void
-  ) => {
-    return toast.loading(`Uploading ${fileName}...`, {
-      description: `${progress}% complete`,
-      action: onCancel ? {
-        label: "Cancel",
-        onClick: onCancel,
-      } : undefined,
-    });
-  }, []);
+  
 
   const showUploadSuccess = useCallback((fileName: string, onView?: () => void) => {
     return toast.success("Upload Complete", {
@@ -215,7 +203,6 @@ export function useEnhancedToast() {
     showError,
     showWarning,
     showInfo,
-    showUploadProgress,
     showUploadSuccess,
     showUploadError,
     showNetworkError,

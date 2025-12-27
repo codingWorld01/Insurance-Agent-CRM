@@ -42,7 +42,6 @@ export type InsuranceType = 'Life' | 'Health' | 'Auto' | 'Home' | 'Business';
 
 export interface CreateLeadRequest {
   name: string;
-  email: string;
   phone: string;
   insuranceInterest: InsuranceType;
   status?: LeadStatus;
@@ -61,6 +60,7 @@ export interface CreateClientRequest {
   phone: string;
   dateOfBirth: string; // ISO date string
   address?: string;
+  additionalInfo?: string;
 }
 
 export interface UpdateClientRequest extends Partial<CreateClientRequest> {

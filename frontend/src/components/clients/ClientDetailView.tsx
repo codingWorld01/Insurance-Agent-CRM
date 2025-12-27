@@ -70,6 +70,7 @@ interface UnifiedClient {
   annualIncome?: number;
   panNumber?: string;
   gstNumber?: string;
+  additionalInfo?: string;
 
   // Optional corporate fields
   companyName?: string;
@@ -121,6 +122,7 @@ export function ClientDetailView({
   },
 }: ClientDetailViewProps) {
   const [showAllDocuments, setShowAllDocuments] = useState(false);
+  console.log("client ", client)
 
   // Helper function to determine client type based on filled fields
   const getClientType = (): {
@@ -588,6 +590,22 @@ export function ClientDetailView({
                 </div>
               </div>
             </>
+          )}
+
+          {/* Additional Information */}
+          {isFilled(client.additionalInfo) && (
+          <>
+            <Separator />
+            <div className="space-y-4">
+              <h4 className="font-medium flex items-center gap-2">
+                <FileText className="h-4 w-4" />
+                Additional Information
+              </h4>
+              <div className="text-sm whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
+                  {client.additionalInfo}
+              </div>
+            </div>
+          </>
           )}
         </CardContent>
       </Card>

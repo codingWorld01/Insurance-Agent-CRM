@@ -141,6 +141,10 @@ export class EnhancedClientController {
    */
   static async createClient(req: Request, res: Response): Promise<void> {
     try {
+      // Log incoming data for debugging
+      console.log('📥 Received client data:', JSON.stringify(req.body, null, 2));
+      console.log('📝 additionalInfo field:', req.body.additionalInfo);
+      
       const clientData = {
         ...req.body,
         dateOfBirth: new Date(req.body.dateOfBirth)
@@ -266,6 +270,10 @@ export class EnhancedClientController {
   static async updateClient(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+
+      // Log incoming data for debugging
+      console.log('📥 Update client data:', JSON.stringify(req.body, null, 2));
+      console.log('📝 additionalInfo field:', req.body.additionalInfo);
 
       // Check if client exists
       const existingClient = await prisma.client.findUnique({

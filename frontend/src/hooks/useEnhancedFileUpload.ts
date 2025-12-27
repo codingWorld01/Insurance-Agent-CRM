@@ -187,12 +187,7 @@ export function useEnhancedFileUpload({
             };
             onProgress?.(newProgress);
 
-            // Update toast if showing
-            if (showToasts && toastIdRef.current) {
-              toast.showUploadProgress(file.name, newPercentage, () =>
-                cancel()
-              );
-            }
+        
 
             return newProgress;
           });
@@ -201,6 +196,9 @@ export function useEnhancedFileUpload({
         const response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}`,
+          },
           signal: abortControllerRef.current.signal,
         });
 
@@ -299,16 +297,6 @@ export function useEnhancedFileUpload({
       setLastUploadParams({ file, documentType });
       updateProgress(0, file.size);
 
-      // Show initial toast
-      if (showToasts) {
-        toastIdRef.current = toast.showUploadProgress(file.name, 0, () => {
-          if (abortControllerRef.current) {
-            abortControllerRef.current.abort();
-          }
-          setIsUploading(false);
-          setUploadProgress(null);
-        });
-      }
 
       let lastError: UploadError;
 
@@ -386,20 +374,7 @@ export function useEnhancedFileUpload({
       setError(null);
       updateProgress(0, lastUploadParams.file.size);
 
-      // Show initial toast
-      if (showToasts) {
-        toastIdRef.current = toast.showUploadProgress(
-          lastUploadParams.file.name,
-          0,
-          () => {
-            if (abortControllerRef.current) {
-              abortControllerRef.current.abort();
-            }
-            setIsUploading(false);
-            setUploadProgress(null);
-          }
-        );
-      }
+      
 
       performUpload(lastUploadParams.file, lastUploadParams.documentType)
         .then((cloudinaryUrl) => {
@@ -550,6 +525,9 @@ export function useEnhancedMultipleFileUpload({
           const response = await fetch("/api/upload", {
             method: "POST",
             body: formData,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}`,
+            },
           });
 
           if (!response.ok) {

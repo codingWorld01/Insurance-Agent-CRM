@@ -20,7 +20,8 @@ export function ClientModal({ open, onClose, onSubmit, client, loading = false }
     email: '',
     phone: '',
     dateOfBirth: '',
-    address: ''
+    address: '',
+    additionalInfo: ''
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -52,7 +53,8 @@ export function ClientModal({ open, onClose, onSubmit, client, loading = false }
           email: client.email,
           phone: client.phone,
           dateOfBirth: client.dateOfBirth.split('T')[0], // Convert to YYYY-MM-DD format
-          address: client.address || ''
+          address: client.address || '',
+          additionalInfo: client.additionalInfo || ''
         });
       } else {
         // Add mode - reset to defaults
@@ -61,7 +63,8 @@ export function ClientModal({ open, onClose, onSubmit, client, loading = false }
           email: '',
           phone: '',
           dateOfBirth: '',
-          address: ''
+          address: '',
+          additionalInfo: ''
         });
       }
       setErrors({});
@@ -245,6 +248,18 @@ export function ClientModal({ open, onClose, onSubmit, client, loading = false }
               value={formData.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
               placeholder="Enter address (optional)"
+              rows={3}
+            />
+          </div>
+
+          {/* Additional Information Field */}
+          <div className="space-y-2">
+            <Label htmlFor="additionalInfo">Additional Information</Label>
+            <Textarea
+              id="additionalInfo"
+              value={formData.additionalInfo}
+              onChange={(e) => handleInputChange('additionalInfo', e.target.value)}
+              placeholder="Enter any additional notes or information (optional)"
               rows={3}
             />
           </div>

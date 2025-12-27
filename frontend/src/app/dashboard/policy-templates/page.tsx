@@ -106,6 +106,8 @@ export default function PolicyTemplatesPage() {
       }
       if (sortOptions?.field) params.set('sortField', sortOptions.field);
       if (sortOptions?.direction) params.set('sortDirection', sortOptions.direction);
+      // Always include statistics
+      params.set('includeStats', 'true');
 
       const response = await fetch(`/api/policy-templates?${params.toString()}`, {
         headers: {
@@ -427,15 +429,7 @@ export default function PolicyTemplatesPage() {
             <h1 className="text-2xl sm:text-3xl font-bold truncate">
               Policy Templates
             </h1>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => router.push('/dashboard/policies')}
-              className="flex items-center gap-2 text-sm"
-            >
-              <FileText className="h-4 w-4" />
-              All Policies
-            </Button>
+           
           </div>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Manage your insurance policy templates

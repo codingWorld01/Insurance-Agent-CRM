@@ -12,7 +12,7 @@ async function quickSeed() {
     // Create settings if they don't exist
     const existingSettings = await prisma.settings.findFirst();
     if (!existingSettings) {
-      const passwordHash = await bcrypt.hash('password123', 10);
+      const passwordHash = await bcrypt.hash('Amit@123', 10);
       await prisma.settings.create({
         data: {
           passwordHash,
@@ -141,7 +141,7 @@ async function quickSeed() {
     console.log('\n🎉 Quick seeding completed!');
     console.log('\n🔐 Login credentials:');
     console.log('   Email: demo@insurance.com');
-    console.log('   Password: password123');
+    console.log('   Password: Amit@123');
 
   } catch (error) {
     console.error('❌ Error during quick seeding:', error);

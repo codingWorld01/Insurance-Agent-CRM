@@ -14,10 +14,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 
-import { ReactDayPicker } from "@/components/forms/ReactDayPicker"
+import { DatePicker } from "@/components/forms/DatePicker"
 import { PhoneInput } from "@/components/forms/PhoneInput"
-import { StateSelector } from "@/components/forms/StateSelector"
-import { CitySelector } from "@/components/forms/CitySelector"
 import { ResponsiveGrid } from "@/components/forms/ResponsiveFormWrapper"
 import { useMobileDetection } from "@/hooks/useMobileDetection"
 
@@ -37,10 +35,9 @@ export function PersonalDetailsSection({
   className,
 }: PersonalDetailsSectionProps) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen)
-  const [selectedState, setSelectedState] = React.useState<string>("")
   const { isMobile } = useMobileDetection()
 
-  // Auto-calculate age when date of birth changes and track state changes
+  // Auto-calculate age when date of birth changes
   React.useEffect(() => {
     const subscription = form.watch((data, { name }) => {
       if (name === "dateOfBirth") {
@@ -54,20 +51,10 @@ export function PersonalDetailsSection({
           form.setValue("age", undefined, { shouldDirty: false })
         }
       }
-      
-      if (name === "state" && data.state !== selectedState) {
-        setSelectedState(data.state || "")
-      }
     })
 
-    // Initialize state value
-    const currentState = form.getValues("state")
-    if (currentState) {
-      setSelectedState(currentState)
-    }
-
     return () => subscription.unsubscribe()
-  }, [form, selectedState])
+  }, [form])
 
   const SectionContent = React.useMemo(() => (
     <div className={cn("space-y-6", isMobile && "space-y-4")}>
@@ -214,7 +201,7 @@ export function PersonalDetailsSection({
                   Date of Birth <span className="text-destructive">*</span>
                 </FormLabel>
                 <FormControl>
-                  <ReactDayPicker
+                  <DatePicker
                     value={field.value}
                     onChange={field.onChange}
                     placeholder="Select birth date"
@@ -305,45 +292,6 @@ export function PersonalDetailsSection({
         )}>
           Address Information
         </h4>
-        <ResponsiveGrid mobileColumns={1} tabletColumns={2} desktopColumns={2}>
-          <FormField
-            control={form.control}
-            name="state"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>State</FormLabel>
-                <FormControl>
-                  <StateSelector
-                    value={field.value}
-                    onChange={field.onChange}
-                    placeholder="Select state"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="city"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>City</FormLabel>
-                <FormControl>
-                  <CitySelector
-                    value={field.value}
-                    onChange={field.onChange}
-                    selectedState={selectedState}
-                    placeholder="Select city"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </ResponsiveGrid>
-
         <FormField
           control={form.control}
           name="address"
@@ -627,8 +575,41 @@ export function PersonalDetailsSection({
           />
         </ResponsiveGrid>
       </div>
+
+      <Separator />
+
+      {/* Additional Information */}
+      <div className={cn("space-y-4", isMobile && "space-y-3")}>
+        <h4 className={cn(
+          "font-medium text-muted-foreground",
+          isMobile ? "text-sm" : "text-base"
+        )}>
+          Additional Information
+        </h4>
+        <FormField
+          control={form.control}
+          name="additionalInfo"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Additional Notes</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="Enter any additional notes or information"
+                  className={cn(
+                    "min-h-[100px]",
+                    isMobile && "text-base min-h-[120px]"
+                  )}
+                  {...field}
+                />
+              </FormControl>
+              <FormDescription>Any other relevant information about the client</FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
-  ), [form, isMobile, selectedState])
+  ), [form, isMobile])
 
   if (!isCollapsible) {
     return (

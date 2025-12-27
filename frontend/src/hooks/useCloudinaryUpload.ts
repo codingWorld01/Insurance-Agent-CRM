@@ -46,6 +46,9 @@ export function useCloudinaryUpload({
       const response = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}`,
+        },
       })
 
       if (!response.ok) {
@@ -62,6 +65,7 @@ export function useCloudinaryUpload({
       return cloudinaryUrl
     } catch (err) {
       const error = err instanceof Error ? err : new Error('Upload failed')
+      console.log("err ", error)
       setError(error.message)
       onError?.(error)
       throw error
@@ -115,6 +119,9 @@ export function useMultipleCloudinaryUpload({
         const response = await fetch('/api/upload', {
           method: 'POST',
           body: formData,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('auth_token') || ''}`,
+          },
         })
 
         if (!response.ok) {

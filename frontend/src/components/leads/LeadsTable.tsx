@@ -47,14 +47,17 @@ export function LeadsTable({ leads, loading, onView, onEdit, onDelete }: LeadsTa
       <div className="block sm:hidden">
         <div className="space-y-4 p-4">
           {leads.map((lead) => (
-            <div key={lead.id} className="bg-card border rounded-lg p-4 shadow-sm">
+            <div 
+              key={lead.id} 
+              className="bg-card border rounded-lg p-4 shadow-sm cursor-pointer hover:bg-accent transition-colors"
+              onClick={() => onView(lead)}
+            >
               <div className="flex justify-between items-start mb-3">
                 <div className="min-w-0 flex-1">
                   <h3 className="font-medium text-foreground truncate">{lead.name}</h3>
-                  <p className="text-sm text-muted-foreground truncate">{lead.email}</p>
                   <p className="text-sm text-muted-foreground">{lead.phone}</p>
                 </div>
-                <div className="flex gap-1 ml-2">
+                <div className="flex gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -101,8 +104,7 @@ export function LeadsTable({ leads, loading, onView, onEdit, onDelete }: LeadsTa
           <TableHeader>
             <TableRow>
               <TableHead scope="col">Name</TableHead>
-              <TableHead scope="col">Email</TableHead>
-              <TableHead scope="col" className="hidden md:table-cell">Phone</TableHead>
+              <TableHead scope="col">Phone</TableHead>
               <TableHead scope="col" className="hidden lg:table-cell">Insurance Interest</TableHead>
               <TableHead scope="col">Status</TableHead>
               <TableHead scope="col" className="hidden md:table-cell">Priority</TableHead>
@@ -112,14 +114,15 @@ export function LeadsTable({ leads, loading, onView, onEdit, onDelete }: LeadsTa
           </TableHeader>
           <TableBody>
             {leads.map((lead) => (
-              <TableRow key={lead.id}>
+              <TableRow 
+                key={lead.id}
+                className="cursor-pointer hover:bg-accent transition-colors"
+                onClick={() => onView(lead)}
+              >
                 <TableCell className="font-medium">
                   <div className="truncate max-w-32">{lead.name}</div>
                 </TableCell>
-                <TableCell>
-                  <div className="truncate max-w-40">{lead.email}</div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">{lead.phone}</TableCell>
+                <TableCell>{lead.phone}</TableCell>
                 <TableCell className="hidden lg:table-cell">{lead.insuranceInterest}</TableCell>
                 <TableCell>
                   <StatusBadge status={lead.status} />
@@ -131,7 +134,7 @@ export function LeadsTable({ leads, loading, onView, onEdit, onDelete }: LeadsTa
                   {formatDistanceToNow(new Date(lead.createdAt), { addSuffix: true })}
                 </TableCell>
                 <TableCell className="text-right">
-                  <div className="flex justify-end gap-1">
+                  <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
                     <Button
                       variant="ghost"
                       size="sm"

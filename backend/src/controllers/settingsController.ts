@@ -19,7 +19,7 @@ export const getSettings = async (req: Request, res: Response): Promise<void> =>
         data: {
           passwordHash: '', // This will be set during login
           agentName: 'Agent',
-          agentEmail: 'agent@example.com',
+          agentEmail: 'amitulhe@gmail.com',
         }
       });
     }

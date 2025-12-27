@@ -6,8 +6,8 @@ test.describe('Complete User Journey E2E Tests', () => {
     await page.goto('/');
     await expect(page).toHaveURL('/login');
     
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     
     await expect(page).toHaveURL('/dashboard');
@@ -168,8 +168,8 @@ test.describe('Complete User Journey E2E Tests', () => {
     await expect(page).toHaveURL('/login');
     
     // Step 18: Login Again to Verify Data Persistence
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     
     await expect(page).toHaveURL('/dashboard');
@@ -186,8 +186,8 @@ test.describe('Complete User Journey E2E Tests', () => {
   test('should handle error scenarios gracefully', async ({ page }) => {
     // Login
     await page.goto('/login');
-    await page.getByLabel(/email/i).fill('agent@example.com');
-    await page.getByLabel(/password/i).fill('password123');
+    await page.getByLabel(/email/i).fill('amitulhe@gmail.com');
+    await page.getByLabel(/password/i).fill('Amit@123');
     await page.getByRole('button', { name: /sign in/i }).click();
     
     // Test duplicate email validation

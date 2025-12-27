@@ -9,7 +9,7 @@ describe('Authentication Integration Tests', () => {
         .post('/api/auth/login')
         .send({
           email: 'test@agent.com',
-          password: 'password123',
+          password: 'Amit@123',
         });
 
       expect(response.status).toBe(200);
@@ -27,7 +27,7 @@ describe('Authentication Integration Tests', () => {
         .post('/api/auth/login')
         .send({
           email: 'wrong@email.com',
-          password: 'password123',
+          password: 'Amit@123',
         });
 
       expect(response.status).toBe(401);
@@ -52,7 +52,7 @@ describe('Authentication Integration Tests', () => {
       const response = await request(app)
         .post('/api/auth/login')
         .send({
-          password: 'password123',
+          password: 'Amit@123',
         });
 
       expect(response.status).toBe(400);
@@ -65,7 +65,7 @@ describe('Authentication Integration Tests', () => {
         .post('/api/auth/login')
         .send({
           email: 'invalid-email',
-          password: 'password123',
+          password: 'Amit@123',
         });
 
       expect(response.status).toBe(400);

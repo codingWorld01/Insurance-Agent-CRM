@@ -14,6 +14,115 @@ const router = express.Router();
 router.use(addRequestId);
 
 /**
+ * Generic upload endpoint for images and documents
+ * POST /api/upload
+ * This is used by useEnhancedFileUpload hook
+ */
+router.post('/',
+  uploadRateLimiters.document,
+  uploadSingle('file'),
+  enhancedFileUploadSecurity,
+  virusScanMiddleware,
+  validateFileContent,
+  async (req: Request, res: Response) => {
+    try {
+      const file = req.file;
+      const { documentType, clientId, folder } = req.body;
+
+      if (!file) {
+        return res.status(400).json({
+          success: false,
+          message: 'No file uploaded',
+          error: 'NO_FILE'
+        });
+      }
+
+      // Determine if it's an image or document
+      const isImage = file.mimetype.startsWith('image/');
+      let uploadResult;
+
+      if (isImage && clientId) {
+        // Upload as profile image if clientId is provided
+        uploadResult = await DocumentService.uploadProfileImage(file, clientId);
+      } else if (clientId && documentType) {
+        // Upload as document
+        uploadResult = await DocumentService.uploadDocument(file, {
+          clientId,
+          documentType,
+          folder
+        });
+      } else {
+        // Generic upload to Cloudinary without client association
+        uploadResult = await CloudinaryService.uploadFile(file, {
+          folder: folder || 'uploads',
+          resourceType: isImage ? 'image' : 'raw'
+        });
+      }
+
+      if (!uploadResult.success) {
+        // Log failed upload attempt
+        await SecurityLoggingService.logFileUploadSecurityEvent(
+          req,
+          'FILE_UPLOAD_BLOCKED',
+          {
+            reason: 'Upload service failed',
+            error: uploadResult.error,
+            clientId,
+            documentType,
+            fileName: file.originalname,
+            fileSize: file.size
+          },
+          true
+        );
+
+        return res.status(400).json({
+          success: false,
+          message: uploadResult.error || 'Upload failed',
+          error: 'UPLOAD_FAILED'
+        });
+      }
+
+      // Log successful upload
+      await SecurityLoggingService.logFileUploadSecurityEvent(
+        req,
+        'SUSPICIOUS_ACTIVITY',
+        {
+          action: 'file_uploaded',
+          clientId,
+          documentType,
+          fileName: file.originalname,
+          fileSize: file.size,
+          cloudinaryId: uploadResult.publicId
+        },
+        false
+      );
+
+      res.json({
+        success: true,
+        message: 'File uploaded successfully',
+        url: uploadResult.secureUrl,
+        data: {
+          url: uploadResult.secureUrl,
+          publicId: uploadResult.publicId,
+          originalFilename: uploadResult.originalFilename,
+          format: uploadResult.format,
+          bytes: uploadResult.bytes,
+          resourceType: uploadResult.resourceType
+        }
+      });
+
+    } catch (error) {
+      console.error('File upload error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Internal server error',
+        error: 'SERVER_ERROR'
+      });
+    }
+  }
+);
+
+/**
  * Upload a single document for a client
  * POST /api/upload/document
  */

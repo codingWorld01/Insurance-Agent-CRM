@@ -69,8 +69,8 @@ This directory contains comprehensive E2E tests for the Insurance CRM MVP applic
    ```
 
 2. Make sure the database is set up and seeded with default credentials:
-   - Email: `agent@example.com`
-   - Password: `password123`
+   - Email: `amitulhe@gmail.com`
+   - Password: `Amit@123`
 
 ### Test Commands
 

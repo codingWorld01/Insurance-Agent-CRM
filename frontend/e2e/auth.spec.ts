@@ -37,7 +37,7 @@ test.describe("Authentication Flow", () => {
 
     // Enter invalid email
     await page.getByLabel(/email/i).fill("invalid-email");
-    await page.getByLabel(/password/i).fill("password123");
+    await page.getByLabel(/password/i).fill("Amit@123");
     await page.getByRole("button", { name: /sign in/i }).click();
 
     // Should show email format error
@@ -48,8 +48,8 @@ test.describe("Authentication Flow", () => {
     await page.goto("/login");
 
     // Fill in valid credentials (using default seeded credentials)
-    await page.getByLabel(/email/i).fill("agent@example.com");
-    await page.getByLabel(/password/i).fill("password123");
+    await page.getByLabel(/email/i).fill("amitulhe@gmail.com");
+    await page.getByLabel(/password/i).fill("Amit@123");
 
     // Submit form
     await page.getByRole("button", { name: /sign in/i }).click();
@@ -68,8 +68,8 @@ test.describe("Authentication Flow", () => {
   test("should logout successfully", async ({ page }) => {
     // Login first
     await page.goto("/login");
-    await page.getByLabel(/email/i).fill("agent@example.com");
-    await page.getByLabel(/password/i).fill("password123");
+    await page.getByLabel(/email/i).fill("amitulhe@gmail.com");
+    await page.getByLabel(/password/i).fill("Amit@123");
     await page.getByRole("button", { name: /sign in/i }).click();
 
     // Wait for dashboard to load
@@ -87,8 +87,8 @@ test.describe("Authentication Flow", () => {
   }) => {
     // Login first
     await page.goto("/login");
-    await page.getByLabel(/email/i).fill("agent@example.com");
-    await page.getByLabel(/password/i).fill("password123");
+    await page.getByLabel(/email/i).fill("amitulhe@gmail.com");
+    await page.getByLabel(/password/i).fill("Amit@123");
     await page.getByRole("button", { name: /sign in/i }).click();
 
     // Wait for dashboard

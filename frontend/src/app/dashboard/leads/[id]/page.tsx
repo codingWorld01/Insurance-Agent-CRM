@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { ArrowLeft, Edit, Trash2, UserPlus, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, Edit, Trash2, MoreHorizontal } from 'lucide-react';
 import { Lead, CreateLeadRequest } from '@/types';
 import { StatusBadge, PriorityBadge } from '@/components/common/StatusBadge';
 import { LeadModal } from '@/components/leads/LeadModal';
@@ -30,9 +30,7 @@ export default function LeadDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [showConvertDialog, setShowConvertDialog] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [convertLoading, setConvertLoading] = useState(false);
 
   const leadId = params.id as string;
 
@@ -141,38 +139,7 @@ export default function LeadDetailPage() {
     }
   };
 
-  const handleConvert = async () => {
-    setConvertLoading(true);
-    try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/leads/${leadId}/convert`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to convert lead');
-      }
-
-      const result = await response.json();
-      if (result.success) {
-        showSuccess("Lead converted to client successfully");
-        // Navigate to the new client page
-        router.push(`/dashboard/clients/${result.data.client.id}`);
-      } else {
-        throw new Error(result.message || 'Failed to convert lead');
-      }
-    } catch (error) {
-      showError(error instanceof Error ? error.message : "Failed to convert lead.");
-    } finally {
-      setConvertLoading(false);
-      setShowConvertDialog(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -238,15 +205,6 @@ export default function LeadDetailPage() {
               <Edit className="h-4 w-4 mr-2" />
               Edit Lead
             </DropdownMenuItem>
-            {lead.status !== 'Won' && (
-              <DropdownMenuItem 
-                onClick={() => setShowConvertDialog(true)}
-                className="text-green-600"
-              >
-                <UserPlus className="h-4 w-4 mr-2" />
-                Convert to Client
-              </DropdownMenuItem>
-            )}
             <DropdownMenuItem 
               onClick={() => setShowDeleteDialog(true)}
               className="text-red-600"
@@ -274,10 +232,6 @@ export default function LeadDetailPage() {
           <div>
             <h3 className="text-lg font-semibold mb-3">Contact Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium text-gray-500">Email</label>
-                <p className="text-sm">{lead.email}</p>
-              </div>
               <div>
                 <label className="text-sm font-medium text-gray-500">Phone</label>
                 <p className="text-sm">{lead.phone}</p>
@@ -332,17 +286,6 @@ export default function LeadDetailPage() {
         confirmText="Delete"
         variant="destructive"
         loading={deleteLoading}
-      />
-
-      {/* Convert Confirmation Dialog */}
-      <ConfirmDialog
-        open={showConvertDialog}
-        onClose={() => setShowConvertDialog(false)}
-        onConfirm={handleConvert}
-        title="Convert to Client"
-        description={`Are you sure you want to convert ${lead.name} to a client? This will create a new client record and mark the lead as "Won".`}
-        confirmText="Convert to Client"
-        loading={convertLoading}
       />
     </div>
   );

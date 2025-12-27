@@ -138,7 +138,7 @@ model Settings {
   id            String   @id @default(uuid())
   passwordHash  String
   agentName     String   @default("Agent")
-  agentEmail    String   @default("agent@example.com")
+  agentEmail    String   @default("amitulhe@gmail.com")
   updatedAt     DateTime @updatedAt
 }
 

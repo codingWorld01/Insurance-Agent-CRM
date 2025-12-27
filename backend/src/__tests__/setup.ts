@@ -57,7 +57,7 @@ afterEach(async () => {
 
 // Seed basic test data
 async function seedTestData() {
-  const passwordHash = await hashPassword('password123');
+  const passwordHash = await hashPassword('Amit@123');
   
   // Check if settings already exist
   const existingSettings = await testPrisma.settings.findFirst({

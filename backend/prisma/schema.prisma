@@ -11,14 +11,13 @@ model Settings {
   id           String   @id @default(uuid())
   passwordHash String
   agentName    String   @default("Agent")
-  agentEmail   String   @default("agent@example.com")
+  agentEmail   String   @default("amitulhe@gmail.com")
   updatedAt    DateTime @updatedAt
 }
 
 model Lead {
   id                String   @id @default(uuid())
   name              String
-  email             String   @unique
   phone             String
   insuranceInterest String
   status            String   @default("New")
@@ -57,6 +56,7 @@ model Client {
   annualIncome    Float?
   panNumber       String?
   gstNumber       String?
+  additionalInfo  String?           // Additional notes/information
   
   // Optional corporate fields
   companyName     String?

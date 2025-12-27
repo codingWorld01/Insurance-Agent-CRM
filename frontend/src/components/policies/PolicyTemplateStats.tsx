@@ -181,7 +181,6 @@ export function PolicyTemplateStats({ stats, isLoading }: PolicyTemplateStatsPro
         subtitle={`${stats?.activeInstances ?? 0} active`}
         isLoading={isLoading}
         icon={CheckCircle}
-        variant="success"
       />
       
       <StatCard
@@ -190,7 +189,6 @@ export function PolicyTemplateStats({ stats, isLoading }: PolicyTemplateStatsPro
         subtitle="Clients with policies"
         isLoading={isLoading}
         icon={Users}
-        variant="info"
       />
       
       <StatCard

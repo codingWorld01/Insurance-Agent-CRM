@@ -46,7 +46,7 @@ export default function DashboardPage() {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <Button onClick={handleAddNewLead} className="flex items-center gap-2">
+          <Button onClick={handleAddNewLead} className="flex items-center gap-2 cursor-pointer">
             <Plus className="h-4 w-4" />
             Add New Lead
           </Button>
@@ -68,7 +68,7 @@ export default function DashboardPage() {
         </div>
         <Button 
           onClick={handleAddNewLead} 
-          className="flex items-center gap-2 w-full sm:w-auto justify-center"
+          className="flex items-center gap-2 w-full sm:w-auto justify-center cursor-pointer"
           aria-label="Add new lead"
         >
           <Plus className="h-4 w-4" aria-hidden="true" />

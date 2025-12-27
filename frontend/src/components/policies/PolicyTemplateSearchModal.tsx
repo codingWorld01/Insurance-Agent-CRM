@@ -5,7 +5,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Search, ArrowLeft, Shield, FileText, AlertCircle } from 'lucide-react';
@@ -541,24 +540,21 @@ export function PolicyTemplateSearchModal({
 
                 {/* Duration */}
                 <div className="space-y-2">
-                  <Label htmlFor="duration">Duration *</Label>
-                  <Select
-                    value={formData.durationMonths.toString()}
-                    onValueChange={(value) => handleInputChange('durationMonths', parseInt(value))}
-                  >
-                    <SelectTrigger className={errors.duration ? 'border-red-500' : ''}>
-                      <SelectValue placeholder="Select duration" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {durationOptions.map((option) => (
-                        <SelectItem key={option.value} value={option.value.toString()}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.duration && (
-                    <p className="text-sm text-red-600">{errors.duration}</p>
+                  <Label htmlFor="durationMonths">Duration (months) *</Label>
+                  <div className="relative">
+                    <Input
+                      id="durationMonths"
+                      type="number"
+                      min="1"
+                      max="1200" // 100 years in months
+                      value={formData.durationMonths}
+                      onChange={(e) => handleInputChange('durationMonths', Math.max(1, parseInt(e.target.value) || 1))}
+                      className={`${errors.durationMonths ? 'border-red-500' : ''} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                      required
+                    />
+                  </div>
+                  {errors.durationMonths && (
+                    <p className="text-sm text-red-600">{errors.durationMonths}</p>
                   )}
                 </div>
               </div>
@@ -568,7 +564,7 @@ export function PolicyTemplateSearchModal({
                 <div className="space-y-2">
                   <Label htmlFor="premium">Premium Amount *</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                     <Input
                       id="premium"
                       type="text"
@@ -588,7 +584,7 @@ export function PolicyTemplateSearchModal({
                 <div className="space-y-2">
                   <Label htmlFor="commission">Commission Amount *</Label>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
                     <Input
                       id="commission"
                       type="text"

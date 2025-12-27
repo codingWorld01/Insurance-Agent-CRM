@@ -10,13 +10,10 @@ import { Form } from "@/components/ui/form"
 import { Separator } from "@/components/ui/separator"
 
 import { ProfileImageUpload } from "@/components/forms/ProfileImageUpload"
-import { DocumentUpload, type DocumentFile as DocumentUploadFile } from "@/components/forms/DocumentUpload"
 import { ResponsiveFormWrapper } from "@/components/forms/ResponsiveFormWrapper"
 import { FormRecoveryBanner, AutoSaveIndicator } from "@/components/forms/FormRecoveryBanner"
 
 import { PersonalDetailsSection } from "./PersonalDetailsSection"
-import { CorporateDetailsSection } from "./CorporateDetailsSection"
-import { FamilyEmployeeSection } from "./FamilyEmployeeSection"
 
 import { useUnifiedClientValidation } from "@/hooks/useClientValidation"
 import { useCloudinaryUpload } from "@/hooks/useCloudinaryUpload"
@@ -27,20 +24,9 @@ import type { UnifiedClientFormData } from "@/schemas/clientSchemas"
 
 interface UnifiedClientFormProps {
   initialData?: Partial<UnifiedClientFormData & { profileImage?: string }>
-  onSubmit: (data: UnifiedClientFormData & { profileImage?: string; documents?: DocumentFile[] }) => Promise<void>
+  onSubmit: (data: UnifiedClientFormData & { profileImage?: string }) => Promise<void>
   isLoading?: boolean
   className?: string
-}
-
-interface DocumentFile {
-  id: string
-  documentType: string
-  fileName: string
-  originalName: string
-  cloudinaryUrl: string
-  fileSize: number
-  mimeType: string
-  uploadedAt: Date
 }
 
 export function UnifiedClientForm({
@@ -50,7 +36,6 @@ export function UnifiedClientForm({
   className,
 }: UnifiedClientFormProps) {
   const [profileImageUrl, setProfileImageUrl] = React.useState<string | undefined>(initialData?.profileImage)
-  const [documents, setDocuments] = React.useState<DocumentFile[]>([])
   const [showRecoveryBanner, setShowRecoveryBanner] = React.useState(false)
   const { upload, isUploading } = useCloudinaryUpload()
   const { isMobile } = useMobileDetection()
@@ -70,8 +55,6 @@ export function UnifiedClientForm({
         whatsappNumber: initialData.whatsappNumber || "",
         dateOfBirth: initialData.dateOfBirth || undefined,
         email: initialData.email || "",
-        state: initialData.state || "",
-        city: initialData.city || "",
         address: initialData.address || "",
         birthPlace: initialData.birthPlace || "",
         gender: initialData.gender || undefined,
@@ -85,7 +68,7 @@ export function UnifiedClientForm({
         annualIncome: initialData.annualIncome || undefined,
         panNumber: initialData.panNumber || "",
         gstNumber: initialData.gstNumber || "",
-        companyName: initialData.companyName || "",
+        additionalInfo: initialData.additionalInfo || "",
         relationship: initialData.relationship || undefined,
         age: initialData.age || undefined,
       })
@@ -120,10 +103,10 @@ export function UnifiedClientForm({
 
   const handleFormSubmit = async (data: UnifiedClientFormData) => {
     try {
+      console.log("data ", data)
       await onSubmit({
         ...data,
         profileImage: profileImageUrl,
-        documents,
       })
       // Clear saved data after successful submission
       clearSavedData()
@@ -146,39 +129,6 @@ export function UnifiedClientForm({
     const url = await upload(file, "profile-images")
     setProfileImageUrl(url)
     return url
-  }
-
-  const handleDocumentUpload = async (file: File, documentType: string): Promise<string> => {
-    const url = await upload(file, documentType)
-    const newDocument: DocumentFile = {
-      id: Date.now().toString(), // Temporary ID
-      documentType,
-      fileName: file.name,
-      originalName: file.name,
-      cloudinaryUrl: url,
-      fileSize: file.size,
-      mimeType: file.type,
-      uploadedAt: new Date(),
-    }
-    setDocuments(prev => [...prev, newDocument])
-    return url
-  }
-
-  const handleDocumentsChange = (newDocuments: DocumentUploadFile[]) => {
-    // Convert to DocumentFile format when documents are uploaded
-    const convertedDocs: DocumentFile[] = newDocuments
-      .filter(doc => doc.status === 'success' && doc.cloudinaryUrl)
-      .map(doc => ({
-        id: doc.id,
-        documentType: doc.documentType,
-        fileName: doc.file.name,
-        originalName: doc.file.name,
-        cloudinaryUrl: doc.cloudinaryUrl!,
-        fileSize: doc.file.size,
-        mimeType: doc.file.type,
-        uploadedAt: new Date(),
-      }))
-    setDocuments(convertedDocs)
   }
 
   return (
@@ -240,42 +190,6 @@ export function UnifiedClientForm({
                   isCollapsible={true}
                   defaultOpen={true}
                 />
-
-                <Separator />
-
-                {/* Corporate Details Section */}
-                <CorporateDetailsSection
-                  form={form}
-                  isCollapsible={true}
-                  defaultOpen={false}
-                />
-
-                <Separator />
-
-                {/* Family/Employee Section */}
-                <FamilyEmployeeSection
-                  form={form}
-                  isCollapsible={true}
-                  defaultOpen={false}
-                />
-
-                <Separator />
-
-                {/* Document Upload */}
-                <div className={cn("space-y-4", isMobile && "space-y-3")}>
-                  <h3 className={cn(
-                    "font-medium",
-                    isMobile ? "text-base" : "text-lg"
-                  )}>
-                    Documents
-                  </h3>
-                  <DocumentUpload
-                    documents={[]}
-                    onDocumentsChange={handleDocumentsChange}
-                    onUpload={handleDocumentUpload}
-                    disabled={isLoading || isUploading}
-                  />
-                </div>
 
                 {/* Submit Button */}
                 <div className={cn(

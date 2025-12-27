@@ -188,7 +188,7 @@ export function ClientEditModal({
           </DialogTitle>
         </DialogHeader>
 
-        <div className="mt-6">
+        <div>
           <UnifiedClientForm
             initialData={initialData}
             onSubmit={handleFormSubmit}

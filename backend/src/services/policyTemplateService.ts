@@ -163,6 +163,8 @@ export class PolicyTemplateService {
       }
     };
 
+
+
     // Cache the result
     cacheService.setPolicyTemplatesList(filtersKey, sortKey, pagination.page, pagination.limit, result);
 

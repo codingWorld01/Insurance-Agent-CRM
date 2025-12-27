@@ -21,13 +21,14 @@ export function usePolicyInstances(options: UsePolicyInstancesOptions = {}) {
   }>({
     create: false,
     update: false,
-    delete: false
+    delete: false,
   });
 
   const { showSuccess, showError } = useToastNotifications();
   const { refreshStats } = useDashboardRefresh();
   const router = useRouter();
 
+  // Define fetchInstances first
   const fetchInstances = useCallback(async () => {
     if (!options.clientId) return;
 
@@ -67,6 +68,13 @@ export function usePolicyInstances(options: UsePolicyInstancesOptions = {}) {
       setLoading(false);
     }
   }, [options.clientId, showError, router]);
+
+  // Auto-fetch instances when the component mounts or clientId changes
+  useEffect(() => {
+    if (options.autoFetch !== false && options.clientId) {
+      fetchInstances();
+    }
+  }, [options.autoFetch, options.clientId, fetchInstances]);
 
   const createInstance = async (data: CreatePolicyInstanceRequest): Promise<PolicyInstanceWithTemplate> => {
     if (!options.clientId) {
@@ -291,12 +299,6 @@ export function usePolicyInstances(options: UsePolicyInstancesOptions = {}) {
       totalCommission: instances.reduce((sum, i) => sum + i.commissionAmount, 0)
     };
   }, [instances]);
-
-  useEffect(() => {
-    if (options.autoFetch !== false && options.clientId) {
-      fetchInstances();
-    }
-  }, [options.autoFetch, options.clientId, fetchInstances]);
 
   return {
     instances,

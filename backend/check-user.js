@@ -19,8 +19,8 @@ async function checkAndCreateUser() {
       const isValidPassword = await bcrypt.compare('admin123', settings.passwordHash);
       console.log('Password "admin123" is valid:', isValidPassword);
       
-      const isValidPassword2 = await bcrypt.compare('password123', settings.passwordHash);
-      console.log('Password "password123" is valid:', isValidPassword2);
+      const isValidPassword2 = await bcrypt.compare('Amit@123', settings.passwordHash);
+      console.log('Password "Amit@123" is valid:', isValidPassword2);
     } else {
       console.log('No settings found. Creating new settings...');
       

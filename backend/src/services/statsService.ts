@@ -15,124 +15,93 @@ export class StatsService {
       const now = new Date();
       const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
       const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const previousMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
 
-      // Get current totals with error handling
+      // Get current totals
       const [
         totalLeads,
         totalClients,
-        activePoliciesData,
-        currentMonthCommissionData,
-        currentMonthPoliciesData
-      ] = await Promise.all([
-        // Total leads count
-        prisma.lead.count().catch(() => 0),
-        
-        // Total clients count
-        prisma.client.count().catch(() => 0),
-        
-        // Active policies count and total premium - with fallback
-        this.getPolicyAggregateData({
-          status: 'Active',
-          startDate: { lte: now },
-          expiryDate: { gt: now }
-        }),
-        
-        // Commission from policies created/renewed this month - with fallback
-        this.getPolicyAggregateData({
-          OR: [
-            { createdAt: { gte: currentMonth } },
-            { 
-              updatedAt: { gte: currentMonth },
-              createdAt: { lt: currentMonth }
-            }
-          ]
-        }),
-        
-        // Policies created this month for percentage calculation - with fallback
-        this.getPolicyCount({
-          createdAt: { gte: currentMonth }
-        })
-      ]);
-
-      // Get previous month data for percentage calculations
-      const [
+        activePoliciesCount,
+        currentMonthCommission,
+        currentMonthPoliciesCount,
         prevMonthLeads,
         prevMonthClients,
-        prevMonthActivePolicies,
-        prevMonthCommissionData,
-        prevMonthPoliciesCount
+        prevMonthPoliciesCount,
+        prevMonthCommission
       ] = await Promise.all([
-        // Leads count at end of previous month
+        // Current totals
+        prisma.lead.count().catch(() => 0),
+        prisma.client.count().catch(() => 0),
+        
+        // Active policies using PolicyInstance model
+        prisma.policyInstance.count({
+          where: {
+            status: 'Active',
+            startDate: { lte: now },
+            expiryDate: { gt: now }
+          }
+        }).catch(() => 0),
+        
+        // Commission from policies created this month
+        prisma.policyInstance.aggregate({
+          where: {
+            createdAt: { gte: currentMonth }
+          },
+          _sum: { commissionAmount: true }
+        }).then(result => result._sum.commissionAmount || 0).catch(() => 0),
+        
+        // Policies created this month
+        prisma.policyInstance.count({
+          where: {
+            createdAt: { gte: currentMonth }
+          }
+        }).catch(() => 0),
+        
+        // Previous month data for comparison
         prisma.lead.count({
           where: {
             createdAt: { lt: currentMonth }
           }
         }).catch(() => 0),
         
-        // Clients count at end of previous month
         prisma.client.count({
           where: {
             createdAt: { lt: currentMonth }
           }
         }).catch(() => 0),
         
-        // Active policies count at end of previous month
-        this.getPolicyCount({
-          status: 'Active',
-          createdAt: { lt: currentMonth },
-          startDate: { lte: previousMonthEnd },
-          expiryDate: { gt: previousMonthEnd }
-        }),
-        
-        // Commission from previous month
-        this.getPolicyAggregateData({
-          OR: [
-            {
-              createdAt: {
-                gte: previousMonth,
-                lt: currentMonth
-              }
-            },
-            {
-              updatedAt: {
-                gte: previousMonth,
-                lt: currentMonth
-              },
-              createdAt: { lt: previousMonth }
+        prisma.policyInstance.count({
+          where: {
+            createdAt: {
+              gte: previousMonth,
+              lt: currentMonth
             }
-          ]
-        }),
-        
-        // Policies created in previous month
-        this.getPolicyCount({
-          createdAt: {
-            gte: previousMonth,
-            lt: currentMonth
           }
-        })
+        }).catch(() => 0),
+        
+        prisma.policyInstance.aggregate({
+          where: {
+            createdAt: {
+              gte: previousMonth,
+              lt: currentMonth
+            }
+          },
+          _sum: { commissionAmount: true }
+        }).then(result => result._sum.commissionAmount || 0).catch(() => 0)
       ]);
 
-      // Calculate current values
-      const activePolicies = activePoliciesData._count.id || 0;
-      const commissionThisMonth = currentMonthCommissionData._sum.commissionAmount || 0;
-      
-      // Calculate changes from previous month
+      // Calculate month-over-month changes
       const currentMonthLeads = totalLeads - prevMonthLeads;
       const currentMonthClients = totalClients - prevMonthClients;
       
       const stats: DashboardStats = {
         totalLeads,
         totalClients,
-        activePolices: activePolicies,
-        commissionThisMonth,
+        activePolices: activePoliciesCount,
+        commissionThisMonth: currentMonthCommission,
         leadsChange: this.calculatePercentageChange(currentMonthLeads, prevMonthLeads),
         clientsChange: this.calculatePercentageChange(currentMonthClients, prevMonthClients),
-        policiesChange: this.calculatePercentageChange(currentMonthPoliciesData, prevMonthPoliciesCount),
-        commissionChange: this.calculatePercentageChange(
-          commissionThisMonth,
-          prevMonthCommissionData._sum.commissionAmount || 0
-        )
+        policiesChange: this.calculatePercentageChange(currentMonthPoliciesCount, prevMonthPoliciesCount),
+        commissionChange: this.calculatePercentageChange(currentMonthCommission, prevMonthCommission)
       };
 
       return stats;
@@ -154,50 +123,54 @@ export class StatsService {
   }
 
   /**
-   * Helper method to safely get policy aggregate data
+   * Helper method to safely get policy instance aggregate data
    */
-  private static async getPolicyAggregateData(where: any) {
+  private static async getPolicyInstanceAggregateData(where: any) {
     try {
-      // Check if Policy model exists in Prisma client
-      if (prisma.policy) {
-        return await prisma.policy.aggregate({
-          where,
-          _count: { id: true },
-          _sum: { premiumAmount: true, commissionAmount: true }
-        });
-      }
+      return await prisma.policyInstance.aggregate({
+        where,
+        _count: { id: true },
+        _sum: { premiumAmount: true, commissionAmount: true }
+      });
     } catch (error) {
-      console.warn('Policy model not available, using fallback data:', error);
+      console.warn('PolicyInstance aggregate query failed, using fallback data:', error);
+      return {
+        _count: { id: 0 },
+        _sum: { premiumAmount: 0, commissionAmount: 0 }
+      };
     }
-    
-    // Fallback data
-    return {
-      _count: { id: 0 },
-      _sum: { premiumAmount: 0, commissionAmount: 0 }
-    };
   }
 
   /**
-   * Helper method to safely get policy count
+   * Helper method to safely get policy instance count
    */
-  private static async getPolicyCount(where: any): Promise<number> {
+  private static async getPolicyInstanceCount(where: any): Promise<number> {
     try {
-      if (prisma.policy) {
-        return await prisma.policy.count({ where });
-      }
+      return await prisma.policyInstance.count({ where });
     } catch (error) {
-      console.warn('Policy model not available, using fallback count:', error);
+      console.warn('PolicyInstance count query failed, using fallback count:', error);
+      return 0;
     }
-    
-    return 0;
   }
 
   /**
    * Calculate percentage change between current and previous values
    */
   private static calculatePercentageChange(current: number, previous: number): number {
-    if (previous === 0) return current > 0 ? 100 : 0;
-    return Math.round(((current - previous) / previous) * 100);
+    // If both are 0, no change
+    if (current === 0 && previous === 0) return 0;
+    
+    // If previous is 0 but current is not, it's a 100% increase
+    if (previous === 0 && current > 0) return 100;
+    
+    // If current is 0 but previous is not, it's a 100% decrease
+    if (current === 0 && previous > 0) return -100;
+    
+    // Normal percentage calculation
+    const change = ((current - previous) / Math.abs(previous)) * 100;
+    
+    // Cap the percentage at reasonable limits to avoid extreme values
+    return Math.max(-100, Math.min(1000, Math.round(change)));
   }
 
   /**
@@ -208,9 +181,9 @@ export class StatsService {
       const now = new Date();
       
       const [policyStats, expiringPolicies, activePolicies] = await Promise.all([
-        this.getPolicyAggregateData({ clientId }),
-        this.getExpiringPolicies(clientId, now),
-        this.getPolicyCount({
+        this.getPolicyInstanceAggregateData({ clientId }),
+        this.getExpiringPolicyInstances(clientId, now),
+        this.getPolicyInstanceCount({
           clientId,
           status: 'Active',
           startDate: { lte: now },
@@ -238,33 +211,34 @@ export class StatsService {
   }
 
   /**
-   * Helper method to get expiring policies
+   * Helper method to get expiring policy instances
    */
-  private static async getExpiringPolicies(clientId: string, now: Date) {
+  private static async getExpiringPolicyInstances(clientId: string, now: Date) {
     try {
-      if (prisma.policy) {
-        return await prisma.policy.findMany({
-          where: {
-            clientId,
-            status: 'Active',
-            expiryDate: {
-              gte: now,
-              lte: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
-            }
-          },
-          select: {
-            id: true,
-            policyNumber: true,
-            policyType: true,
-            expiryDate: true
+      return await prisma.policyInstance.findMany({
+        where: {
+          clientId,
+          status: 'Active',
+          expiryDate: {
+            gte: now,
+            lte: new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
           }
-        });
-      }
+        },
+        select: {
+          id: true,
+          expiryDate: true,
+          policyTemplate: {
+            select: {
+              policyNumber: true,
+              policyType: true
+            }
+          }
+        }
+      });
     } catch (error) {
-      console.warn('Policy model not available for expiring policies:', error);
+      console.warn('PolicyInstance query failed for expiring policies:', error);
+      return [];
     }
-    
-    return [];
   }
 
   /**
@@ -282,31 +256,30 @@ export class StatsService {
         expiredPolicies,
         expiringPolicies,
         totalPremiumData,
-        totalCommissionData,
         monthlyCommissionData,
         topProviders,
         policyTypeDistribution
       ] = await Promise.all([
-        // Total policies count
-        this.getPolicyCount({}),
+        // Total policy instances count
+        this.getPolicyInstanceCount({}),
         
-        // Active policies count
-        this.getPolicyCount({
+        // Active policy instances count
+        this.getPolicyInstanceCount({
           status: 'Active',
           startDate: { lte: now },
           expiryDate: { gt: now }
         }),
         
-        // Expired policies count
-        this.getPolicyCount({
+        // Expired policy instances count
+        this.getPolicyInstanceCount({
           OR: [
             { status: 'Expired' },
             { expiryDate: { lte: now } }
           ]
         }),
         
-        // Policies expiring in next 30 days
-        this.getPolicyCount({
+        // Policy instances expiring in next 30 days
+        this.getPolicyInstanceCount({
           status: 'Active',
           expiryDate: {
             gt: now,
@@ -314,28 +287,19 @@ export class StatsService {
           }
         }),
         
-        // Total premium amount
-        this.getPolicyAggregateData({}),
-        
-        // Total commission amount
-        this.getPolicyAggregateData({}),
+        // Total premium and commission amounts
+        this.getPolicyInstanceAggregateData({}),
         
         // Commission this month
-        this.getPolicyAggregateData({
-          OR: [
-            { createdAt: { gte: currentMonth } },
-            { 
-              updatedAt: { gte: currentMonth },
-              createdAt: { lt: currentMonth }
-            }
-          ]
+        this.getPolicyInstanceAggregateData({
+          createdAt: { gte: currentMonth }
         }),
         
-        // Top providers - fallback to empty array
-        this.getTopProviders(),
+        // Top providers from policy templates
+        this.getTopProvidersFromTemplates(),
         
-        // Policy type distribution - fallback to empty array
-        this.getPolicyTypeDistribution()
+        // Policy type distribution from policy templates
+        this.getPolicyTypeDistributionFromTemplates()
       ]);
 
       // Calculate average values
@@ -344,7 +308,7 @@ export class StatsService {
         : 0;
       
       const averageCommission = totalPolicies > 0 
-        ? (totalCommissionData._sum.commissionAmount || 0) / totalPolicies 
+        ? (totalPremiumData._sum.commissionAmount || 0) / totalPolicies 
         : 0;
 
       return {
@@ -353,7 +317,7 @@ export class StatsService {
         expiredPolicies,
         expiringPolicies,
         totalPremium: totalPremiumData._sum.premiumAmount || 0,
-        totalCommission: totalCommissionData._sum.commissionAmount || 0,
+        totalCommission: totalPremiumData._sum.commissionAmount || 0,
         commissionThisMonth: monthlyCommissionData._sum.commissionAmount || 0,
         averagePremium,
         averageCommission,
@@ -379,54 +343,86 @@ export class StatsService {
   }
 
   /**
-   * Helper method to get top providers
+   * Helper method to get top providers from policy templates
    */
-  private static async getTopProviders() {
+  private static async getTopProvidersFromTemplates() {
     try {
-      if (prisma.policy) {
-        const providers = await prisma.policy.groupBy({
-          by: ['provider'],
-          _count: { id: true },
-          _sum: { premiumAmount: true },
-          orderBy: { _count: { id: 'desc' } },
-          take: 5
-        });
-        
-        return providers.map(provider => ({
-          provider: provider.provider,
-          count: provider._count.id,
-          totalPremium: provider._sum.premiumAmount || 0
-        }));
-      }
+      const providers = await prisma.policyTemplate.groupBy({
+        by: ['provider'],
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } },
+        take: 5
+      });
+      
+      // Get instance counts for each provider
+      const providersWithInstances = await Promise.all(
+        providers.map(async (provider) => {
+          const instanceCount = await prisma.policyInstance.count({
+            where: {
+              policyTemplate: {
+                provider: provider.provider
+              }
+            }
+          });
+          
+          const totalPremium = await prisma.policyInstance.aggregate({
+            where: {
+              policyTemplate: {
+                provider: provider.provider
+              }
+            },
+            _sum: { premiumAmount: true }
+          });
+          
+          return {
+            provider: provider.provider,
+            count: instanceCount,
+            totalPremium: totalPremium._sum.premiumAmount || 0
+          };
+        })
+      );
+      
+      return providersWithInstances.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.warn('Policy model not available for top providers:', error);
+      console.warn('Error getting top providers from templates:', error);
+      return [];
     }
-    
-    return [];
   }
 
   /**
-   * Helper method to get policy type distribution
+   * Helper method to get policy type distribution from policy templates
    */
-  private static async getPolicyTypeDistribution() {
+  private static async getPolicyTypeDistributionFromTemplates() {
     try {
-      if (prisma.policy) {
-        const types = await prisma.policy.groupBy({
-          by: ['policyType'],
-          _count: { id: true },
-          orderBy: { _count: { id: 'desc' } }
-        });
-        
-        return types.map(type => ({
-          type: type.policyType,
-          count: type._count.id
-        }));
-      }
+      const types = await prisma.policyTemplate.groupBy({
+        by: ['policyType'],
+        _count: { id: true },
+        orderBy: { _count: { id: 'desc' } }
+      });
+      
+      // Get instance counts for each policy type
+      const typesWithInstances = await Promise.all(
+        types.map(async (type) => {
+          const instanceCount = await prisma.policyInstance.count({
+            where: {
+              policyTemplate: {
+                policyType: type.policyType
+              }
+            }
+          });
+          
+          return {
+            type: type.policyType,
+            count: instanceCount
+          };
+        })
+      );
+      
+      return typesWithInstances.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.warn('Policy model not available for policy type distribution:', error);
+      console.warn('Error getting policy type distribution from templates:', error);
+      return [];
     }
-    
-    return [];
   }
 
   /**

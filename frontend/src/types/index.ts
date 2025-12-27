@@ -49,7 +49,6 @@ export type InsuranceType = 'Life' | 'Health' | 'Auto' | 'Home' | 'Business';
 export interface Lead {
   id: string;
   name: string;
-  email: string;
   phone: string;
   insuranceInterest: InsuranceType;
   status: LeadStatus;
@@ -61,7 +60,6 @@ export interface Lead {
 
 export interface CreateLeadRequest {
   name: string;
-  email: string;
   phone: string;
   insuranceInterest: InsuranceType;
   status?: LeadStatus;
@@ -98,6 +96,7 @@ export interface Client {
   annualIncome?: number;
   panNumber?: string;
   gstNumber?: string;
+  additionalInfo?: string;
   
   // Optional corporate fields
   companyName?: string;
@@ -143,6 +142,7 @@ export interface CreateClientRequest {
   annualIncome?: number;
   panNumber?: string;
   gstNumber?: string;
+  additionalInfo?: string;
   companyName?: string;
   relationship?: string;
   profileImage?: string;
