@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { AuditService } from '../services/auditService';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
 // Get audit logs for a specific client
-router.get('/clients/:id/audit-logs', authenticateToken, async (req, res) => {
+router.get('/clients/:id/audit-logs', authenticateToken, async (req: Request, res: Response) => {
   try {
     const { id: clientId } = req.params;
     const { 

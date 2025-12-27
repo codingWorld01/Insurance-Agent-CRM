@@ -364,7 +364,7 @@ function calculateRequestFileSize(req: Request): number {
   // Multiple files
   if (req.files) {
     if (Array.isArray(req.files)) {
-      totalSize += req.files.reduce((sum, file) => sum + file.size, 0);
+      totalSize += req.files.reduce((sum: number, file: any) => sum + file.size, 0);
     } else {
       // Files object with field names
       Object.values(req.files).forEach(files => {

@@ -263,7 +263,7 @@ export const auditLogging = (req: Request, res: Response, next: NextFunction) =>
   });
 
   // Override res.send to log response details
-  res.send = function(body) {
+  res.send = function(body: any) {
     const duration = Date.now() - startTime;
     console.log(`[${new Date().toISOString()}] Response ${res.statusCode} - ${duration}ms`);
     return originalSend.call(this, body);

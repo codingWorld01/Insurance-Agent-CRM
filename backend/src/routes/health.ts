@@ -1,11 +1,11 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
 
 const router = Router();
 const prisma = new PrismaClient();
 
 // Health check endpoint
-router.get('/health', async (req, res) => {
+router.get('/health', async (req: Request, res: Response) => {
   try {
     // Check database connection
     await prisma.$queryRaw`SELECT 1`;
@@ -40,7 +40,7 @@ router.get('/health', async (req, res) => {
 });
 
 // Readiness check endpoint
-router.get('/ready', async (req, res) => {
+router.get('/ready', async (req: Request, res: Response) => {
   try {
     // Check if database is ready and has required tables
     await prisma.settings.findFirst();

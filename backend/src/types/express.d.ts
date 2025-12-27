@@ -1,21 +1,27 @@
 // Express type definitions
 import { Request as ExpressRequest, Response, NextFunction, Router, Application } from 'express';
-import { JWTPayload } from '../services/authService';
+
+// JWT Payload interface - matches the one in authService
+export interface JWTPayload {
+  id: string;
+  userId: string;
+  email: string;
+  role?: string;
+  isPremium?: boolean;
+  iat?: number;
+  exp?: number;
+}
 
 declare global {
   namespace Express {
     interface Request {
-      user?: JWTPayload & {
-        [key: string]: any;
-      };
+      user?: JWTPayload;
     }
   }
 }
 
 export interface AuthenticatedRequest extends ExpressRequest {
-  user: JWTPayload & {
-    [key: string]: any;
-  };
+  user: JWTPayload;
 }
 
 // Re-export Express types for convenience

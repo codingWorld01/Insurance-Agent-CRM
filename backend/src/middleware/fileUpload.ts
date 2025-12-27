@@ -7,14 +7,16 @@ import { CloudinaryService } from '../services/cloudinaryService';
 const storage = multer.memoryStorage();
 
 // File filter function
-const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
   // Validate file using CloudinaryService
   const validation = CloudinaryService.validateFile(file);
   
   if (validation.isValid) {
     cb(null, true);
   } else {
-    cb(new Error(validation.error || 'Invalid file'));
+    // For Multer, we pass null as error and false to reject the file
+    // The error message will be handled in the upload middleware
+    cb(null, false);
   }
 };
 
