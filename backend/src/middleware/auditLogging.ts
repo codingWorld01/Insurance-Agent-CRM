@@ -5,7 +5,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { JWTPayload } from '../services/authService';
-import { AuthenticatedRequest } from '../types/express';
+import { AuthenticatedRequest } from '../types/global';
 
 const prisma = new PrismaClient()
 

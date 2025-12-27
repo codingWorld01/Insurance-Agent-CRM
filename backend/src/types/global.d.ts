@@ -1,7 +1,6 @@
-// Express type definitions
-import { Request as ExpressRequest, Response, NextFunction, Router, Application } from 'express';
+// Global type augmentations
 
-// JWT Payload interface - matches the one in authService
+// JWT Payload interface
 export interface JWTPayload {
   id: string;
   userId: string;
@@ -12,6 +11,7 @@ export interface JWTPayload {
   exp?: number;
 }
 
+// Augment Express Request interface globally
 declare global {
   namespace Express {
     interface Request {
@@ -34,7 +34,9 @@ declare global {
   }
 }
 
-// AuthenticatedRequest extends ExpressRequest with all its properties
+// AuthenticatedRequest interface that extends Express Request
+import { Request as ExpressRequest } from 'express';
+
 export interface AuthenticatedRequest extends ExpressRequest {
   user: JWTPayload;
 }
