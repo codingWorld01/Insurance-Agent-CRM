@@ -122,3 +122,79 @@ declare module 'jsonwebtoken' {
 
   export function decode(token: string, options?: { complete?: boolean; json?: boolean }): null | JwtPayload | string | { header: any; payload: JwtPayload | string; signature: string };
 }
+
+declare module 'multer' {
+  import { Request, RequestHandler } from 'express';
+  import { Readable } from 'stream';
+
+  interface File {
+    fieldname: string;
+    originalname: string;
+    encoding: string;
+    mimetype: string;
+    size: number;
+    destination: string;
+    filename: string;
+    path: string;
+    buffer: Buffer;
+    stream: Readable;
+  }
+
+  interface StorageEngine {
+    _handleFile(req: Request, file: File, callback: (error?: any, info?: Partial<File>) => void): void;
+    _removeFile(req: Request, file: File, callback: (error: Error | null) => void): void;
+  }
+
+  interface DiskStorageOptions {
+    destination?: string | ((req: Request, file: File, callback: (error: Error | null, destination: string) => void) => void);
+    filename?: (req: Request, file: File, callback: (error: Error | null, filename: string) => void) => void;
+  }
+
+  interface Options {
+    dest?: string;
+    storage?: StorageEngine;
+    limits?: {
+      fieldNameSize?: number;
+      fieldSize?: number;
+      fields?: number;
+      fileSize?: number;
+      files?: number;
+      parts?: number;
+      headerPairs?: number;
+    };
+    preservePath?: boolean;
+    fileFilter?: FileFilterCallback;
+  }
+
+  interface FileFilterCallback {
+    (req: Request, file: File, callback: (error: Error | null, acceptFile: boolean) => void): void;
+  }
+
+  interface Instance {
+    single(fieldname: string): RequestHandler;
+    array(fieldname: string, maxCount?: number): RequestHandler;
+    fields(fields: Array<{ name: string; maxCount?: number }>): RequestHandler;
+    none(): RequestHandler;
+    any(): RequestHandler;
+  }
+
+  interface Multer {
+    (options?: Options): Instance;
+    memoryStorage(): StorageEngine;
+    diskStorage(options: DiskStorageOptions): StorageEngine;
+    MulterError: MulterErrorConstructor;
+  }
+
+  interface MulterError extends Error {
+    code: string;
+    field?: string;
+  }
+
+  interface MulterErrorConstructor {
+    new (code: string, field?: string): MulterError;
+    readonly prototype: MulterError;
+  }
+
+  const multer: Multer;
+  export = multer;
+}

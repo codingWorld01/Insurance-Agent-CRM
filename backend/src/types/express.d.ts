@@ -34,10 +34,7 @@ declare global {
   }
 }
 
+// AuthenticatedRequest extends ExpressRequest with all its properties
 export interface AuthenticatedRequest extends ExpressRequest {
   user: JWTPayload;
 }
-
-// Re-export Express types for convenience
-export { Response, NextFunction, Router, Application };
-export { Request } from 'express';
