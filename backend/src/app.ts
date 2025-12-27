@@ -16,6 +16,7 @@ import policyInstancesRoutes from './routes/policyInstances';
 import settingsRoutes from './routes/settings';
 import uploadRoutes from './routes/upload';
 import healthRoutes from './routes/health';
+import auditRoutes from './routes/audit';
 
 const app = express();
 
@@ -42,6 +43,7 @@ app.use('/api/policy-templates', policyTemplatesRoutes);
 app.use('/api/policy-instances', policyInstancesRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api', auditRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);
