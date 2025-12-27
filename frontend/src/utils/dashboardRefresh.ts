@@ -8,12 +8,27 @@ import { useDashboardRefresh } from '@/context/DashboardContext';
  * Hook to get dashboard refresh functions for use in policy template operations
  */
 export function usePolicyTemplateRefresh() {
+  // Check if we're in a browser environment
+  if (typeof window === 'undefined') {
+    // During SSR/build, return no-op functions
+    const noop = async () => {};
+    return {
+      refreshAfterPolicyTemplateOperation: noop,
+      refreshAfterPolicyInstanceOperation: noop,
+      refreshStats: noop,
+      refreshAll: noop
+    };
+  }
+
   try {
     const context = useDashboardRefresh();
     
     // Create safe no-op functions
     const noop = async () => {
-      console.warn('Dashboard refresh called but context is not available');
+      // Only log in development
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('Dashboard refresh called but context is not available');
+      }
       return Promise.resolve();
     };
 
@@ -33,7 +48,9 @@ export function usePolicyTemplateRefresh() {
       try {
         if (refreshStats) {
           await refreshStats();
-          console.log(`Dashboard refreshed after ${operationType} operation`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Dashboard refreshed after ${operationType} operation`);
+          }
         }
       } catch (error) {
         console.error('Error refreshing dashboard after policy template operation:', error);
@@ -44,7 +61,9 @@ export function usePolicyTemplateRefresh() {
       try {
         if (refreshStats) {
           await refreshStats();
-          console.log(`Dashboard refreshed after policy instance ${operationType} operation`);
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`Dashboard refreshed after policy instance ${operationType} operation`);
+          }
         }
       } catch (error) {
         console.error('Error refreshing dashboard after policy instance operation:', error);
@@ -58,7 +77,9 @@ export function usePolicyTemplateRefresh() {
       refreshAll: refreshAll || noop
     };
   } catch (error) {
-    console.warn('Failed to initialize dashboard refresh:', error);
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('Failed to initialize dashboard refresh:', error);
+    }
     const noop = async () => {};
     return {
       refreshAfterPolicyTemplateOperation: noop,

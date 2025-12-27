@@ -2,14 +2,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileX, ArrowLeft, Search } from 'lucide-react';
 import Link from 'next/link';
-import { Breadcrumb, createBreadcrumbs } from '@/components/common/Breadcrumb';
+import { Breadcrumb, breadcrumbItems } from '@/components/common/Breadcrumb';
 
 export default function PolicyTemplateNotFound() {
   return (
     <div className="space-y-6">
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={[
-        createBreadcrumbs.dashboard(),
+        breadcrumbItems.dashboard,
         { 
           label: "Policy Templates", 
           href: "/dashboard/policy-templates" 

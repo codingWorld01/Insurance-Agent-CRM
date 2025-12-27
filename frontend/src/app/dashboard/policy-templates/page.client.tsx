@@ -181,13 +181,28 @@ export default function PolicyTemplatesPage() {
   // Offline detection
   const { isOffline } = useOfflineDetection();
 
-  // Dashboard refresh functionality
+  // Dashboard refresh functionality - safely handle missing context during build
+  const dashboardRefresh = (() => {
+    try {
+      return usePolicyTemplateRefresh();
+    } catch (error) {
+      // During build/SSR, context might not be available
+      console.warn('Dashboard refresh context not available during build:', error);
+      return {
+        refreshAfterPolicyTemplateOperation: async () => {},
+        refreshAfterPolicyInstanceOperation: async () => {},
+        refreshStats: async () => {},
+        refreshAll: async () => {}
+      };
+    }
+  })();
+
   const { 
     refreshAfterPolicyTemplateOperation = async () => {},
     refreshAfterPolicyInstanceOperation = async () => {},
     refreshStats = async () => {},
     refreshAll = async () => {}
-  } = usePolicyTemplateRefresh() || {};
+  } = dashboardRefresh;
 
   // Performance monitoring - safely handle missing functions
   const { start: startPerf = () => ({}), end: endPerf = () => ({}) } = usePerformanceMonitor();
