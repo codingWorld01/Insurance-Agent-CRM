@@ -133,6 +133,7 @@ export async function getAuthToken() {
   }
   
   return generateToken({
+    id: settings.id,  // Required by JWTPayload interface
     userId: settings.id,
     email: settings.agentEmail,
   });

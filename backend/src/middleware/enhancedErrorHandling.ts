@@ -1,7 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import { AppError } from '../utils/errorHandler';
-
-// Error codes and their e, ValidationError, AppError, PolicyTemplateErrors, PolicyInstanceErrors } from '../utils/errorHandler';
+import { Prisma } from '@prisma/client';
+import { z } from 'zod';
+import { 
+  AppError, 
+  ValidationError, 
+  sendErrorResponse,
+  PolicyTemplateErrors,
+  PolicyInstanceErrors 
+} from '../utils/errorHandler';
 
 /**
  * Enhanced error handling middleware for policy template system
@@ -37,15 +43,16 @@ export const enhancedErrorHandler = (context: Partial<ErrorContext> = {}) => {
     // Handle specific error types with enhanced messages
     if (error instanceof ValidationError) {
       // Add context to validation errors
-      const enhancedErrors = error.errors.map(err => ({
+      const enhancedErrors = (error as any).errors?.map((err: any) => ({
         ...err,
         context: context.resource || 'unknown'
-      }));
+      })) || [];
 
-      res.status(error.statusCode).json({
+      const statusCode = (error as any).statusCode || 400;
+      res.status(statusCode).json({
         success: false,
         message: getContextualErrorMessage(error.message, context),
-        statusCode: error.statusCode,
+        statusCode: statusCode,
         errors: enhancedErrors,
         code: 'VALIDATION_ERROR',
         retryable: false

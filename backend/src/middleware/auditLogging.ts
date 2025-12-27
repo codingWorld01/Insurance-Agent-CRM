@@ -4,14 +4,12 @@
 
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
+import { JWTPayload } from '../services/authService';
 
 // Extend Request interface to include user
 interface AuthenticatedRequest extends Request {
-  user?: {
-    userId: string;
-    email: string;
-    id?: string;
-    [key: string]: any;
+  user?: JWTPayload & {
+    [key: string]: any
   };
 }
 
@@ -140,14 +138,15 @@ export function auditPolicyPageOperation(action: string, resourceType: string = 
       }
       
       // Create audit log entry
+      const userId = req.user?.id ?? req.user?.userId ?? 'anonymous';
       const auditEntry: AuditLogEntry = {
-        userId: req.user?.id || 'anonymous',
+        userId,
         action,
         resourceType,
         resourceId,
         details,
-        ipAddress: req.ip || req.connection.remoteAddress,
-        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip || (req.connection as any).remoteAddress,
+        userAgent: req.get('User-Agent') || '',
         timestamp: new Date(startTime),
         success,
         duration,
@@ -213,7 +212,7 @@ export function auditSensitiveOperation(action: string, options: {
   captureResponseBody?: boolean
   requiresApproval?: boolean
 } = {}) {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const startTime = Date.now()
     const originalSend = res.send
     
@@ -235,13 +234,15 @@ export function auditSensitiveOperation(action: string, options: {
         details.responseBody = sanitizeResponseBody(body)
       }
       
+      const userId = req.user?.userId || req.user?.id || 'anonymous';
+      
       const auditEntry: AuditLogEntry = {
-        userId: req.user?.id || 'anonymous',
+        userId,
         action,
         resourceType: 'policy',
         details,
-        ipAddress: req.ip || req.connection.remoteAddress,
-        userAgent: req.get('User-Agent'),
+        ipAddress: req.ip || (req.connection as any).remoteAddress,
+        userAgent: req.get('User-Agent') || '',
         timestamp: new Date(startTime),
         success,
         duration,
@@ -316,8 +317,8 @@ function sanitizeResponseBody(body: any): any {
  * Middleware to track user activity patterns
  */
 export function trackUserActivity() {
-  return (req: Request, res: Response, next: NextFunction) => {
-    const userId = req.user?.id
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+    const userId = req.user?.id || req.user?.userId;
     
     if (userId) {
       // Track activity patterns (in production, use Redis or database)

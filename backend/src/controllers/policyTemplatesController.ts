@@ -101,14 +101,15 @@ export class PolicyTemplatesController {
 
       // Get available filters if stats are requested
       let availableFilters = undefined;
-      if (includeStats === 'true' || includeStats === true) {
+      const shouldIncludeStats = includeStats === 'true' || (typeof includeStats === 'boolean' && includeStats);
+      if (shouldIncludeStats) {
         availableFilters = await PolicyTemplateService.getAvailableFilters();
       }
 
       const responseData = {
         templates: result.templates,
         pagination: result.pagination,
-        ...((includeStats === 'true' || includeStats === true) && { stats: result.stats }),
+        ...(shouldIncludeStats && { stats: result.stats }),
         ...(availableFilters && { filters: availableFilters })
       };
       

@@ -164,12 +164,16 @@ export const uploadFields = (fields: { name: string; maxCount: number }[]) => {
 };
 
 // Security middleware to validate file content
-export const validateFileContent = (req: Request, res: Response, next: NextFunction) => {
+export const validateFileContent = (req: Request, res: Response, next: NextFunction): Response | void => {
   const files = req.files as Express.Multer.File[] | { [fieldname: string]: Express.Multer.File[] } | undefined;
   const file = req.file;
 
   // Function to validate individual file
   const validateFile = (file: Express.Multer.File): string | null => {
+    if (!file || !file.buffer) {
+      return 'Invalid file format';
+    }
+    
     // Check for malicious file signatures
     const buffer = file.buffer;
     const header = buffer.subarray(0, 10).toString('hex').toUpperCase();
@@ -249,7 +253,7 @@ export const validateFileContent = (req: Request, res: Response, next: NextFunct
       }
     }
     
-    next();
+    return next();
   } catch (error) {
     console.error('File content validation error:', error);
     return res.status(500).json({

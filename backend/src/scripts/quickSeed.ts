@@ -26,33 +26,39 @@ async function quickSeed() {
     // Create a few sample clients
     const sampleClients = [
       {
-        name: 'John Smith',
+        firstName: 'John',
+        lastName: 'Smith',
         email: 'john.smith@email.com',
-        phone: '(555) 123-4567',
+        phoneNumber: '(555) 123-4567',
+        whatsappNumber: '(555) 123-4567',
         dateOfBirth: new Date('1985-03-15'),
-        age: 39,
-        address: '123 Main St, Anytown, ST 12345'
+        address: '123 Main St, Anytown, ST 12345',
+        clientType: 'INDIVIDUAL'
       },
       {
-        name: 'Sarah Johnson',
+        firstName: 'Sarah',
+        lastName: 'Johnson',
         email: 'sarah.johnson@email.com',
-        phone: '(555) 234-5678',
+        phoneNumber: '(555) 234-5678',
+        whatsappNumber: '(555) 234-5678',
         dateOfBirth: new Date('1990-07-22'),
-        age: 34,
-        address: '456 Oak Ave, Springfield, ST 67890'
+        address: '456 Oak Ave, Springfield, ST 67890',
+        clientType: 'INDIVIDUAL'
       },
       {
-        name: 'Michael Brown',
+        firstName: 'Michael',
+        lastName: 'Brown',
         email: 'michael.brown@email.com',
-        phone: '(555) 345-6789',
+        phoneNumber: '(555) 345-6789',
+        whatsappNumber: '(555) 345-6789',
         dateOfBirth: new Date('1978-11-08'),
-        age: 46,
-        address: '789 Pine Rd, Riverside, ST 54321'
+        address: '789 Pine Rd, Riverside, ST 54321',
+        clientType: 'INDIVIDUAL'
       }
     ];
 
     for (const clientData of sampleClients) {
-      const existingClient = await prisma.client.findUnique({
+      const existingClient = await prisma.client.findFirst({
         where: { email: clientData.email }
       });
       
@@ -99,25 +105,27 @@ async function quickSeed() {
     const sampleLeads = [
       {
         name: 'Emily Davis',
-        email: 'emily.davis@email.com',
         phone: '(555) 456-7890',
         insuranceInterest: 'Auto Insurance',
         status: 'New',
-        priority: 'Hot'
+        priority: 'Hot',
+        notes: 'Interested in comprehensive auto coverage'
       },
       {
         name: 'Robert Wilson',
-        email: 'robert.wilson@email.com',
         phone: '(555) 567-8901',
         insuranceInterest: 'Home Insurance',
         status: 'Contacted',
-        priority: 'Warm'
+        priority: 'Warm',
+        notes: 'Needs home insurance for new property'
       }
     ];
 
     for (const leadData of sampleLeads) {
-      const existingLead = await prisma.lead.findUnique({
-        where: { email: leadData.email }
+      const existingLead = await prisma.lead.findFirst({
+        where: {
+          phone: leadData.phone
+        }
       });
       
       if (!existingLead) {

@@ -25,7 +25,6 @@ describe('PolicyInstanceService', () => {
     it('should create policy instance with valid data', async () => {
       const instanceData = {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -54,7 +53,6 @@ describe('PolicyInstanceService', () => {
     it('should throw NotFoundError for non-existent client', async () => {
       const instanceData = {
         policyTemplateId: template.id,
-        clientId: 'non-existent-client',
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -68,7 +66,6 @@ describe('PolicyInstanceService', () => {
     it('should throw NotFoundError for non-existent template', async () => {
       const instanceData = {
         policyTemplateId: 'non-existent-template',
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -82,7 +79,6 @@ describe('PolicyInstanceService', () => {
     it('should throw ConflictError for duplicate client-template association', async () => {
       const instanceData = {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -100,7 +96,6 @@ describe('PolicyInstanceService', () => {
     it('should throw ValidationError for invalid premium amount', async () => {
       const instanceData = {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: -100,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -114,7 +109,6 @@ describe('PolicyInstanceService', () => {
     it('should throw ValidationError for negative commission', async () => {
       const instanceData = {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -128,7 +122,6 @@ describe('PolicyInstanceService', () => {
     it('should throw ValidationError for invalid duration', async () => {
       const instanceData = {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 150, // Too long
@@ -142,7 +135,6 @@ describe('PolicyInstanceService', () => {
     it('should throw ValidationError for invalid start date', async () => {
       const instanceData = {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: 'invalid-date',
         durationMonths: 12,
@@ -160,7 +152,6 @@ describe('PolicyInstanceService', () => {
     beforeEach(async () => {
       instance = await PolicyInstanceService.createInstance(client.id, {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -247,7 +238,6 @@ describe('PolicyInstanceService', () => {
     beforeEach(async () => {
       instance = await PolicyInstanceService.createInstance(client.id, {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -276,7 +266,6 @@ describe('PolicyInstanceService', () => {
       
       await PolicyInstanceService.createInstance(client.id, {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -285,7 +274,6 @@ describe('PolicyInstanceService', () => {
 
       await PolicyInstanceService.createInstance(client2.id, {
         policyTemplateId: template.id,
-        clientId: client2.id,
         premiumAmount: 1500,
         startDate: '2024-02-01',
         durationMonths: 24,
@@ -325,7 +313,6 @@ describe('PolicyInstanceService', () => {
 
       await PolicyInstanceService.createInstance(client.id, {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -334,7 +321,6 @@ describe('PolicyInstanceService', () => {
 
       await PolicyInstanceService.createInstance(client.id, {
         policyTemplateId: template2.id,
-        clientId: client.id,
         premiumAmount: 800,
         startDate: '2024-03-01',
         durationMonths: 6,
@@ -364,7 +350,6 @@ describe('PolicyInstanceService', () => {
     beforeEach(async () => {
       instance = await PolicyInstanceService.createInstance(client.id, {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -413,7 +398,6 @@ describe('PolicyInstanceService', () => {
     beforeEach(async () => {
       instance = await PolicyInstanceService.createInstance(client.id, {
         policyTemplateId: template.id,
-        clientId: client.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,

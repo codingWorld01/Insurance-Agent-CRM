@@ -304,7 +304,7 @@ export async function migratePolicies(options: MigrationOptions = {}): Promise<M
                 result.duplicateTemplates++;
               } else {
                 result.skippedPolicies++;
-                result.errors.push(`Instance already exists for client ${policy.client.name} and policy ${policy.policyNumber}`);
+                result.errors.push(`Instance already exists for client ${policy.client.firstName} ${policy.client.lastName} and policy ${policy.policyNumber}`);
                 continue;
               }
             } else {

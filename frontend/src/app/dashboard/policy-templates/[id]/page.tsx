@@ -26,7 +26,7 @@ import {
 } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useOfflineDetection } from "@/hooks/useOfflineDetection";
-import { Breadcrumb, createBreadcrumbs } from "@/components/common/Breadcrumb";
+import { Breadcrumb, breadcrumbItems } from "@/components/common/Breadcrumb";
 import { useAuthErrorHandler } from "@/hooks/useAuthErrorHandler";
 
 export default function PolicyDetailPage() {
@@ -501,7 +501,7 @@ export default function PolicyDetailPage() {
   }
 
   // Show loading state
-  if (loading && !template) {
+  if (loading || !template) {
     return (
       <div className="space-y-6">
         <div className="animate-pulse">
@@ -514,30 +514,11 @@ export default function PolicyDetailPage() {
     );
   }
 
-  if (!template) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Policy Template Not Found</h2>
-          <p className="text-gray-600 mb-4">The requested policy template could not be found.</p>
-          <Button onClick={handleBackToTemplates}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Policy Templates
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const getPolicyTypeIcon = (type: InsuranceType) => {
-    const icons = {
-      Life: "👤",
-      Health: "🏥",
-      Auto: "🚗",
-      Home: "🏠",
-      Business: "🏢",
-    };
-    return icons[type] || "📋";
+  // Create template with stats for the modal
+  const templateWithStats: PolicyTemplate & { instanceCount: number; activeInstanceCount: number } = {
+    ...template,
+    instanceCount: stats?.totalClients || 0,
+    activeInstanceCount: stats?.activeInstances || 0
   };
 
   return (
@@ -551,41 +532,13 @@ export default function PolicyDetailPage() {
         />
       )}
 
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb items={[
-        createBreadcrumbs.dashboard(),
-        { 
-          label: "Policy Templates", 
-          href: "/dashboard/policy-templates" 
-        },
-        { 
-          label: template.policyNumber, 
-          current: true 
-        }
-      ]} />
-
-      {/* Back Button */}
-      <div className="flex items-center gap-4">
-        <Button
-          variant="outline"
-          onClick={handleBackToTemplates}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Templates
-        </Button>
-      </div>
-
       {/* Policy Template Information */}
       <Card>
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <div className="min-w-0 flex-1">
               <CardTitle className="flex items-center gap-3 text-xl sm:text-2xl">
-                <span className="text-2xl" role="img" aria-label={template.policyType}>
-                  {getPolicyTypeIcon(template.policyType)}
-                </span>
-                <span className="truncate">{template.policyNumber}</span>
+                {template.policyNumber}
               </CardTitle>
               <div className="mt-2 text-base text-muted-foreground">
                 <div className="flex flex-wrap items-center gap-2">
@@ -675,11 +628,7 @@ export default function PolicyDetailPage() {
         open={showEditModal}
         onClose={handleModalClose}
         onSubmit={handleTemplateSubmit}
-        template={template ? {
-          ...template,
-          instanceCount: stats?.totalClients || 0,
-          activeInstanceCount: stats?.activeInstances || 0
-        } : undefined}
+        template={templateWithStats}
         loading={isSubmitting}
       />
 
@@ -717,4 +666,4 @@ export default function PolicyDetailPage() {
       />
     </div>
   );
-}
+```

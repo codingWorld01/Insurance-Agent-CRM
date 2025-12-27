@@ -1,345 +1,205 @@
-import request from 'supertest'
-import { app } from '../app'
-import { prisma } from '../config/database'
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import request from 'supertest';
+import app from '../app';
+import { PrismaClient, Gender, MaritalStatus } from '@prisma/client';
 
-describe('Enhanced Client Management Integration Tests', () => {
-  beforeEach(async () => {
-    // Clean up database before each test
-    await prisma.auditLog.deleteMany()
-    await prisma.document.deleteMany()
-    await prisma.personalDetails.deleteMany()
-    await prisma.familyDetails.deleteMany()
-    await prisma.corporateDetails.deleteMany()
-    await prisma.client.deleteMany()
-  })
+const prisma = new PrismaClient();
 
-  afterEach(async () => {
-    // Clean up after each test
-    await prisma.auditLog.deleteMany()
-    await prisma.document.deleteMany()
-    await prisma.personalDetails.deleteMany()
-    await prisma.familyDetails.deleteMany()
-    await prisma.corporateDetails.deleteMany()
-    await prisma.client.deleteMany()
-  })
+describe('Client Management API', () => {
+  beforeAll(async () => {
+    // Clean up database before tests
+    await prisma.auditLog.deleteMany();
+    await prisma.document.deleteMany();
+    await prisma.policyInstance.deleteMany();
+    await prisma.policy.deleteMany();
+    await prisma.client.deleteMany();
+    await prisma.policyTemplate.deleteMany();
+  });
 
-  describe('Personal Client CRUD Operations', () => {
-    it('creates a personal client with all details', async () => {
+  afterAll(async () => {
+    // Close the Prisma client connection
+    await prisma.$disconnect();
+  });
+
+  describe('POST /api/clients', () => {
+    it('should create a new client with valid data', async () => {
       const clientData = {
-        clientType: 'PERSONAL',
         firstName: 'John',
         lastName: 'Doe',
+        dateOfBirth: '1990-01-01T00:00:00.000Z',
+        phoneNumber: '9876543210',
+        whatsappNumber: '9876543210',
         email: 'john.doe@example.com',
-        phone: '9876543210',
-        personalDetails: {
-          middleName: 'Michael',
-          mobileNumber: '9876543210',
-          birthDate: '1990-01-01T00:00:00.000Z',
-          age: 34,
-          state: 'California',
-          city: 'San Francisco',
-          address: '123 Main Street',
-          birthPlace: 'New York',
-          gender: 'MALE',
-          height: 5.8,
-          weight: 70,
-          education: 'Bachelor of Science',
-          maritalStatus: 'SINGLE',
-          businessJob: 'Software Engineer',
-          nameOfBusiness: 'Tech Corp',
-          typeOfDuty: 'Development',
-          annualIncome: 1000000,
-          panNumber: 'ABCDE1234F',
-          gstNumber: '22AAAAA0000A1Z5'
-        }
-      }
+        state: 'California',
+        city: 'San Francisco',
+        address: '123 Main St',
+        gender: 'MALE' as Gender,
+        maritalStatus: 'SINGLE' as MaritalStatus,
+        panNumber: 'ABCDE1234F',
+        gstNumber: '22ABCDE1234F1Z5',
+        additionalInfo: 'Test client'
+      };
 
       const response = await request(app)
-        .post('/api/enhanced-clients')
+        .post('/api/clients')
         .send(clientData)
-        .expect(201)
+        .expect(201);
 
-      expect(response.body.success).toBe(true)
-      expect(response.body.data).toMatchObject({
-        clientType: 'PERSONAL',
+      // Verify response
+      expect(response.body).toHaveProperty('id');
+      expect(response.body).toMatchObject({
         firstName: 'John',
         lastName: 'Doe',
         email: 'john.doe@example.com',
-        phone: '9876543210'
-      })
+        phoneNumber: '9876543210',
+        panNumber: 'ABCDE1234F',
+        gender: 'MALE',
+        maritalStatus: 'SINGLE'
+      });
 
-      // Verify personal details were created
-      const client = await prisma.client.findUnique({
-        where: { id: response.body.data.id },
-        include: { personalDetails: true }
-      })
+      // Verify data in database
+      const dbClient = await prisma.client.findUnique({
+        where: { id: response.body.id }
+      });
 
-      expect(client?.personalDetails).toMatchObject({
-        middleName: 'Michael',
-        mobileNumber: '9876543210',
-        age: 34,
-        panNumber: 'ABCDE1234F'
-      })
-    })
-  })
-})    i
-t('validates required fields for personal client', async () => {
+      expect(dbClient).toBeDefined();
+      expect(dbClient).toMatchObject({
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phoneNumber: '9876543210',
+        panNumber: 'ABCDE1234F',
+        gender: 'MALE',
+        maritalStatus: 'SINGLE'
+      });
+    });
+
+    it('should return 400 for invalid client data', async () => {
       const invalidClientData = {
-        clientType: 'PERSONAL',
-        // Missing required fields
-        personalDetails: {
-          // Missing mobileNumber and birthDate
-          age: 30
-        }
-      }
+        // Missing required fields: firstName, lastName, dateOfBirth, phoneNumber
+        email: 'invalid-email'
+      };
 
       const response = await request(app)
-        .post('/api/enhanced-clients')
+        .post('/api/clients')
         .send(invalidClientData)
-        .expect(400)
+        .expect(400);
 
-      expect(response.body.success).toBe(false)
-      expect(response.body.errors).toBeDefined()
-    })
+      expect(response.body).toHaveProperty('success', false);
+      expect(response.body).toHaveProperty('errors');
+      expect(Array.isArray(response.body.errors)).toBe(true);
+    });
+  });
 
-    it('retrieves personal client with all details', async () => {
+  describe('GET /api/clients/:id', () => {
+    it('should retrieve a client by ID', async () => {
       // First create a client
-      const clientData = {
-        clientType: 'PERSONAL',
+      const client = await prisma.client.create({
+        data: {
+          firstName: 'Jane',
+          lastName: 'Smith',
+          dateOfBirth: new Date('1985-05-15'),
+          phoneNumber: '9876543211',
+          whatsappNumber: '9876543211',
+          email: 'jane.smith@example.com',
+          panNumber: 'FGHIJ5678K',
+          gender: 'FEMALE' as Gender,
+          maritalStatus: 'MARRIED' as MaritalStatus
+        }
+      });
+
+      // Retrieve the client
+      const response = await request(app)
+        .get(`/api/clients/${client.id}`)
+        .expect(200);
+
+      expect(response.body).toMatchObject({
+        id: client.id,
         firstName: 'Jane',
         lastName: 'Smith',
         email: 'jane.smith@example.com',
-        phone: '9876543211',
-        personalDetails: {
-          mobileNumber: '9876543211',
-          birthDate: '1985-05-15T00:00:00.000Z',
-          age: 39,
-          panNumber: 'FGHIJ5678K'
+        phoneNumber: '9876543211',
+        panNumber: 'FGHIJ5678K',
+        gender: 'FEMALE',
+        maritalStatus: 'MARRIED'
+      });
+    });
+
+    it('should return 404 for non-existent client', async () => {
+      const nonExistentId = '00000000-0000-0000-0000-000000000000';
+      await request(app)
+        .get(`/api/clients/${nonExistentId}`)
+        .expect(404);
+    });
+  });
+
+  describe('PUT /api/clients/:id', () => {
+    it('should update an existing client', async () => {
+      // First create a client
+      const client = await prisma.client.create({
+        data: {
+          firstName: 'Original',
+          lastName: 'Name',
+          dateOfBirth: new Date('1990-01-01'),
+          phoneNumber: '9876543222',
+          whatsappNumber: '9876543222',
+          email: 'original@example.com',
+          panNumber: 'KLMNO5678P',
+          gender: 'MALE' as Gender,
+          maritalStatus: 'SINGLE' as MaritalStatus
         }
-      }
-
-      const createResponse = await request(app)
-        .post('/api/enhanced-clients')
-        .send(clientData)
-        .expect(201)
-
-      const clientId = createResponse.body.data.id
-
-      // Retrieve the client
-      const getResponse = await request(app)
-        .get(`/api/enhanced-clients/${clientId}`)
-        .expect(200)
-
-      expect(getResponse.body.success).toBe(true)
-      expect(getResponse.body.data).toMatchObject({
-        clientType: 'PERSONAL',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        personalDetails: {
-          mobileNumber: '9876543211',
-          age: 39,
-          panNumber: 'FGHIJ5678K'
-        }
-      })
-    })
-
-    it('updates personal client details', async () => {
-      // Create a client first
-      const clientData = {
-        clientType: 'PERSONAL',
-        firstName: 'Bob',
-        lastName: 'Wilson',
-        personalDetails: {
-          mobileNumber: '9876543212',
-          birthDate: '1980-12-25T00:00:00.000Z'
-        }
-      }
-
-      const createResponse = await request(app)
-        .post('/api/enhanced-clients')
-        .send(clientData)
-        .expect(201)
-
-      const clientId = createResponse.body.data.id
+      });
 
       // Update the client
       const updateData = {
-        firstName: 'Robert',
-        email: 'robert.wilson@example.com',
-        personalDetails: {
-          mobileNumber: '9876543212',
-          birthDate: '1980-12-25T00:00:00.000Z',
-          education: 'Master of Science',
-          annualIncome: 1500000
-        }
-      }
+        firstName: 'Updated',
+        lastName: 'Name',
+        email: 'updated@example.com',
+        maritalStatus: 'MARRIED' as MaritalStatus
+      };
 
-      const updateResponse = await request(app)
-        .put(`/api/enhanced-clients/${clientId}`)
+      const response = await request(app)
+        .put(`/api/clients/${client.id}`)
         .send(updateData)
-        .expect(200)
+        .expect(200);
 
-      expect(updateResponse.body.success).toBe(true)
-      expect(updateResponse.body.data.firstName).toBe('Robert')
-      expect(updateResponse.body.data.email).toBe('robert.wilson@example.com')
-    })
+      expect(response.body).toMatchObject({
+        id: client.id,
+        firstName: 'Updated',
+        lastName: 'Name',
+        email: 'updated@example.com',
+        maritalStatus: 'MARRIED'
+      });
+    });
+  });
 
-    it('deletes personal client and related data', async () => {
-      // Create a client first
-      const clientData = {
-        clientType: 'PERSONAL',
-        firstName: 'Alice',
-        lastName: 'Johnson',
-        personalDetails: {
-          mobileNumber: '9876543213',
-          birthDate: '1992-03-10T00:00:00.000Z'
+  describe('DELETE /api/clients/:id', () => {
+    it('should delete a client', async () => {
+      // First create a client
+      const client = await prisma.client.create({
+        data: {
+          firstName: 'ToDelete',
+          lastName: 'Client',
+          dateOfBirth: new Date('1990-01-01'),
+          phoneNumber: '9876543333',
+          whatsappNumber: '9876543333',
+          email: 'delete@example.com',
+          panNumber: 'PQRST9012U'
         }
-      }
-
-      const createResponse = await request(app)
-        .post('/api/enhanced-clients')
-        .send(clientData)
-        .expect(201)
-
-      const clientId = createResponse.body.data.id
+      });
 
       // Delete the client
       await request(app)
-        .delete(`/api/enhanced-clients/${clientId}`)
-        .expect(200)
+        .delete(`/api/clients/${client.id}`)
+        .expect(200);
 
       // Verify client is deleted
-      await request(app)
-        .get(`/api/enhanced-clients/${clientId}`)
-        .expect(404)
+      const deletedClient = await prisma.client.findUnique({
+        where: { id: client.id }
+      });
 
-      // Verify personal details are also deleted
-      const personalDetails = await prisma.personalDetails.findFirst({
-        where: { clientId }
-      })
-      expect(personalDetails).toBeNull()
-    })
-  })
-
-  describe('Family/Employee Client CRUD Operations', () => {
-    it('creates a family/employee client with relationship', async () => {
-      const clientData = {
-        clientType: 'FAMILY_EMPLOYEE',
-        firstName: 'Sarah',
-        lastName: 'Connor',
-        familyDetails: {
-          phoneNumber: '9876543214',
-          whatsappNumber: '9876543215',
-          dateOfBirth: '1988-07-20T00:00:00.000Z',
-          age: 36,
-          relationship: 'SPOUSE',
-          gender: 'FEMALE',
-          panNumber: 'KLMNO9012P'
-        }
-      }
-
-      const response = await request(app)
-        .post('/api/enhanced-clients')
-        .send(clientData)
-        .expect(201)
-
-      expect(response.body.success).toBe(true)
-      expect(response.body.data.clientType).toBe('FAMILY_EMPLOYEE')
-
-      // Verify family details were created
-      const client = await prisma.client.findUnique({
-        where: { id: response.body.data.id },
-        include: { familyDetails: true }
-      })
-
-      expect(client?.familyDetails).toMatchObject({
-        phoneNumber: '9876543214',
-        whatsappNumber: '9876543215',
-        relationship: 'SPOUSE',
-        gender: 'FEMALE'
-      })
-    })
-
-    it('validates required fields for family/employee client', async () => {
-      const invalidClientData = {
-        clientType: 'FAMILY_EMPLOYEE',
-        firstName: 'Test',
-        familyDetails: {
-          // Missing required phoneNumber, whatsappNumber, dateOfBirth
-          relationship: 'CHILD'
-        }
-      }
-
-      const response = await request(app)
-        .post('/api/enhanced-clients')
-        .send(invalidClientData)
-        .expect(400)
-
-      expect(response.body.success).toBe(false)
-      expect(response.body.errors).toBeDefined()
-    })
-  })
-
-  describe('Corporate Client CRUD Operations', () => {
-    it('creates a corporate client with business details', async () => {
-      const clientData = {
-        clientType: 'CORPORATE',
-        firstName: 'Tech Solutions Inc', // Company name stored in firstName
-        corporateDetails: {
-          companyName: 'Tech Solutions Inc',
-          mobile: '9876543216',
-          email: 'contact@techsolutions.com',
-          state: 'Maharashtra',
-          city: 'Mumbai',
-          address: '456 Business Avenue',
-          annualIncome: 50000000,
-          panNumber: 'QRSTU3456V',
-          gstNumber: '27QRSTU3456V1Z8'
-        }
-      }
-
-      const response = await request(app)
-        .post('/api/enhanced-clients')
-        .send(clientData)
-        .expect(201)
-
-      expect(response.body.success).toBe(true)
-      expect(response.body.data.clientType).toBe('CORPORATE')
-
-      // Verify corporate details were created
-      const client = await prisma.client.findUnique({
-        where: { id: response.body.data.id },
-        include: { corporateDetails: true }
-      })
-
-      expect(client?.corporateDetails).toMatchObject({
-        companyName: 'Tech Solutions Inc',
-        mobile: '9876543216',
-        email: 'contact@techsolutions.com',
-        gstNumber: '27QRSTU3456V1Z8'
-      })
-    })
-
-    it('validates GST number format for corporate client', async () => {
-      const clientData = {
-        clientType: 'CORPORATE',
-        firstName: 'Invalid Corp',
-        corporateDetails: {
-          companyName: 'Invalid Corp',
-          gstNumber: 'INVALID_GST_FORMAT'
-        }
-      }
-
-      const response = await request(app)
-        .post('/api/enhanced-clients')
-        .send(clientData)
-        .expect(400)
-
-      expect(response.body.success).toBe(false)
-      expect(response.body.errors).toBeDefined()
-    })
-  })
+      expect(deletedClient).toBeNull();
+    });
+  });
 
   describe('Document Management Integration', () => {
     it('associates documents with clients', async () => {

@@ -56,7 +56,6 @@ describe('Policy Templates Integration Tests', () => {
       // Add instance to template
       await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -89,7 +88,6 @@ describe('Policy Templates Integration Tests', () => {
       // Add instance to template
       await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -113,7 +111,6 @@ describe('Policy Templates Integration Tests', () => {
     it('should create policy instance with expiry calculation', async () => {
       const instanceData = {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1500,
         startDate: '2024-06-01',
         durationMonths: 24,
@@ -138,7 +135,6 @@ describe('Policy Templates Integration Tests', () => {
     it('should prevent duplicate client-template associations', async () => {
       const instanceData = {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -157,7 +153,6 @@ describe('Policy Templates Integration Tests', () => {
     it('should update policy instance with validation', async () => {
       const instance = await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -187,7 +182,6 @@ describe('Policy Templates Integration Tests', () => {
     it('should delete policy instance successfully', async () => {
       const instance = await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -258,7 +252,6 @@ describe('Policy Templates Integration Tests', () => {
       // Create instance for client
       await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: template!.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -294,7 +287,6 @@ describe('Policy Templates Integration Tests', () => {
       // Add instances
       await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: template1.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -302,7 +294,6 @@ describe('Policy Templates Integration Tests', () => {
       });
       await PolicyInstanceService.createInstance(client2.id, {
         policyTemplateId: template2.id,
-        clientId: client2.id,
         premiumAmount: 1500,
         startDate: '2024-02-01',
         durationMonths: 24,
@@ -372,7 +363,6 @@ describe('Policy Templates Integration Tests', () => {
       await expect(
         PolicyInstanceService.createInstance(testClient.id, {
           policyTemplateId: testTemplate.id,
-          clientId: testClient.id,
           premiumAmount: -100,
           startDate: '2024-01-01',
           durationMonths: 12,
@@ -383,7 +373,6 @@ describe('Policy Templates Integration Tests', () => {
       await expect(
         PolicyInstanceService.createInstance(testClient.id, {
           policyTemplateId: testTemplate.id,
-          clientId: testClient.id,
           premiumAmount: 1000,
           startDate: 'invalid-date',
           durationMonths: 12,
@@ -408,7 +397,6 @@ describe('Policy Templates Integration Tests', () => {
       // Create instance
       const instance = await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -434,7 +422,6 @@ describe('Policy Templates Integration Tests', () => {
       for (const testCase of testCases) {
         const instance = await PolicyInstanceService.createInstance(testClient.id, {
           policyTemplateId: testTemplate.id,
-          clientId: testClient.id,
           premiumAmount: 1000,
           startDate: testCase.startDate,
           durationMonths: testCase.months,
@@ -459,7 +446,6 @@ describe('Policy Templates Integration Tests', () => {
       // Add instance
       const instance = await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,

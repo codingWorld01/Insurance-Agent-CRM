@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Breadcrumb, createBreadcrumbs } from '@/components/common/Breadcrumb';
+import { Breadcrumb, breadcrumbItems } from '@/components/common/Breadcrumb';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -31,10 +31,12 @@ export default function PolicyTemplatesError({ error, reset }: ErrorProps) {
   return (
     <div className="space-y-6">
       {/* Breadcrumb Navigation */}
-      <Breadcrumb items={[
-        createBreadcrumbs.dashboard(),
-        { label: "Policy Templates", current: true }
-      ]} />
+      <Breadcrumb 
+        items={[
+          breadcrumbItems.dashboard,
+          { ...breadcrumbItems.policyTemplates, current: true }
+        ]} 
+      />
 
       <Card className="max-w-2xl mx-auto">
         <CardHeader className="text-center">

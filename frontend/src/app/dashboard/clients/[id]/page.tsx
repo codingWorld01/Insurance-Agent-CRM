@@ -35,7 +35,7 @@ import { usePolicyInstances } from "@/hooks/usePolicyInstances";
 
 import { formatCurrency } from "@/utils/currencyUtils";
 import Link from "next/link";
-import { Breadcrumb, createBreadcrumbs } from "@/components/common/Breadcrumb";
+import { Breadcrumb, breadcrumbItems } from "@/components/common/Breadcrumb";
 import { useAuthErrorHandler } from "@/hooks/useAuthErrorHandler";
 
 // Import the UnifiedClient type from ClientDetailView
@@ -372,12 +372,14 @@ export default function ClientDetailPage() {
           </Button>
 
           {/* Breadcrumb Trail */}
-          <Breadcrumb
+          <Breadcrumb 
             items={[
-              createBreadcrumbs.dashboard(),
-              createBreadcrumbs.clients(),
-              createBreadcrumbs.client(getClientName(client)),
-            ]}
+              breadcrumbItems.dashboard,
+              { 
+                ...breadcrumbItems.clients,
+                current: true 
+              },
+            ]} 
           />
         </div>
       </div>

@@ -182,9 +182,6 @@ async function clearDatabase() {
   await prisma.policyTemplate.deleteMany({});
   await prisma.auditLog.deleteMany({});
   await prisma.document.deleteMany({});
-  await prisma.personalDetails.deleteMany({});
-  await prisma.familyDetails.deleteMany({});
-  await prisma.corporateDetails.deleteMany({});
   await prisma.client.deleteMany({});
   await prisma.lead.deleteMany({});
   // Keep settings for login functionality
@@ -245,9 +242,8 @@ async function seedLeads() {
 }
 
 async function seedClients() {
-  console.log("👤 Creating clients...");
-
-  const clients = [];
+  console.log("👥 Creating clients...");
+  const clients: any[] = [];
   
   // Create Personal Clients (30)
   for (let i = 0; i < 30; i++) {
@@ -266,28 +262,23 @@ async function seedClients() {
         firstName,
         lastName,
         email,
-        phone,
-        clientType: 'PERSONAL',
+        phoneNumber: phone,
+        whatsappNumber: phone,
+        dateOfBirth,
+        age,
+        gender: getRandomElement(['MALE', 'FEMALE']),
+        height: generateRandomAmount(5.0, 6.5),
+        weight: generateRandomAmount(50, 100),
+        education: getRandomElement(['Graduate', 'Post Graduate', 'Diploma', 'High School']),
+        maritalStatus: getRandomElement(['SINGLE', 'MARRIED', 'DIVORCED']),
+        businessJob: getRandomElement(['Engineer', 'Doctor', 'Teacher', 'Business Owner', 'Manager']),
+        annualIncome: generateRandomAmount(300000, 2000000),
+        panNumber: `ABCDE${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}F`,
+        state: 'Maharashtra',
+        city: 'Mumbai',
+        address: getRandomElement(addresses),
         createdAt: generateRandomDate(new Date(2024, 0, 1), new Date()),
-        updatedAt: generateRandomDate(new Date(2024, 0, 1), new Date()),
-        personalDetails: {
-          create: {
-            mobileNumber: phone,
-            birthDate: dateOfBirth,
-            age,
-            state: 'Maharashtra',
-            city: 'Mumbai',
-            address: getRandomElement(addresses),
-            gender: getRandomElement(['MALE', 'FEMALE']),
-            height: generateRandomAmount(5.0, 6.5),
-            weight: generateRandomAmount(50, 100),
-            education: getRandomElement(['Graduate', 'Post Graduate', 'Diploma', 'High School']),
-            maritalStatus: getRandomElement(['SINGLE', 'MARRIED', 'DIVORCED']),
-            businessJob: getRandomElement(['Engineer', 'Doctor', 'Teacher', 'Business Owner', 'Manager']),
-            annualIncome: generateRandomAmount(300000, 2000000),
-            panNumber: `ABCDE${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}F`,
-          }
-        }
+        updatedAt: generateRandomDate(new Date(2024, 0, 1), new Date())
       }
     });
     clients.push(client);
@@ -309,22 +300,24 @@ async function seedClients() {
       data: {
         firstName,
         lastName,
-        clientType: 'FAMILY_EMPLOYEE',
+        phoneNumber: phone,
+        whatsappNumber,
+        dateOfBirth,
+        age,
+        gender: getRandomElement(['MALE', 'FEMALE']),
+        height: generateRandomAmount(5.0, 6.5),
+        weight: generateRandomAmount(50, 100),
+        education: getRandomElement(['Graduate', 'Post Graduate', 'Diploma', 'High School']),
+        maritalStatus: getRandomElement(['SINGLE', 'MARRIED', 'DIVORCED']),
+        businessJob: getRandomElement(['Engineer', 'Doctor', 'Teacher', 'Business Owner', 'Manager']),
+        annualIncome: generateRandomAmount(300000, 2000000),
+        panNumber: `FGHIJ${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}K`,
+        state: 'Maharashtra',
+        city: 'Mumbai',
+        address: getRandomElement(addresses),
+        relationship: getRandomElement(['SPOUSE', 'CHILD', 'PARENT', 'EMPLOYEE']),
         createdAt: generateRandomDate(new Date(2024, 0, 1), new Date()),
-        updatedAt: generateRandomDate(new Date(2024, 0, 1), new Date()),
-        familyDetails: {
-          create: {
-            phoneNumber: phone,
-            whatsappNumber,
-            dateOfBirth,
-            age,
-            gender: getRandomElement(['MALE', 'FEMALE']),
-            height: generateRandomAmount(5.0, 6.5),
-            weight: generateRandomAmount(40, 90),
-            relationship: getRandomElement(['SPOUSE', 'CHILD', 'PARENT', 'EMPLOYEE']),
-            panNumber: `FGHIJ${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}K`,
-          }
-        }
+        updatedAt: generateRandomDate(new Date(2024, 0, 1), new Date())
       }
     });
     clients.push(client);
@@ -332,30 +325,33 @@ async function seedClients() {
 
   // Create Corporate Clients (10)
   for (let i = 0; i < 10; i++) {
-    const companyName = `${getRandomElement(['Tech', 'Global', 'Prime', 'Elite', 'Smart'])} ${getRandomElement(['Solutions', 'Systems', 'Corp', 'Industries', 'Enterprises'])} Ltd`;
-    const email = `contact${i}@${companyName.toLowerCase().replace(/\s+/g, '').replace('ltd', '')}.com`;
-    const mobile = getRandomElement(phoneNumbers);
+    const companyName = `${getRandomElement(['Tech', 'Global', 'Prime', 'Elite', 'Smart'])} ${getRandomElement(['Solutions', 'Systems', 'Corp', 'Industries', 'Enterprises'])}`;
+    const email = `contact${i}@${companyName.toLowerCase().replace(/\s+/g, '')}.com`;
+    const phone = getRandomElement(phoneNumbers);
+    const dateOfBirth = generateRandomDate(
+      new Date(1970, 0, 1),
+      new Date(2000, 11, 31)
+    );
+    const age = new Date().getFullYear() - dateOfBirth.getFullYear();
 
     const client = await prisma.client.create({
       data: {
+        firstName: companyName.split(' ')[0],
+        lastName: 'Corp',
         email,
-        phone: mobile,
-        clientType: 'CORPORATE',
+        phoneNumber: phone,
+        whatsappNumber: phone,
+        dateOfBirth,
+        age,
+        companyName,
+        state: 'Karnataka',
+        city: 'Bangalore',
+        address: getRandomElement(addresses),
+        annualIncome: generateRandomAmount(5000000, 50000000),
+        panNumber: `KLMNO${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}P`,
+        gstNumber: `29KLMNO${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}P1Z${Math.floor(Math.random() * 10)}`,
         createdAt: generateRandomDate(new Date(2024, 0, 1), new Date()),
-        updatedAt: generateRandomDate(new Date(2024, 0, 1), new Date()),
-        corporateDetails: {
-          create: {
-            companyName,
-            mobile,
-            email,
-            state: 'Karnataka',
-            city: 'Bangalore',
-            address: getRandomElement(addresses),
-            annualIncome: generateRandomAmount(5000000, 50000000),
-            panNumber: `KLMNO${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}P`,
-            gstNumber: `29KLMNO${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}P1Z${Math.floor(Math.random() * 10)}`,
-          }
-        }
+        updatedAt: generateRandomDate(new Date(2024, 0, 1), new Date())
       }
     });
     clients.push(client);

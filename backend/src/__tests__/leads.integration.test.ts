@@ -375,8 +375,10 @@ describe('Leads Integration Tests', () => {
       expect(updatedLead?.status).toBe('Won');
 
       // Verify client was created
-      const client = await testPrisma.client.findUnique({
-        where: { email: 'convert@test.com' },
+      const client = await testPrisma.client.findFirst({
+        where: {
+          email: 'convert@test.com'
+        },
       });
       expect(client).toBeTruthy();
     });

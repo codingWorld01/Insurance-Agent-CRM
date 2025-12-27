@@ -3,8 +3,8 @@ import { testPrisma, getAuthToken, createTestClient } from './setup';
 import { PolicyTemplateService } from '../services/policyTemplateService';
 import { PolicyInstanceService } from '../services/policyInstanceService';
 import express from 'express';
-import { policyTemplatesRouter } from '../routes/policyTemplates';
-import { policyInstancesRouter } from '../routes/policyInstances';
+import policyTemplatesRouter from '../routes/policyTemplates';
+import policyInstancesRouter from '../routes/policyInstances';
 
 // Create test app
 const app = express();
@@ -196,7 +196,6 @@ describe('Policy Template API Integration Tests', () => {
       // Add instance to template
       await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -319,7 +318,6 @@ describe('Policy Template API Integration Tests', () => {
       // Add instance to template
       await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: testTemplate.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -385,7 +383,6 @@ describe('Policy Template API Integration Tests', () => {
       // Create instance for client
       await PolicyInstanceService.createInstance(testClient.id, {
         policyTemplateId: template!.id,
-        clientId: testClient.id,
         premiumAmount: 1000,
         startDate: '2024-01-01',
         durationMonths: 12,
@@ -507,7 +504,6 @@ describe('Policy Template API Integration Tests', () => {
       beforeEach(async () => {
         testInstance = await PolicyInstanceService.createInstance(testClient.id, {
           policyTemplateId: testTemplate.id,
-          clientId: testClient.id,
           premiumAmount: 1000,
           startDate: '2024-01-01',
           durationMonths: 12,
@@ -556,7 +552,6 @@ describe('Policy Template API Integration Tests', () => {
       beforeEach(async () => {
         testInstance = await PolicyInstanceService.createInstance(testClient.id, {
           policyTemplateId: testTemplate.id,
-          clientId: testClient.id,
           premiumAmount: 1000,
           startDate: '2024-01-01',
           durationMonths: 12,

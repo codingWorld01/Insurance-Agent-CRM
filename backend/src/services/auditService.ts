@@ -272,25 +272,25 @@ export class AuditService {
     }
 
     try {
-      const [logs, total] = await Promise.all([
-        prisma.auditLog.findMany({
-          where,
-          include: {
-            client: {
-              select: {
-                firstName: true,
-                lastName: true,
-                email: true,
-                clientType: true
-              }
+      const logs = await prisma.auditLog.findMany({
+        where,
+        include: {
+          client: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true
             }
-          },
-          orderBy: { changedAt: 'desc' },
-          skip,
-          take: limit
-        }),
-        prisma.auditLog.count({ where })
-      ]);
+          }
+        },
+        orderBy: {
+          changedAt: 'desc'
+        },
+        skip,
+        take: limit
+      });
+
+      const total = await prisma.auditLog.count({ where });
 
       return {
         logs,
@@ -430,16 +430,11 @@ export class AuditService {
         where.clientId = clientId;
       }
 
+      // Fetch the logs
       const logs = await prisma.auditLog.findMany({
         where,
-        include: {
-          client: {
-            select: {
-              firstName: true,
-              lastName: true,
-              clientType: true
-            }
-          }
+        orderBy: {
+          changedAt: 'desc'
         }
       });
 
@@ -449,23 +444,24 @@ export class AuditService {
       const operationsByField: Record<string, number> = {};
       const dailyActivity: Record<string, number> = {};
 
-      logs.forEach(log => {
-        // By action
+      // Process each log entry
+      for (const log of logs) {
+        // Count by action
         operationsByAction[log.action] = (operationsByAction[log.action] || 0) + 1;
 
-        // By client
-        const clientName = `${log.client.firstName || ''} ${log.client.lastName || ''}`.trim() || 'Unknown';
-        operationsByClient[clientName] = (operationsByClient[clientName] || 0) + 1;
+        // Count by client
+        const clientIdentifier = log.clientId || 'unknown';
+        operationsByClient[clientIdentifier] = (operationsByClient[clientIdentifier] || 0) + 1;
 
-        // By field
+        // Count by field
         if (log.fieldName) {
           operationsByField[log.fieldName] = (operationsByField[log.fieldName] || 0) + 1;
         }
 
-        // By day
+        // Count by day
         const day = log.changedAt.toISOString().split('T')[0];
         dailyActivity[day] = (dailyActivity[day] || 0) + 1;
-      });
+      }
 
       return {
         totalOperations,

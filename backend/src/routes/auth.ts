@@ -58,6 +58,7 @@ router.post(
 
       // Generate JWT token
       const token = generateToken({
+        id: settings.id,  // Required by JWTPayload interface
         userId: settings.id,
         email: settings.agentEmail,
       });

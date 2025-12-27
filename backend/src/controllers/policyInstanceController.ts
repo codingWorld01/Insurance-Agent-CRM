@@ -34,7 +34,6 @@ export class PolicyInstanceController {
 
       const instance = await PolicyInstanceService.createInstance(clientId, {
         policyTemplateId,
-        clientId,
         premiumAmount: Number(premiumAmount),
         startDate,
         durationMonths: Number(durationMonths),

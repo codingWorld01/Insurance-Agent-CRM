@@ -23,7 +23,7 @@ import {
 } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useOfflineDetection } from "@/hooks/useOfflineDetection";
-import { Breadcrumb, createBreadcrumbs } from "@/components/common/Breadcrumb";
+import { Breadcrumb, breadcrumbItems } from "@/components/common/Breadcrumb";
 import { usePolicyTemplateRefresh } from "@/utils/dashboardRefresh";
 
 interface PaginationInfo {
@@ -418,8 +418,8 @@ export default function PolicyTemplatesPage() {
 
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={[
-        ...(createBreadcrumbs ? [createBreadcrumbs.dashboard()] : []),
-        { label: "Policy Templates", current: true }
+        breadcrumbItems.dashboard,
+        { ...breadcrumbItems.policyTemplates, current: true }
       ]} />
 
       {/* Page Header */}

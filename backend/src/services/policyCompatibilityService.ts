@@ -22,7 +22,7 @@ export interface UnifiedPolicyData {
   commissionAmount: number;
   clientId: string;
   clientName?: string;
-  clientEmail?: string;
+  clientEmail?: string | null;
   createdAt: Date;
   updatedAt: Date;
   isFromTemplate: boolean;
@@ -74,7 +74,7 @@ export class PolicyCompatibilityService {
           expiryDate: instance.expiryDate,
           commissionAmount: instance.commissionAmount,
           clientId: instance.clientId,
-          clientName: instance.client.name,
+          clientName: `${instance.client.firstName} ${instance.client.lastName}`,
           clientEmail: instance.client.email,
           createdAt: instance.createdAt,
           updatedAt: instance.updatedAt,
@@ -104,7 +104,7 @@ export class PolicyCompatibilityService {
           expiryDate: policy.expiryDate,
           commissionAmount: policy.commissionAmount,
           clientId: policy.clientId,
-          clientName: policy.client.name,
+          clientName: `${policy.client.firstName} ${policy.client.lastName}`,
           clientEmail: policy.client.email,
           createdAt: policy.createdAt,
           updatedAt: policy.updatedAt,
@@ -220,7 +220,7 @@ export class PolicyCompatibilityService {
           expiryDate: instance.expiryDate,
           commissionAmount: instance.commissionAmount,
           clientId: instance.clientId,
-          clientName: instance.client.name,
+          clientName: `${instance.client.firstName} ${instance.client.lastName}`,
           clientEmail: instance.client.email,
           createdAt: instance.createdAt,
           updatedAt: instance.updatedAt,
@@ -258,7 +258,7 @@ export class PolicyCompatibilityService {
           expiryDate: policy.expiryDate,
           commissionAmount: policy.commissionAmount,
           clientId: policy.clientId,
-          clientName: policy.client.name,
+          clientName: `${policy.client.firstName} ${policy.client.lastName}`,
           clientEmail: policy.client.email,
           createdAt: policy.createdAt,
           updatedAt: policy.updatedAt,
@@ -354,7 +354,7 @@ export class PolicyCompatibilityService {
           expiryDate: instance.expiryDate,
           commissionAmount: instance.commissionAmount,
           clientId: instance.clientId,
-          clientName: instance.client.name,
+          clientName: `${instance.client.firstName} ${instance.client.lastName}`,
           clientEmail: instance.client.email,
           createdAt: instance.createdAt,
           updatedAt: instance.updatedAt,
@@ -392,7 +392,7 @@ export class PolicyCompatibilityService {
           expiryDate: policy.expiryDate,
           commissionAmount: policy.commissionAmount,
           clientId: policy.clientId,
-          clientName: policy.client.name,
+          clientName: `${policy.client.firstName} ${policy.client.lastName}`,
           clientEmail: policy.client.email,
           createdAt: policy.createdAt,
           updatedAt: policy.updatedAt,
@@ -450,7 +450,7 @@ export class PolicyCompatibilityService {
           expiryDate: updated.expiryDate,
           commissionAmount: updated.commissionAmount,
           clientId: updated.clientId,
-          clientName: updated.client.name,
+          clientName: `${updated.client.firstName} ${updated.client.lastName}`,
           clientEmail: updated.client.email,
           createdAt: updated.createdAt,
           updatedAt: updated.updatedAt,
@@ -486,7 +486,7 @@ export class PolicyCompatibilityService {
             expiryDate: updated.expiryDate,
             commissionAmount: updated.commissionAmount,
             clientId: updated.clientId,
-            clientName: updated.client.name,
+            clientName: `${updated.client.firstName} ${updated.client.lastName}`,
             clientEmail: updated.client.email,
             createdAt: updated.createdAt,
             updatedAt: updated.updatedAt,

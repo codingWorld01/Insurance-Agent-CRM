@@ -149,21 +149,27 @@ export function getConfigWithOverrides(): PolicyMigrationConfig {
   
   return {
     compatibility: {
-      useTemplateSystem: process.env.USE_TEMPLATE_SYSTEM === 'true' ?? baseConfig.compatibility.useTemplateSystem,
-      allowFallback: process.env.ALLOW_FALLBACK === 'true' ?? baseConfig.compatibility.allowFallback,
-      migrateOnRead: process.env.MIGRATE_ON_READ === 'true' ?? baseConfig.compatibility.migrateOnRead
+      useTemplateSystem: process.env.USE_TEMPLATE_SYSTEM 
+        ? process.env.USE_TEMPLATE_SYSTEM === 'true' 
+        : baseConfig.compatibility.useTemplateSystem,
+      allowFallback: process.env.ALLOW_FALLBACK 
+        ? process.env.ALLOW_FALLBACK === 'true' 
+        : baseConfig.compatibility.allowFallback,
+      migrateOnRead: process.env.MIGRATE_ON_READ 
+        ? process.env.MIGRATE_ON_READ === 'true' 
+        : baseConfig.compatibility.migrateOnRead
     },
     migration: {
       batchSize: parseInt(process.env.MIGRATION_BATCH_SIZE || '') || baseConfig.migration.batchSize,
-      enableAutoMigration: process.env.ENABLE_AUTO_MIGRATION === 'true' ?? baseConfig.migration.enableAutoMigration,
-      enableRollback: process.env.ENABLE_ROLLBACK === 'true' ?? baseConfig.migration.enableRollback,
+      enableAutoMigration: process.env.ENABLE_AUTO_MIGRATION ? process.env.ENABLE_AUTO_MIGRATION === 'true' : baseConfig.migration.enableAutoMigration,
+      enableRollback: process.env.ENABLE_ROLLBACK ? process.env.ENABLE_ROLLBACK === 'true' : baseConfig.migration.enableRollback,
       backupRetentionDays: parseInt(process.env.BACKUP_RETENTION_DAYS || '') || baseConfig.migration.backupRetentionDays
     },
     validation: {
-      strictMode: process.env.STRICT_MODE === 'true' ?? baseConfig.validation.strictMode,
-      allowDuplicates: process.env.ALLOW_DUPLICATES === 'true' ?? baseConfig.validation.allowDuplicates,
-      validateDates: process.env.VALIDATE_DATES === 'true' ?? baseConfig.validation.validateDates,
-      validateAmounts: process.env.VALIDATE_AMOUNTS === 'true' ?? baseConfig.validation.validateAmounts
+      strictMode: process.env.STRICT_MODE ? process.env.STRICT_MODE === 'true' : baseConfig.validation.strictMode,
+      allowDuplicates: process.env.ALLOW_DUPLICATES ? process.env.ALLOW_DUPLICATES === 'true' : baseConfig.validation.allowDuplicates,
+      validateDates: process.env.VALIDATE_DATES ? process.env.VALIDATE_DATES === 'true' : baseConfig.validation.validateDates,
+      validateAmounts: process.env.VALIDATE_AMOUNTS ? process.env.VALIDATE_AMOUNTS === 'true' : baseConfig.validation.validateAmounts
     }
   };
 }

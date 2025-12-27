@@ -1,5 +1,5 @@
 import express from 'express';
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { uploadSingle, uploadMultiple, validateFileContent } from '../middleware/fileUpload';
 import { DocumentService } from '../services/documentService';
 import { CloudinaryService } from '../services/cloudinaryService';
@@ -23,10 +23,12 @@ router.post('/',
   uploadSingle('file'),
   enhancedFileUploadSecurity,
   virusScanMiddleware,
-  validateFileContent,
-  async (req: Request, res: Response) => {
+  (req: Request, res: Response, next: NextFunction): void => {
+    validateFileContent(req, res, next);
+  },
+  async (req: Request, res: Response): Promise<Response> => {
     try {
-      const file = req.file;
+      const file = req.file as Express.Multer.File;
       const { documentType, clientId, folder } = req.body;
 
       if (!file) {
@@ -38,6 +40,14 @@ router.post('/',
       }
 
       // Determine if it's an image or document
+      if (!file || !file.mimetype) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid file format',
+          error: 'INVALID_FILE'
+        });
+      }
+      
       const isImage = file.mimetype.startsWith('image/');
       let uploadResult;
 
@@ -97,7 +107,7 @@ router.post('/',
         false
       );
 
-      res.json({
+      return res.json({
         success: true,
         message: 'File uploaded successfully',
         url: uploadResult.secureUrl,
@@ -113,7 +123,7 @@ router.post('/',
 
     } catch (error) {
       console.error('File upload error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Internal server error',
         error: 'SERVER_ERROR'
@@ -132,9 +142,9 @@ router.post('/document',
   enhancedFileUploadSecurity,
   virusScanMiddleware,
   validateFileContent,
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response): Promise<Response> => {
     try {
-      const file = req.file;
+      const file = req.file as Express.Multer.File;
       const { clientId, documentType, folder } = req.body;
 
       if (!file) {
@@ -215,7 +225,7 @@ router.post('/document',
         false
       );
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Document uploaded successfully',
         data: {
@@ -230,7 +240,7 @@ router.post('/document',
 
     } catch (error) {
       console.error('Document upload error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Internal server error',
         error: 'SERVER_ERROR'
@@ -249,7 +259,7 @@ router.post('/documents',
   enhancedFileUploadSecurity,
   virusScanMiddleware,
   validateFileContent,
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response): Promise<Response> => {
     try {
       const files = req.files as Express.Multer.File[];
       const { clientId, documentType, folder } = req.body;
@@ -315,7 +325,7 @@ router.post('/documents',
         }
       }
 
-      res.json({
+      return res.json({
         success: errors.length === 0,
         message: errors.length === 0 
           ? 'All documents uploaded successfully' 
@@ -328,7 +338,7 @@ router.post('/documents',
 
     } catch (error) {
       console.error('Multiple documents upload error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Internal server error',
         error: 'SERVER_ERROR'
@@ -347,9 +357,9 @@ router.post('/profile-image',
   enhancedFileUploadSecurity,
   virusScanMiddleware,
   validateFileContent,
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response): Promise<Response> => {
     try {
-      const file = req.file;
+      const file = req.file as Express.Multer.File;
       const { clientId } = req.body;
 
       if (!file) {
@@ -379,7 +389,7 @@ router.post('/profile-image',
         });
       }
 
-      res.json({
+      return res.json({
         success: true,
         message: 'Profile image uploaded successfully',
         data: {
@@ -394,7 +404,7 @@ router.post('/profile-image',
 
     } catch (error) {
       console.error('Profile image upload error:', error);
-      res.status(500).json({
+      return res.status(500).json({
         success: false,
         message: 'Internal server error',
         error: 'SERVER_ERROR'
@@ -407,7 +417,7 @@ router.post('/profile-image',
  * Delete a document from Cloudinary
  * DELETE /api/upload/document/:publicId
  */
-router.delete('/document/:publicId', async (req: Request, res: Response) => {
+router.delete('/document/:publicId', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { publicId } = req.params;
     const { resourceType = 'raw' } = req.query;
@@ -436,14 +446,14 @@ router.delete('/document/:publicId', async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Document deleted successfully'
     });
 
   } catch (error) {
     console.error('Document deletion error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Internal server error',
       error: 'SERVER_ERROR'
@@ -455,7 +465,7 @@ router.delete('/document/:publicId', async (req: Request, res: Response) => {
  * Get document information
  * GET /api/upload/document/:publicId/info
  */
-router.get('/document/:publicId/info', async (req: Request, res: Response) => {
+router.get('/document/:publicId/info', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { publicId } = req.params;
     const { resourceType = 'raw' } = req.query;
@@ -483,14 +493,14 @@ router.get('/document/:publicId/info', async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: infoResult.data
     });
 
   } catch (error) {
     console.error('Get document info error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Internal server error',
       error: 'SERVER_ERROR'
@@ -502,7 +512,7 @@ router.get('/document/:publicId/info', async (req: Request, res: Response) => {
  * List all documents for a client
  * GET /api/upload/client/:clientId/documents
  */
-router.get('/client/:clientId/documents', async (req: Request, res: Response) => {
+router.get('/client/:clientId/documents', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { clientId } = req.params;
 
@@ -524,7 +534,7 @@ router.get('/client/:clientId/documents', async (req: Request, res: Response) =>
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         documents: listResult.files || [],
@@ -534,7 +544,7 @@ router.get('/client/:clientId/documents', async (req: Request, res: Response) =>
 
   } catch (error) {
     console.error('List client documents error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Internal server error',
       error: 'SERVER_ERROR'
@@ -546,7 +556,7 @@ router.get('/client/:clientId/documents', async (req: Request, res: Response) =>
  * Generate secure URL for document access
  * POST /api/upload/generate-url
  */
-router.post('/generate-url', async (req: Request, res: Response) => {
+router.post('/generate-url', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { publicId, resourceType = 'raw', width, height, quality } = req.body;
 
@@ -573,7 +583,7 @@ router.post('/generate-url', async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         secureUrl,
@@ -585,7 +595,7 @@ router.post('/generate-url', async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('Generate URL error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Internal server error',
       error: 'SERVER_ERROR'
@@ -597,7 +607,7 @@ router.post('/generate-url', async (req: Request, res: Response) => {
  * Test Cloudinary connection
  * GET /api/upload/test-connection
  */
-router.get('/test-connection', async (req: Request, res: Response) => {
+router.get('/test-connection', async (req: Request, res: Response): Promise<Response> => {
   try {
     const testResult = await DocumentService.testUploadConnection();
 
@@ -609,14 +619,14 @@ router.get('/test-connection', async (req: Request, res: Response) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Cloudinary connection successful'
     });
 
   } catch (error) {
     console.error('Connection test error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Internal server error',
       error: 'SERVER_ERROR'
@@ -628,11 +638,11 @@ router.get('/test-connection', async (req: Request, res: Response) => {
  * Get upload configuration info
  * GET /api/upload/config
  */
-router.get('/config', async (req: Request, res: Response) => {
+router.get('/config', async (req: Request, res: Response): Promise<Response> => {
   try {
     const configValidation = DocumentService.validateUploadConfiguration();
 
-    res.json({
+    return res.json({
       success: configValidation.isValid,
       message: configValidation.isValid 
         ? 'Upload configuration is valid' 
@@ -648,7 +658,7 @@ router.get('/config', async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('Get config error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Internal server error',
       error: 'SERVER_ERROR'
@@ -656,12 +666,11 @@ router.get('/config', async (req: Request, res: Response) => {
   }
 });
 
-export default router;/*
-*
+/**
  * Get security metrics for upload operations
  * GET /api/upload/security/metrics
  */
-router.get('/security/metrics', async (req: Request, res: Response) => {
+router.get('/security/metrics', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { startDate, endDate } = req.query;
     
@@ -670,7 +679,7 @@ router.get('/security/metrics', async (req: Request, res: Response) => {
 
     const metrics = await SecurityLoggingService.getSecurityMetrics(start, end);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...metrics,
@@ -683,7 +692,7 @@ router.get('/security/metrics', async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('Get security metrics error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to retrieve security metrics',
       error: 'METRICS_ERROR'
@@ -695,7 +704,7 @@ router.get('/security/metrics', async (req: Request, res: Response) => {
  * Get recent security events
  * GET /api/upload/security/events
  */
-router.get('/security/events', async (req: Request, res: Response) => {
+router.get('/security/events', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { limit = 50, severity } = req.query;
 
@@ -704,7 +713,7 @@ router.get('/security/events', async (req: Request, res: Response) => {
       severity as any
     );
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         events,
@@ -714,7 +723,7 @@ router.get('/security/events', async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('Get security events error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to retrieve security events',
       error: 'EVENTS_ERROR'
@@ -726,7 +735,7 @@ router.get('/security/events', async (req: Request, res: Response) => {
  * Check IP reputation
  * GET /api/upload/security/ip-check/:ip
  */
-router.get('/security/ip-check/:ip', async (req: Request, res: Response) => {
+router.get('/security/ip-check/:ip', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { ip } = req.params;
 
@@ -740,7 +749,7 @@ router.get('/security/ip-check/:ip', async (req: Request, res: Response) => {
 
     const suspiciousCheck = await SecurityLoggingService.checkSuspiciousIP(ip);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ipAddress: ip,
@@ -750,7 +759,7 @@ router.get('/security/ip-check/:ip', async (req: Request, res: Response) => {
 
   } catch (error) {
     console.error('IP check error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to check IP reputation',
       error: 'IP_CHECK_ERROR'
@@ -760,9 +769,9 @@ router.get('/security/ip-check/:ip', async (req: Request, res: Response) => {
 
 /**
  * Get rate limit status for current client
- * GET /api/upload/rate-limit-status/:uploadType
+ * @route GET /api/upload/rate-limit-status/:uploadType
  */
-router.get('/rate-limit-status/:uploadType', async (req: Request, res: Response) => {
+router.get('/rate-limit-status/:uploadType', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { uploadType } = req.params;
 
@@ -777,7 +786,7 @@ router.get('/rate-limit-status/:uploadType', async (req: Request, res: Response)
     const { getRateLimitStatus } = await import('../middleware/enhancedUploadRateLimit');
     const status = getRateLimitStatus(req, uploadType as any);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         uploadType,
@@ -787,7 +796,7 @@ router.get('/rate-limit-status/:uploadType', async (req: Request, res: Response)
 
   } catch (error) {
     console.error('Rate limit status error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Failed to get rate limit status',
       error: 'RATE_LIMIT_STATUS_ERROR'
@@ -797,3 +806,5 @@ router.get('/rate-limit-status/:uploadType', async (req: Request, res: Response)
 
 // Apply comprehensive error handling to all routes
 router.use(comprehensiveErrorHandler);
+
+export default router;

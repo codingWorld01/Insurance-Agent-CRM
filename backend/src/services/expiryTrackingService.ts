@@ -55,7 +55,8 @@ export class ExpiryTrackingService {
           client: {
             select: {
               id: true,
-              name: true
+              firstName: true,
+              lastName: true
             }
           },
           policyTemplate: {
@@ -72,7 +73,7 @@ export class ExpiryTrackingService {
         }
       });
 
-      const warnings: ExpiryWarning[] = expiringInstances.map(instance => {
+      return expiringInstances.map(instance => {
         const daysUntilExpiry = Math.ceil(
           (instance.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
         );
@@ -89,7 +90,7 @@ export class ExpiryTrackingService {
         return {
           id: instance.id,
           clientId: instance.client.id,
-          clientName: instance.client.name,
+          clientName: `${instance.client.firstName} ${instance.client.lastName}`,
           policyTemplateId: instance.policyTemplate.id,
           policyNumber: instance.policyTemplate.policyNumber,
           policyType: instance.policyTemplate.policyType,
@@ -101,8 +102,6 @@ export class ExpiryTrackingService {
           warningLevel
         };
       });
-
-      return warnings;
     } catch (error) {
       console.error('Error getting expiring policies:', error);
       return [];
@@ -288,7 +287,8 @@ export class ExpiryTrackingService {
           client: {
             select: {
               id: true,
-              name: true
+              firstName: true,
+              lastName: true
             }
           },
           policyTemplate: {
@@ -322,7 +322,7 @@ export class ExpiryTrackingService {
         return {
           id: instance.id,
           clientId: instance.client.id,
-          clientName: instance.client.name,
+          clientName: `${instance.client.firstName} ${instance.client.lastName}`,
           policyTemplateId: instance.policyTemplate.id,
           policyNumber: instance.policyTemplate.policyNumber,
           policyType: instance.policyTemplate.policyType,
@@ -365,7 +365,8 @@ export class ExpiryTrackingService {
           client: {
             select: {
               id: true,
-              name: true
+              firstName: true,
+              lastName: true
             }
           },
           policyTemplate: {
@@ -384,7 +385,7 @@ export class ExpiryTrackingService {
 
       return expiringInstances.map(instance => {
         const daysUntilExpiry = Math.ceil(
-          (instance.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 1000)
+          (instance.expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
         );
 
         let warningLevel: 'critical' | 'warning' | 'info';
@@ -399,7 +400,7 @@ export class ExpiryTrackingService {
         return {
           id: instance.id,
           clientId: instance.client.id,
-          clientName: instance.client.name,
+          clientName: `${instance.client.firstName} ${instance.client.lastName}`,
           policyTemplateId: instance.policyTemplate.id,
           policyNumber: instance.policyTemplate.policyNumber,
           policyType: instance.policyTemplate.policyType,
@@ -438,7 +439,8 @@ export class ExpiryTrackingService {
         include: {
           client: {
             select: {
-              name: true
+              firstName: true,
+              lastName: true
             }
           },
           policyTemplate: {
@@ -468,14 +470,15 @@ export class ExpiryTrackingService {
         }
       });
 
-      // Log activities for each expired policy
+      // Prepare the list of updated policies for the response
       const updatedPolicies = expiredInstances.map(instance => ({
         id: instance.id,
-        policyNumber: instance.policyTemplate.policyNumber,
-        clientName: instance.client.name
+        policyNumber: instance.policyTemplate?.policyNumber || 'unknown',
+        clientName: instance.client ? 
+          `${instance.client.firstName} ${instance.client.lastName}` : 'Unknown Client'
       }));
 
-      // Log bulk expiry update
+      // Log the bulk update
       await ActivityService.logActivity(
         'bulk_policy_expiry_update',
         `Automatically updated ${expiredInstances.length} expired policies`

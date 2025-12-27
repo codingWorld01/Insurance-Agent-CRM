@@ -5,8 +5,11 @@ const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key";
 const SALT_ROUNDS = 12;
 
 export interface JWTPayload {
+  id: string;
   userId: string;
   email: string;
+  role?: string;
+  isPremium?: boolean;
 }
 
 /**

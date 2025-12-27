@@ -147,8 +147,7 @@ export class DocumentController {
             select: {
               id: true,
               firstName: true,
-              lastName: true,
-              clientType: true
+              lastName: true
             }
           }
         }
