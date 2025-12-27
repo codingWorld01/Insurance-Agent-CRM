@@ -81,34 +81,41 @@ export function useDashboard(): DashboardData {
       ]);
 
       // Safely handle the API responses
+      const updatedState: Partial<Omit<DashboardData, 'refreshStats' | 'refreshAll'>> = {
+        isLoading: false,
+        error: null
+      };
+
       if (statsData?.success) {
-        setStats(statsData.data || null);
+        updatedState.stats = statsData.data || null;
       } else {
         console.warn('Failed to load dashboard stats:', statsData);
-        setStats(null);
+        updatedState.stats = null;
       }
 
       if (chartDataResult?.success) {
-        setChartData(Array.isArray(chartDataResult.data) ? chartDataResult.data : null);
+        updatedState.chartData = Array.isArray(chartDataResult.data) ? chartDataResult.data : null;
       } else {
         console.warn('Failed to load chart data:', chartDataResult);
-        setChartData(null);
+        updatedState.chartData = null;
       }
 
       if (activitiesData?.success) {
-        setActivities(Array.isArray(activitiesData.data) ? activitiesData.data : null);
+        updatedState.activities = Array.isArray(activitiesData.data) ? activitiesData.data : null;
       } else {
         console.warn('Failed to load activities:', activitiesData);
-        setActivities(null);
+        updatedState.activities = null;
       }
+
+      updateState(updatedState);
     } catch (err) {
       console.error("Error fetching dashboard data:", err);
       const errorMessage =
         err instanceof Error ? err.message : "Failed to fetch dashboard data";
-      setError(errorMessage);
+      updateState({ error: errorMessage });
       showError(errorMessage, "Dashboard Error");
     } finally {
-      setIsLoading(false);
+      updateState({ isLoading: false });
     }
   }, [isAuthenticated, token, showError]);
 
@@ -131,7 +138,7 @@ export function useDashboard(): DashboardData {
         (await statsResponse.json()) as ApiResponse<DashboardStats>;
 
       if (statsData.success) {
-        setStats(statsData.data || null);
+        updateState({ stats: statsData.data || null });
       }
     } catch (err) {
       console.error("Error refreshing dashboard stats:", err);
@@ -148,11 +155,11 @@ export function useDashboard(): DashboardData {
   }, [fetchDashboardData]);
 
   return {
-    stats,
-    chartData,
-    activities,
-    isLoading,
-    error,
+    stats: state.stats,
+    chartData: state.chartData,
+    activities: state.activities,
+    isLoading: state.isLoading,
+    error: state.error,
     refreshStats,
     refreshAll,
   };

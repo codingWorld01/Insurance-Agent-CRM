@@ -6,106 +6,137 @@ import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import { Plus, FileText, Loader2 } from 'lucide-react';
 
-// Import types
+// Import types from types file
 import type { 
   PolicyTemplateWithStats, 
-  PolicyTemplateFilters, 
-  PolicyTemplateStats,
-  PolicyTemplateSort,
+  PolicyTemplateFilters as PolicyTemplateFiltersType, 
+  PolicyTemplateStats as PolicyTemplateStatsType,
   CreatePolicyTemplateRequest
 } from '@/types';
 
-// Import component types
-import type { 
-  PolicyTemplateCreateModal as PolicyTemplateCreateModalType 
-} from '@/components/policies/PolicyTemplateCreateModal';
-import type { ConfirmDialog as ConfirmDialogType } from '@/components/common/ConfirmDialog';
-import type { EnhancedErrorMessage as EnhancedErrorMessageType } from '@/components/common/EnhancedErrorMessage';
-import type { NetworkStatusIndicator as NetworkStatusIndicatorType } from '@/components/common/NetworkStatusIndicator';
-import type { PolicyTemplateStats as PolicyTemplateStatsComponentType } from '@/components/policies/PolicyTemplateStats';
-import type { PolicyTemplateFilters as PolicyTemplateFiltersComponentType } from '@/components/policies/PolicyTemplateFilters';
-import type { PolicyTemplatesTable as PolicyTemplatesTableType } from '@/components/policies/PolicyTemplatesTable';
-import type { VirtualizedPolicyTemplatesTable as VirtualizedPolicyTemplatesTableType } from '@/components/policies/VirtualizedPolicyTemplatesTable';
+type SortableField = 'instanceCount' | 'activeInstanceCount' | 'policyNumber' | 'policyType' | 'provider' | 'createdAt';
+
+interface PolicyTemplateSort {
+  field: SortableField;
+  direction: 'asc' | 'desc';
+}
 
 // Dynamically import components with proper typing
-const PolicyTemplateCreateModal = dynamic<React.ComponentProps<typeof PolicyTemplateCreateModalType>>(
-  () => import('@/components/policies/PolicyTemplateCreateModal').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading create modal...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof PolicyTemplateCreateModalType>>;
+const PolicyTemplateCreateModal = dynamic<{
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: CreatePolicyTemplateRequest) => Promise<void>;
+  template: PolicyTemplateWithStats | null;
+  loading: boolean;
+}>(() => import('@/components/policies/PolicyTemplateCreateModal').then(mod => mod.PolicyTemplateCreateModal), {
+  ssr: false,
+  loading: () => <div>Loading create modal...</div>
+});
 
-const ConfirmDialog = dynamic<React.ComponentProps<typeof ConfirmDialogType>>(
-  () => import('@/components/common/ConfirmDialog').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading dialog...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof ConfirmDialogType>>;
+const ConfirmDialog = dynamic<{
+  open: boolean;
+  onClose: () => void;
+  onConfirm: () => Promise<void>;
+  title: string;
+  description: string;
+  confirmText: string;
+  cancelText: string;
+  variant?: 'default' | 'destructive';
+  loading: boolean;
+}>(() => import('@/components/common/ConfirmDialog').then(mod => mod.ConfirmDialog), {
+  ssr: false,
+  loading: () => <div>Loading dialog...</div>
+});
 
-const EnhancedErrorMessage = dynamic<React.ComponentProps<typeof EnhancedErrorMessageType>>(
-  () => import('@/components/common/EnhancedErrorMessage').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading error component...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof EnhancedErrorMessageType>>;
+const EnhancedErrorMessage = dynamic<{
+  error: Error | string | null;
+  onRetry?: () => void;
+  showDetails?: boolean;
+  showSupportInfo?: boolean;
+}>(() => import('@/components/common/EnhancedErrorMessage').then(mod => mod.EnhancedErrorMessage), {
+  ssr: false,
+  loading: () => <div>Loading error component...</div>
+});
 
-const NetworkStatusIndicator = dynamic<React.ComponentProps<typeof NetworkStatusIndicatorType>>(
-  () => import('@/components/common/NetworkStatusIndicator').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading network status...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof NetworkStatusIndicatorType>>;
+const NetworkStatusIndicator = dynamic<{
+  position?: 'fixed' | 'relative';
+  showDetails?: boolean;
+  onRetry?: () => void;
+}>(() => import('@/components/common/NetworkStatusIndicator').then(mod => mod.NetworkStatusIndicator), {
+  ssr: false,
+  loading: () => <div>Loading network status...</div>
+});
 
-const PolicyTemplateStats = dynamic<React.ComponentProps<typeof PolicyTemplateStatsType>>(
-  () => import('@/components/policies/PolicyTemplateStats').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading stats...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof PolicyTemplateStatsType>>;
+const PolicyTemplateStats = dynamic<{
+  stats: PolicyTemplateStatsType | null;
+  isLoading: boolean;
+}>(() => import('@/components/policies/PolicyTemplateStats').then(mod => mod.PolicyTemplateStats), {
+  ssr: false,
+  loading: () => <div>Loading stats...</div>
+});
 
-const PolicyTemplateFilters = dynamic<React.ComponentProps<typeof PolicyTemplateFiltersType>>(
-  () => import('@/components/policies/PolicyTemplateFilters').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading filters...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof PolicyTemplateFiltersType>>;
+const PolicyTemplateFilters = dynamic<{
+  filters: PolicyTemplateFiltersType;
+  onFiltersChange: (filters: PolicyTemplateFiltersType) => Promise<void>;
+  availableProviders: string[];
+  totalCount: number;
+  filteredCount: number;
+  loading: boolean;
+}>(() => import('@/components/policies/PolicyTemplateFilters').then(mod => mod.PolicyTemplateFilters), {
+  ssr: false,
+  loading: () => <div>Loading filters...</div>
+});
 
-const PolicyTemplatesTable = dynamic<React.ComponentProps<typeof PolicyTemplatesTableType>>(
-  () => import('@/components/policies/PolicyTemplatesTable').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading table...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof PolicyTemplatesTableType>>;
+const PolicyTemplatesTable = dynamic<{
+  templates: PolicyTemplateWithStats[];
+  loading: boolean;
+  sort: PolicyTemplateSort;
+  onSort: (field: SortableField) => void;
+  onEdit: (template: PolicyTemplateWithStats) => void;
+  onDelete: (template: PolicyTemplateWithStats) => void;
+  onViewDetails: (template: PolicyTemplateWithStats) => void;
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+  onPageChange: (page: number) => void;
+}>(() => import('@/components/policies/PolicyTemplatesTable').then(mod => mod.PolicyTemplatesTable), {
+  ssr: false,
+  loading: () => <div>Loading table...</div>
+});
 
-const VirtualizedPolicyTemplatesTable = dynamic<React.ComponentProps<typeof VirtualizedPolicyTemplatesTableType>>(
-  () => import('@/components/policies/VirtualizedPolicyTemplatesTable').then(mod => mod.default),
-  { 
-    ssr: false, 
-    loading: () => <div>Loading virtualized table...</div> 
-  }
-) as React.ComponentType<React.ComponentProps<typeof VirtualizedPolicyTemplatesTableType>>;
+const VirtualizedPolicyTemplatesTable = dynamic<{
+  templates: PolicyTemplateWithStats[];
+  loading: boolean;
+  sort: PolicyTemplateSort;
+  onSort: (field: SortableField) => void;
+  onEdit: (template: PolicyTemplateWithStats) => void;
+  onDelete: (template: PolicyTemplateWithStats) => void;
+  onViewDetails: (template: PolicyTemplateWithStats) => void;
+  pagination: { page: number; limit: number; total: number; totalPages: number };
+  onPageChange: (page: number) => void;
+  containerHeight?: number;
+  enableVirtualization?: boolean;
+}>(() => import('@/components/policies/VirtualizedPolicyTemplatesTable').then(mod => mod.VirtualizedPolicyTemplatesTable), {
+  ssr: false,
+  loading: () => <div>Loading virtualized table...</div>
+});
 
 // Mock performance monitor if not available
 const usePerformanceMonitor = () => ({
   start: () => ({}),
   end: () => ({}),
-  measureApiCall: (fn: any) => fn()
+  measureApiCall: async (name: string, fn: () => Promise<any>, meta?: any) => {
+    try {
+      const start = performance.now();
+      const result = await fn();
+      const end = performance.now();
+      console.log(`[Perf] ${name} took ${end - start}ms`, meta);
+      return result;
+    } catch (error) {
+      console.error(`[Perf] Error in ${name}:`, error);
+      throw error;
+    }
+  }
 });
 
-import {
-  CreatePolicyTemplateRequest,
-  PolicyTemplateWithStats,
-  PolicyTemplateFilters as PolicyTemplateFiltersType,
-  PolicyTemplateStats as PolicyTemplateStatsType,
-  PolicyTemplateSort,
-} from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { useOfflineDetection } from "@/hooks/useOfflineDetection";
 import { Breadcrumb, breadcrumbItems } from "@/components/common/Breadcrumb";
@@ -151,7 +182,12 @@ export default function PolicyTemplatesPage() {
   const { isOffline } = useOfflineDetection();
 
   // Dashboard refresh functionality
-  const { refreshAfterPolicyTemplateOperation = { refreshAfterPolicyTemplateOperation: async () => {} } } = usePolicyTemplateRefresh();
+  const { 
+    refreshAfterPolicyTemplateOperation = async () => {},
+    refreshAfterPolicyInstanceOperation = async () => {},
+    refreshStats = async () => {},
+    refreshAll = async () => {}
+  } = usePolicyTemplateRefresh() || {};
 
   // Performance monitoring - safely handle missing functions
   const { start: startPerf = () => ({}), end: endPerf = () => ({}) } = usePerformanceMonitor();
@@ -219,7 +255,9 @@ export default function PolicyTemplatesPage() {
     };
 
     try {
-      await measureApiCall('fetch_policy_templates', fetchOperation, {
+      // Use the performance monitor's measureApiCall
+      const performanceMonitor = usePerformanceMonitor();
+      await performanceMonitor.measureApiCall('fetch_policy_templates', fetchOperation, {
         filters: JSON.stringify(filters),
         sort: JSON.stringify(sortOptions),
         page,
@@ -455,9 +493,10 @@ export default function PolicyTemplatesPage() {
     await fetchTemplates(filters, sort, 1, pagination.limit);
   };
 
-  const handleSort = (field: PolicyTemplateSort['field']) => {
-    const newDirection: 'asc' | 'desc' = sort?.field === field && sort?.direction === "asc" ? "desc" : "asc";
+  const handleSort = (field: SortableField) => {
+    const newDirection = sort.field === field && sort.direction === 'asc' ? 'desc' : 'asc';
     const newSort: PolicyTemplateSort = { field, direction: newDirection };
+    
     setSort(newSort);
     fetchTemplates(currentFilters, newSort, pagination.page, pagination.limit);
   };
@@ -494,11 +533,13 @@ export default function PolicyTemplatesPage() {
     <div className="space-y-4 sm:space-y-6">
       {/* Network Status Indicator */}
       {isOffline && (
-        <NetworkStatusIndicator
-          position="relative"
-          showDetails={true}
-          onRetry={handleRetryPageLoad}
-        />
+        <div className="relative">
+          <NetworkStatusIndicator
+            position="fixed"
+            showDetails={true}
+            onRetry={handleRetryPageLoad}
+          />
+        </div>
       )}
 
       {/* Breadcrumb Navigation */}
@@ -514,7 +555,6 @@ export default function PolicyTemplatesPage() {
             <h1 className="text-2xl sm:text-3xl font-bold truncate">
               Policy Templates
             </h1>
-           
           </div>
           <p className="text-gray-600 mt-1 text-sm sm:text-base">
             Manage your insurance policy templates

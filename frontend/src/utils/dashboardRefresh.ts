@@ -8,38 +8,65 @@ import { useDashboardRefresh } from '@/context/DashboardContext';
  * Hook to get dashboard refresh functions for use in policy template operations
  */
 export function usePolicyTemplateRefresh() {
-  const { refreshStats, refreshAll } = useDashboardRefresh();
+  try {
+    const context = useDashboardRefresh();
+    
+    // Create safe no-op functions
+    const noop = async () => {
+      console.warn('Dashboard refresh called but context is not available');
+      return Promise.resolve();
+    };
 
-  const refreshAfterPolicyTemplateOperation = async (operationType: string) => {
-    try {
-      // Refresh dashboard statistics after policy template operations
-      await refreshStats();
-      
-      // Log the refresh operation (this would be handled by the backend)
-      console.log(`Dashboard refreshed after ${operationType} operation`);
-    } catch (error) {
-      console.error('Error refreshing dashboard after policy template operation:', error);
+    // If context is not available, return no-op functions
+    if (!context) {
+      return {
+        refreshAfterPolicyTemplateOperation: noop,
+        refreshAfterPolicyInstanceOperation: noop,
+        refreshStats: noop,
+        refreshAll: noop
+      };
     }
-  };
 
-  const refreshAfterPolicyInstanceOperation = async (operationType: string) => {
-    try {
-      // Refresh dashboard statistics after policy instance operations
-      await refreshStats();
-      
-      // Log the refresh operation
-      console.log(`Dashboard refreshed after policy instance ${operationType} operation`);
-    } catch (error) {
-      console.error('Error refreshing dashboard after policy instance operation:', error);
-    }
-  };
+    const { refreshStats, refreshAll } = context;
 
-  return {
-    refreshAfterPolicyTemplateOperation,
-    refreshAfterPolicyInstanceOperation,
-    refreshStats,
-    refreshAll
-  };
+    const refreshAfterPolicyTemplateOperation = async (operationType: string) => {
+      try {
+        if (refreshStats) {
+          await refreshStats();
+          console.log(`Dashboard refreshed after ${operationType} operation`);
+        }
+      } catch (error) {
+        console.error('Error refreshing dashboard after policy template operation:', error);
+      }
+    };
+
+    const refreshAfterPolicyInstanceOperation = async (operationType: string) => {
+      try {
+        if (refreshStats) {
+          await refreshStats();
+          console.log(`Dashboard refreshed after policy instance ${operationType} operation`);
+        }
+      } catch (error) {
+        console.error('Error refreshing dashboard after policy instance operation:', error);
+      }
+    };
+
+    return {
+      refreshAfterPolicyTemplateOperation,
+      refreshAfterPolicyInstanceOperation,
+      refreshStats: refreshStats || noop,
+      refreshAll: refreshAll || noop
+    };
+  } catch (error) {
+    console.warn('Failed to initialize dashboard refresh:', error);
+    const noop = async () => {};
+    return {
+      refreshAfterPolicyTemplateOperation: noop,
+      refreshAfterPolicyInstanceOperation: noop,
+      refreshStats: noop,
+      refreshAll: noop
+    };
+  }
 }
 
 /**
