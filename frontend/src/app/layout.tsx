@@ -12,7 +12,7 @@ import "@/lib/suppress-warnings";
 const fontClass = "font-sans";
 
 export const metadata: Metadata = {
-  title: "Insurance CRM",
+  title: "Amit's Admin Panel",
   description: "Personal Insurance Agent CRM System",
 };
 
