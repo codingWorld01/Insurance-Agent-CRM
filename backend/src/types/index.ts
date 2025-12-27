@@ -251,3 +251,6 @@ export interface PaginatedResponse<T> {
     hasPrev: boolean;
   };
 }
+// Re-export Express and authentication types
+export * from './express';
+export type { JWTPayload, AuthenticatedRequest } from './express';

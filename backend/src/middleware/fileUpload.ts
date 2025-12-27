@@ -6,7 +6,7 @@ import { CloudinaryService } from '../services/cloudinaryService';
 // Configure multer for memory storage (we'll upload to Cloudinary directly)
 const storage = multer.memoryStorage();
 
-// File filter function
+// File filter function using official multer types
 const fileFilter: multer.Options['fileFilter'] = (req, file, cb) => {
   // Validate file using CloudinaryService
   const validation = CloudinaryService.validateFile(file);
