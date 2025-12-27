@@ -1,9 +1,14 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "vitest"],
+    "types": ["jest", "node", "@types/supertest"],
     "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "module": "commonjs"
   },
-  "include": ["**/*.test.ts"]
+  "include": [
+    "src/**/*",
+    "src/__tests__/**/*",
+    "src/types/**/*.d.ts"
+  ]
 }

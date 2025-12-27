@@ -2,6 +2,7 @@ import request from 'supertest';
 import { testPrisma, getAuthToken, createTestClient } from './setup';
 import { PolicyTemplateService } from '../services/policyTemplateService';
 import { PolicyInstanceService } from '../services/policyInstanceService';
+import '../types/jest';
 
 // Mock the app for testing
 const mockApp = {

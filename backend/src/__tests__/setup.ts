@@ -2,6 +2,9 @@ import { PrismaClient } from '@prisma/client';
 import { execSync } from 'child_process';
 import { hashPassword } from '../services/authService';
 
+// Import Jest types
+import '../types/jest';
+
 // Test database URL - should be different from development
 const TEST_DATABASE_URL = process.env.TEST_DATABASE_URL || 'postgresql://postgres:password@localhost:5432/insurance_crm_test';
 

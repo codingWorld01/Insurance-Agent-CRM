@@ -5,13 +5,7 @@
 import { Request, Response, NextFunction } from 'express'
 import { PrismaClient } from '@prisma/client'
 import { JWTPayload } from '../services/authService';
-
-// Extend Request interface to include user
-interface AuthenticatedRequest extends Request {
-  user?: JWTPayload & {
-    [key: string]: any
-  };
-}
+import { AuthenticatedRequest } from '../types/express';
 
 const prisma = new PrismaClient()
 

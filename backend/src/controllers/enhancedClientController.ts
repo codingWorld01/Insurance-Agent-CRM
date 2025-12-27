@@ -65,7 +65,7 @@ export class EnhancedClientController {
       // Build order by clause
       const orderBy: Prisma.ClientOrderByWithRelationInput = {};
       if (sortBy === 'firstName' || sortBy === 'lastName' || sortBy === 'createdAt' || sortBy === 'updatedAt') {
-        orderBy[sortBy] = sortOrder as 'asc' | 'desc';
+        (orderBy as any)[sortBy] = sortOrder as 'asc' | 'desc';
       } else {
         orderBy.createdAt = 'desc';
       }

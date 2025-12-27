@@ -1,6 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import uploadRoutes from '../routes/upload';
+import '../types/jest';
 
 // Mock Cloudinary to avoid actual API calls during testing
 jest.mock('cloudinary', () => ({
