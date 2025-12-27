@@ -418,7 +418,7 @@ export default function PolicyTemplatesPage() {
 
       {/* Breadcrumb Navigation */}
       <Breadcrumb items={[
-        createBreadcrumbs.dashboard(),
+        ...(createBreadcrumbs ? [createBreadcrumbs.dashboard()] : []),
         { label: "Policy Templates", current: true }
       ]} />
 

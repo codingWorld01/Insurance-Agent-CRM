@@ -61,44 +61,55 @@ export function Breadcrumb({ items, className }: BreadcrumbProps) {
 }
 
 // Utility function to create common breadcrumb patterns
-export const createBreadcrumbs = {
-  dashboard: (): BreadcrumbItem => ({
+type BreadcrumbCreator = {
+  dashboard: () => BreadcrumbItem;
+  clients: () => BreadcrumbItem;
+  client: (name: string, id?: string) => BreadcrumbItem;
+  policies: () => BreadcrumbItem;
+  policyTemplates: () => BreadcrumbItem;
+  policyTemplate: (policyNumber: string, id?: string) => BreadcrumbItem;
+  leads: () => BreadcrumbItem;
+  settings: () => BreadcrumbItem;
+};
+
+export const createBreadcrumbs: BreadcrumbCreator | undefined = {
+  dashboard: () => ({
     label: 'Dashboard',
     href: '/dashboard',
     icon: Home
   }),
   
-  clients: (): BreadcrumbItem => ({
+  clients: () => ({
     label: 'Clients',
     href: '/dashboard/clients'
   }),
   
-  client: (name: string, id?: string): BreadcrumbItem => ({
+  client: (name: string, id?: string) => ({
     label: name,
     href: id ? `/dashboard/clients/${id}` : undefined
   }),
   
-  policies: (): BreadcrumbItem => ({
+  policies: () => ({
     label: 'Policies',
     href: '/dashboard/policies'
   }),
   
-  policyTemplates: (): BreadcrumbItem => ({
+  policyTemplates: () => ({
     label: 'Policy Templates',
     href: '/dashboard/policy-templates'
   }),
   
-  policyTemplate: (policyNumber: string, id?: string): BreadcrumbItem => ({
+  policyTemplate: (policyNumber: string, id?: string) => ({
     label: policyNumber,
     href: id ? `/dashboard/policy-templates/${id}` : undefined
   }),
   
-  leads: (): BreadcrumbItem => ({
+  leads: () => ({
     label: 'Leads',
     href: '/dashboard/leads'
   }),
   
-  settings: (): BreadcrumbItem => ({
+  settings: () => ({
     label: 'Settings',
     href: '/dashboard/settings'
   })
