@@ -1,6 +1,7 @@
 import { PolicyTemplateStatsService } from '../services/policyTemplateStatsService';
 import { ExpiryTrackingService } from '../services/expiryTrackingService';
 import { prisma } from '../services/database';
+import '../types/jest';
 
 describe('Policy Template Statistics Integration Tests', () => {
   beforeAll(async () => {

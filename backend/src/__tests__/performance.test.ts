@@ -2,6 +2,7 @@ import { PolicyTemplateService } from '../services/policyTemplateService';
 import { PolicyInstanceService } from '../services/policyInstanceService';
 import { cacheService } from '../services/cacheService';
 import { prisma } from '../services/database';
+import '../types/jest';
 
 describe('Performance Optimizations', () => {
   beforeAll(async () => {

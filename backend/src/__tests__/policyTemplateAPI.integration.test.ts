@@ -1,4 +1,5 @@
 import request from 'supertest';
+import '../types/jest';
 import { testPrisma, getAuthToken, createTestClient } from './setup';
 import { PolicyTemplateService } from '../services/policyTemplateService';
 import { PolicyInstanceService } from '../services/policyInstanceService';

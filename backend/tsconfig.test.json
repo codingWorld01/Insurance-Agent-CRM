@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["jest", "node", "@types/supertest"],
+    "types": ["jest", "node", "supertest", "express", "multer"],
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "module": "commonjs"

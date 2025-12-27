@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import '../types/jest';
 import {
   validatePolicyData,
   migratePolicies,

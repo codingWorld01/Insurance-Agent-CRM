@@ -28,13 +28,13 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "types": ["node", "jest", "express", "multer", "supertest"]
   },
   "include": [
     "src/**/*",
     "src/types/**/*.d.ts"
   ],
-  "types": ["node", "jest"],
   "exclude": [
     "node_modules",
     "dist"

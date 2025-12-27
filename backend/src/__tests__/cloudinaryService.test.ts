@@ -1,5 +1,6 @@
 import { CloudinaryService } from '../services/cloudinaryService';
 import { DocumentService } from '../services/documentService';
+import '../types/jest';
 
 // Mock Cloudinary to avoid actual API calls during testing
 jest.mock('cloudinary', () => ({

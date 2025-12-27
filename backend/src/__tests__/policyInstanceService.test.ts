@@ -1,5 +1,6 @@
 import { PolicyInstanceService } from '../services/policyInstanceService';
 import { PolicyTemplateService } from '../services/policyTemplateService';
+import '../types/jest';
 import { testPrisma, createTestClient } from './setup';
 import { ValidationError, NotFoundError, ConflictError } from '../utils/errorHandler';
 
