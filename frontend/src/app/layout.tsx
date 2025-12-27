@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
+import { DashboardProvider } from "@/context/DashboardContext";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
@@ -40,8 +41,10 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <AuthProvider>
-              {children}
-              <Toaster />
+              <DashboardProvider>
+                {children}
+                <Toaster />
+              </DashboardProvider>
             </AuthProvider>
           </ThemeProvider>
         </ErrorBoundary>

@@ -41,15 +41,21 @@ export function useDashboardContext() {
 // Hook to get just the refresh functions without subscribing to all dashboard data
 export function useDashboardRefresh() {
   const context = useContext(DashboardContext);
+  
+  // Create safe no-op functions
+  const noop = async () => {};
+  
+  // If context is undefined, return no-op functions
   if (context === undefined) {
-    // Return no-op functions if not within provider (for components outside dashboard)
     return {
-      refreshStats: async () => {},
-      refreshAll: async () => {}
+      refreshStats: noop,
+      refreshAll: noop
     };
   }
+  
+  // Return the actual functions from context, or no-op if they don't exist
   return {
-    refreshStats: context.refreshStats,
-    refreshAll: context.refreshAll
+    refreshStats: context.refreshStats || noop,
+    refreshAll: context.refreshAll || noop
   };
 }

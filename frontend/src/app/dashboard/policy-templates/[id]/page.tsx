@@ -656,9 +656,7 @@ export default function PolicyDetailPage() {
         onClose={handleDeleteCancel}
         onConfirm={handleDeleteConfirm}
         title="Delete Policy Template"
-        description={
-          `Are you sure you want to delete policy template "${template.policyNumber}"? This will also delete all associated policy instances for clients (${stats?.totalClients || 0} clients affected). This action cannot be undone.`
-        }
+        description={`Are you sure you want to delete policy template "${template.policyNumber}"? This will also delete all associated policy instances for clients (${stats?.totalClients || 0} clients affected). This action cannot be undone.`}
         confirmText="Delete Template"
         cancelText="Cancel"
         variant="destructive"
@@ -666,4 +664,3 @@ export default function PolicyDetailPage() {
       />
     </div>
   );
-```
