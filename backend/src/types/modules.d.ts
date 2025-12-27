@@ -1,5 +1,192 @@
 // Comprehensive module declarations for deployment
 
+// Comprehensive module declarations for deployment
+
+declare module 'express' {
+  import { IncomingMessage, ServerResponse } from 'http';
+  import { ParsedQs } from 'qs';
+
+  export interface Request<
+    P = any,
+    ResBody = any,
+    ReqBody = any,
+    ReqQuery = ParsedQs,
+    Locals extends Record<string, any> = Record<string, any>
+  > extends IncomingMessage {
+    body: ReqBody;
+    cookies: any;
+    method: string;
+    params: P;
+    query: ReqQuery;
+    route: any;
+    signedCookies: any;
+    originalUrl: string;
+    url: string;
+    baseUrl: string;
+    path: string;
+    hostname: string;
+    ip: string;
+    ips: string[];
+    protocol: string;
+    secure: boolean;
+    fresh: boolean;
+    stale: boolean;
+    xhr: boolean;
+    connection: any;
+    socket: any;
+    user?: any;
+    file?: any;
+    files?: any;
+    get(name: string): string | undefined;
+    header(name: string): string | undefined;
+    accepts(): string[];
+    accepts(type: string): string | false;
+    accepts(type: string[]): string | false;
+    accepts(...type: string[]): string | false;
+    acceptsCharsets(): string[];
+    acceptsCharsets(charset: string): string | false;
+    acceptsCharsets(charset: string[]): string | false;
+    acceptsCharsets(...charset: string[]): string | false;
+    acceptsEncodings(): string[];
+    acceptsEncodings(encoding: string): string | false;
+    acceptsEncodings(encoding: string[]): string | false;
+    acceptsEncodings(...encoding: string[]): string | false;
+    acceptsLanguages(): string[];
+    acceptsLanguages(lang: string): string | false;
+    acceptsLanguages(lang: string[]): string | false;
+    acceptsLanguages(...lang: string[]): string | false;
+    range(size: number, options?: any): any;
+    param(name: string, defaultValue?: any): string;
+    is(type: string | string[]): string | false | null;
+    app: Application;
+    res?: Response;
+    next?: NextFunction;
+  }
+
+  export interface Response<ResBody = any, Locals extends Record<string, any> = Record<string, any>> extends ServerResponse {
+    app: Application;
+    headersSent: boolean;
+    locals: Locals;
+    req?: Request;
+    charset: string;
+    status(code: number): this;
+    sendStatus(code: number): this;
+    links(links: any): this;
+    send: Send<ResBody, this>;
+    json: Send<ResBody, this>;
+    jsonp: Send<ResBody, this>;
+    sendFile(path: string, fn?: any): void;
+    sendFile(path: string, options: any, fn?: any): void;
+    download(path: string, fn?: any): void;
+    download(path: string, filename: string, fn?: any): void;
+    download(path: string, filename: string, options: any, fn?: any): void;
+    contentType(type: string): this;
+    type(type: string): this;
+    format(obj: any): this;
+    attachment(filename?: string): this;
+    set(field: any): this;
+    set(field: string, value?: string | string[]): this;
+    header(field: any): this;
+    header(field: string, value?: string | string[]): this;
+    get(field: string): string;
+    clearCookie(name: string, options?: any): this;
+    cookie(name: string, val: string, options: any): this;
+    cookie(name: string, val: any, options?: any): this;
+    cookie(name: string, val: any): this;
+    location(url: string): this;
+    redirect(url: string): void;
+    redirect(status: number, url: string): void;
+    redirect(url: string, status: number): void;
+    render(view: string, options?: object, callback?: (err: Error, html: string) => void): void;
+    render(view: string, callback?: (err: Error, html: string) => void): void;
+    vary(field: string): this;
+    append(field: string, value?: string[] | string): this;
+  }
+
+  export interface NextFunction {
+    (err?: any): void;
+    (deferToNext: 'router'): void;
+    (deferToNext: 'route'): void;
+  }
+
+  export interface RequestHandler<
+    P = any,
+    ResBody = any,
+    ReqBody = any,
+    ReqQuery = ParsedQs,
+    Locals extends Record<string, any> = Record<string, any>
+  > {
+    (req: Request<P, ResBody, ReqBody, ReqQuery, Locals>, res: Response<ResBody, Locals>, next: NextFunction): void;
+  }
+
+  export interface ErrorRequestHandler<
+    P = any,
+    ResBody = any,
+    ReqBody = any,
+    ReqQuery = ParsedQs,
+    Locals extends Record<string, any> = Record<string, any>
+  > {
+    (err: any, req: Request<P, ResBody, ReqBody, ReqQuery, Locals>, res: Response<ResBody, Locals>, next: NextFunction): void;
+  }
+
+  export interface Send<ResBody = any, T = Response<ResBody>> {
+    (body?: ResBody): T;
+  }
+
+  export interface Application<Locals extends Record<string, any> = Record<string, any>> {
+    use(...handlers: any[]): this;
+    get(...handlers: any[]): this;
+    post(...handlers: any[]): this;
+    put(...handlers: any[]): this;
+    delete(...handlers: any[]): this;
+    patch(...handlers: any[]): this;
+    options(...handlers: any[]): this;
+    head(...handlers: any[]): this;
+    all(...handlers: any[]): this;
+    listen(port: number, hostname: string, backlog: number, callback?: () => void): any;
+    listen(port: number, hostname: string, callback?: () => void): any;
+    listen(port: number, callback?: () => void): any;
+    listen(callback?: () => void): any;
+    listen(path: string, callback?: () => void): any;
+    listen(handle: any, listeningListener?: () => void): any;
+    set(setting: string, val: any): this;
+    get(name: string): any;
+    enabled(setting: string): boolean;
+    disabled(setting: string): boolean;
+    enable(setting: string): this;
+    disable(setting: string): this;
+    locals: Locals;
+    json(options?: any): RequestHandler;
+    urlencoded(options?: any): RequestHandler;
+    static(root: string, options?: any): RequestHandler;
+  }
+
+  export interface Router {
+    use(...handlers: any[]): this;
+    get(...handlers: any[]): this;
+    post(...handlers: any[]): this;
+    put(...handlers: any[]): this;
+    delete(...handlers: any[]): this;
+    patch(...handlers: any[]): this;
+    options(...handlers: any[]): this;
+    head(...handlers: any[]): this;
+    all(...handlers: any[]): this;
+  }
+
+  export function Router(options?: any): Router;
+
+  interface Express {
+    (): any;
+    json(options?: any): any;
+    urlencoded(options?: any): any;
+    static(root: string, options?: any): any;
+    Router: any;
+  }
+
+  const express: Express;
+  export = express;
+}
+
 declare module 'cors' {
   import { RequestHandler } from 'express';
 
