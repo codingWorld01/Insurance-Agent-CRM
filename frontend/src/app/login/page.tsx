@@ -143,11 +143,7 @@ export default function LoginPage() {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                Demo credentials: amitulhe@gmail.com / Amit@123
-              </p>
-            </div>
+          
           </CardContent>
         </Card>
 

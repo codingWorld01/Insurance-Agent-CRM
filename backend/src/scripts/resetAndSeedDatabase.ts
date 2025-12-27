@@ -219,11 +219,9 @@ async function seedLeads() {
   for (let i = 0; i < 25; i++) {
     const firstName = getRandomElement(firstNames);
     const lastName = getRandomElement(lastNames);
-    const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${i}@email.com`;
 
     leads.push({
       name: `${firstName} ${lastName}`,
-      email,
       phone: getRandomElement(phoneNumbers),
       insuranceInterest: getRandomElement(insuranceInterests),
       status: getRandomElement(leadStatuses),
