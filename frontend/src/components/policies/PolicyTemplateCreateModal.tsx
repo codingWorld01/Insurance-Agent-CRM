@@ -279,8 +279,8 @@ export function PolicyTemplateCreateModal({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[500px] max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>
             {isEditing ? 'Edit Policy Template' : 'Create Policy Template'}
           </DialogTitle>
@@ -292,153 +292,155 @@ export function PolicyTemplateCreateModal({
           </p>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Policy Number */}
-          <div className="space-y-2">
-            <Label htmlFor="policyNumber">Policy Number *</Label>
-            <div className="relative">
-              <Input
-                id="policyNumber"
-                value={formData.policyNumber}
-                onChange={(e) => handleInputChange('policyNumber', e.target.value)}
-                placeholder="e.g., POL-2024-001"
-                className={`pr-10 ${
-                  errors.policyNumber 
-                    ? 'border-red-500' 
-                    : policyNumberValidation.isValid === true 
-                      ? 'border-green-500' 
-                      : policyNumberValidation.isValid === false 
-                        ? 'border-red-500' 
-                        : ''
-                }`}
-                disabled={submitting || loading}
-                required
-                maxLength={50}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                {policyNumberValidation.isChecking && (
-                  <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-                )}
-                {!policyNumberValidation.isChecking && policyNumberValidation.isValid === true && (
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                )}
-                {!policyNumberValidation.isChecking && policyNumberValidation.isValid === false && (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                )}
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+            {/* Policy Number */}
+            <div className="space-y-2">
+              <Label htmlFor="policyNumber">Policy Number *</Label>
+              <div className="relative">
+                <Input
+                  id="policyNumber"
+                  value={formData.policyNumber}
+                  onChange={(e) => handleInputChange('policyNumber', e.target.value)}
+                  placeholder="e.g., POL-2024-001"
+                  className={`pr-10 ${
+                    errors.policyNumber 
+                      ? 'border-red-500' 
+                      : policyNumberValidation.isValid === true 
+                        ? 'border-green-500' 
+                        : policyNumberValidation.isValid === false 
+                          ? 'border-red-500' 
+                          : ''
+                  }`}
+                  disabled={submitting || loading}
+                  required
+                  maxLength={50}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  {policyNumberValidation.isChecking && (
+                    <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+                  )}
+                  {!policyNumberValidation.isChecking && policyNumberValidation.isValid === true && (
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  )}
+                  {!policyNumberValidation.isChecking && policyNumberValidation.isValid === false && (
+                    <AlertCircle className="h-4 w-4 text-red-500" />
+                  )}
+                </div>
               </div>
-            </div>
-            {errors.policyNumber && (
-              <p className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.policyNumber}
-              </p>
-            )}
-            {!errors.policyNumber && policyNumberValidation.message && (
-              <p className={`text-sm flex items-center gap-1 ${
-                policyNumberValidation.isValid === true 
-                  ? 'text-green-600' 
-                  : policyNumberValidation.isValid === false 
-                    ? 'text-red-600' 
-                    : 'text-gray-500'
-              }`}>
-                {policyNumberValidation.isValid === true && <CheckCircle2 className="h-3 w-3" />}
-                {policyNumberValidation.isValid === false && <AlertCircle className="h-3 w-3" />}
-                {policyNumberValidation.message}
-              </p>
-            )}
-            <p className="text-xs text-gray-500">
-              Only letters, numbers, hyphens, and underscores allowed (3-50 characters)
-            </p>
-          </div>
-
-          {/* Policy Type */}
-          <div className="space-y-2">
-            <Label htmlFor="policyType">Policy Type *</Label>
-            <Select
-              value={formData.policyType}
-              onValueChange={(value) => handleInputChange('policyType', value)}
-              disabled={submitting || loading}
-            >
-              <SelectTrigger className={errors.policyType ? 'border-red-500' : ''}>
-                <SelectValue placeholder="Select policy type" />
-              </SelectTrigger>
-              <SelectContent>
-                {policyTypeOptions.map((option) => {
-                  const IconComponent = option.icon;
-                  return (
-                    <SelectItem key={option.value} value={option.value}>
-                      <div className="flex items-center gap-2">
-                        <IconComponent className="h-4 w-4" />
-                        {option.label}
-                      </div>
-                    </SelectItem>
-                  );
-                })}
-              </SelectContent>
-            </Select>
-            {errors.policyType && (
-              <p className="text-sm text-red-600">{errors.policyType}</p>
-            )}
-          </div>
-
-          {/* Provider */}
-          <div className="space-y-2">
-            <Label htmlFor="provider">Provider *</Label>
-            <Input
-              id="provider"
-              value={formData.provider}
-              onChange={(e) => handleInputChange('provider', e.target.value)}
-              placeholder="e.g., State Farm, Allstate, Progressive"
-              className={errors.provider ? 'border-red-500' : ''}
-              disabled={submitting || loading}
-              required
-              maxLength={100}
-            />
-            {errors.provider && (
-              <p className="text-sm text-red-600 flex items-center gap-1">
-                <AlertCircle className="h-3 w-3" />
-                {errors.provider}
-              </p>
-            )}
-            <p className="text-xs text-gray-500">
-              {formData.provider.length}/100 characters
-            </p>
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Optional description of the policy template (e.g., coverage details, special features, target audience)..."
-              className={errors.description ? 'border-red-500' : ''}
-              disabled={submitting || loading}
-              rows={4}
-              maxLength={500}
-            />
-            <div className="flex justify-between items-center">
-              {errors.description && (
+              {errors.policyNumber && (
                 <p className="text-sm text-red-600 flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
-                  {errors.description}
+                  {errors.policyNumber}
                 </p>
               )}
-              <p className={`text-xs ml-auto ${
-                (formData.description?.length || 0) > 450 
-                  ? 'text-amber-600' 
-                  : (formData.description?.length || 0) > 400 
-                    ? 'text-yellow-600' 
-                    : 'text-gray-500'
-              }`}>
-                {formData.description?.length || 0}/500 characters
+              {!errors.policyNumber && policyNumberValidation.message && (
+                <p className={`text-sm flex items-center gap-1 ${
+                  policyNumberValidation.isValid === true 
+                    ? 'text-green-600' 
+                    : policyNumberValidation.isValid === false 
+                      ? 'text-red-600' 
+                      : 'text-gray-500'
+                }`}>
+                  {policyNumberValidation.isValid === true && <CheckCircle2 className="h-3 w-3" />}
+                  {policyNumberValidation.isValid === false && <AlertCircle className="h-3 w-3" />}
+                  {policyNumberValidation.message}
+                </p>
+              )}
+              <p className="text-xs text-gray-500">
+                Only letters, numbers, hyphens, and underscores allowed (3-50 characters)
               </p>
+            </div>
+
+            {/* Policy Type */}
+            <div className="space-y-2">
+              <Label htmlFor="policyType">Policy Type *</Label>
+              <Select
+                value={formData.policyType}
+                onValueChange={(value) => handleInputChange('policyType', value)}
+                disabled={submitting || loading}
+              >
+                <SelectTrigger className={errors.policyType ? 'border-red-500' : ''}>
+                  <SelectValue placeholder="Select policy type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {policyTypeOptions.map((option) => {
+                    const IconComponent = option.icon;
+                    return (
+                      <SelectItem key={option.value} value={option.value}>
+                        <div className="flex items-center gap-2">
+                          <IconComponent className="h-4 w-4" />
+                          {option.label}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              {errors.policyType && (
+                <p className="text-sm text-red-600">{errors.policyType}</p>
+              )}
+            </div>
+
+            {/* Provider */}
+            <div className="space-y-2">
+              <Label htmlFor="provider">Provider *</Label>
+              <Input
+                id="provider"
+                value={formData.provider}
+                onChange={(e) => handleInputChange('provider', e.target.value)}
+                placeholder="e.g., State Farm, Allstate, Progressive"
+                className={errors.provider ? 'border-red-500' : ''}
+                disabled={submitting || loading}
+                required
+                maxLength={100}
+              />
+              {errors.provider && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.provider}
+                </p>
+              )}
+              <p className="text-xs text-gray-500">
+                {formData.provider.length}/100 characters
+              </p>
+            </div>
+
+            {/* Description */}
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange('description', e.target.value)}
+                placeholder="Optional description of the policy template (e.g., coverage details, special features, target audience)..."
+                className={errors.description ? 'border-red-500' : ''}
+                disabled={submitting || loading}
+                rows={4}
+                maxLength={500}
+              />
+              <div className="flex justify-between items-center">
+                {errors.description && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.description}
+                  </p>
+                )}
+                <p className={`text-xs ml-auto ${
+                  (formData.description?.length || 0) > 450 
+                    ? 'text-amber-600' 
+                    : (formData.description?.length || 0) > 400 
+                      ? 'text-yellow-600' 
+                      : 'text-gray-500'
+                }`}>
+                  {formData.description?.length || 0}/500 characters
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Form Actions */}
-          <div className="flex justify-end gap-3 pt-6 border-t">
+          <div className="flex justify-end gap-3 pt-4 border-t flex-shrink-0">
             <Button
               type="button"
               variant="outline"

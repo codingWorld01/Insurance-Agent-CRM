@@ -52,9 +52,6 @@ export function Header({ title }: HeaderProps) {
           {/* Theme Toggle */}
           <ThemeToggle />
           
-          {/* Keyboard Shortcuts Help */}
-          <KeyboardShortcutHint />
-          
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 

@@ -17,7 +17,7 @@ export function ResponsiveFormWrapper({ children, className }: ResponsiveFormWra
       className={cn(
         "w-full",
         // Mobile-first responsive spacing
-        isMobile && "px-4 py-2",
+        isMobile && "px-0 py-0",
         isTablet && "px-6 py-4",
         !isMobile && !isTablet && "",
         className

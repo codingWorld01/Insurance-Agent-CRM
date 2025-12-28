@@ -4,10 +4,9 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, List, LayoutGrid } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useClients } from '@/hooks/useClients';
 import { ClientsTable } from '@/components/clients/ClientsTable';
-import { ClientCard } from '@/components/clients/ClientCard';
 import { ClientFilters, SortField, SortOrder } from '@/components/clients/ClientFilters';
 import { ClientModal } from '@/components/clients/ClientModal';
 import { SearchInput } from '@/components/common/SearchInput';
@@ -15,7 +14,6 @@ import { Pagination } from '@/components/common/Pagination';
 import { Client, CreateClientRequest } from '@/types';
 
 
-type ViewMode = 'table' | 'cards';
 
 // Use Client type directly from types/index.ts
 
@@ -26,7 +24,6 @@ export default function ClientsPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('table');
   const [sortField, setSortField] = useState<SortField>('name');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
 
@@ -142,10 +139,6 @@ export default function ClientsPage() {
     setSortOrder(order);
   };
 
-  const toggleViewMode = () => {
-    setViewMode(prev => prev === 'table' ? 'cards' : 'table');
-  };
-
   if (error) {
     return (
       <div className="space-y-6">
@@ -177,26 +170,8 @@ export default function ClientsPage() {
               </p>
             </div>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={toggleViewMode}
-                className="flex items-center gap-2"
-              >
-                {viewMode === 'table' ? (
-                  <>
-                    <LayoutGrid className="h-4 w-4" />
-                    Cards
-                  </>
-                ) : (
-                  <>
-                    <List className="h-4 w-4" />
-                    Table
-                  </>
-                )}
-              </Button>
-              <Button onClick={handleAddClient}>
-                <Plus className="h-4 w-4 mr-2 cursor-pointer" />
+              <Button onClick={handleAddClient} className='cursor-pointer'>
+                <Plus className="h-4 w-4 mr-2" />
                 Add Client
               </Button>
             </div>
@@ -230,45 +205,14 @@ export default function ClientsPage() {
             </div>
           )}
 
-          {/* Clients Display */}
-          {viewMode === 'table' ? (
-            <ClientsTable
-              clients={sortedClients}
-              loading={loading}
-              onView={handleView}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {loading ? (
-                // Loading skeleton for cards
-                [...Array(6)].map((_, i) => (
-                  <div key={i} className="h-48 bg-muted/60 rounded-lg animate-pulse" />
-                ))
-              ) : sortedClients.length === 0 ? (
-                <div className="col-span-full text-center py-12">
-                  <div className="text-muted-foreground text-lg mb-2">No clients found</div>
-                  <div className="text-muted-foreground/70">
-                    {search 
-                      ? 'Try adjusting your search terms'
-                      : 'Start by adding your first client'
-                    }
-                  </div>
-                </div>
-              ) : (
-                sortedClients.map((client) => (
-                  <ClientCard
-                    key={client.id}
-                    client={client}
-                    onView={handleView}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                  />
-                ))
-              )}
-            </div>
-          )}
+          {/* Clients Table */}
+          <ClientsTable
+            clients={sortedClients}
+            loading={loading}
+            onView={handleView}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
 
           {/* Pagination */}
           {pagination.totalPages > 1 && (

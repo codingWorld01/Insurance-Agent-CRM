@@ -13,25 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { User, Users, Building2, AlertTriangle, FileText, Shield } from 'lucide-react';
-
-// Unified client interface matching the backend model
-interface UnifiedClient {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  whatsappNumber: string;
-  companyName?: string;
-  relationship?: string;
-  documents?: Array<{
-    id: string;
-    [key: string]: unknown;
-  }>;
-  policies?: Array<{
-    id: string;
-    [key: string]: unknown;
-  }>;
-}
+import type { Client as UnifiedClient } from '@/types';
 
 interface ClientDeleteDialogProps {
   open: boolean;

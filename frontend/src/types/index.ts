@@ -67,6 +67,16 @@ export interface CreateLeadRequest {
   notes?: string;
 }
 
+// Document interface for client documents
+export interface Document {
+  id: string;
+  documentType: string;
+  fileName: string;
+  originalName: string;
+  cloudinaryUrl: string;
+  uploadedAt: string;
+}
+
 // Client types - Unified model
 export interface Client {
   id: string;
@@ -85,11 +95,11 @@ export interface Client {
   address?: string;
   birthPlace?: string;
   age?: number;
-  gender?: string;
+  gender?: "MALE" | "FEMALE" | "OTHER";
   height?: number;
   weight?: number;
   education?: string;
-  maritalStatus?: string;
+  maritalStatus?: "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED";
   businessJob?: string;
   nameOfBusiness?: string;
   typeOfDuty?: string;
@@ -102,12 +112,13 @@ export interface Client {
   companyName?: string;
   
   // Optional family/employee fields
-  relationship?: string;
+  relationship?: "SPOUSE" | "CHILD" | "PARENT" | "SIBLING" | "EMPLOYEE" | "DEPENDENT" | "OTHER";
   
   // System fields
   profileImage?: string;
   createdAt: string;
   updatedAt: string;
+  documents: Document[];
   policies?: Policy[];
   
   // Computed field for backward compatibility

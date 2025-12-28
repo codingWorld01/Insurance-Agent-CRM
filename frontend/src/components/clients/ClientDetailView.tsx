@@ -31,70 +31,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow, differenceInYears, format } from "date-fns";
 import { formatCurrency } from "@/utils/currencyUtils";
-
-interface Document {
-  id: string;
-  documentType: string;
-  fileName: string;
-  originalName: string;
-  cloudinaryUrl: string;
-  uploadedAt: string;
-}
-
-// Unified client interface matching the backend model
-interface UnifiedClient {
-  id: string;
-  // Mandatory fields
-  firstName: string;
-  lastName: string;
-  dateOfBirth: string;
-  phoneNumber: string;
-  whatsappNumber: string;
-
-  // Optional personal fields
-  middleName?: string;
-  email?: string;
-  state?: string;
-  city?: string;
-  address?: string;
-  birthPlace?: string;
-  age?: number;
-  gender?: "MALE" | "FEMALE" | "OTHER";
-  height?: number;
-  weight?: number;
-  education?: string;
-  maritalStatus?: "SINGLE" | "MARRIED" | "DIVORCED" | "WIDOWED";
-  businessJob?: string;
-  nameOfBusiness?: string;
-  typeOfDuty?: string;
-  annualIncome?: number;
-  panNumber?: string;
-  gstNumber?: string;
-  additionalInfo?: string;
-
-  // Optional corporate fields
-  companyName?: string;
-
-  // Optional family/employee fields
-  relationship?:
-    | "SPOUSE"
-    | "CHILD"
-    | "PARENT"
-    | "SIBLING"
-    | "EMPLOYEE"
-    | "DEPENDENT"
-    | "OTHER";
-
-  // System fields
-  profileImage?: string;
-  createdAt: string;
-  updatedAt: string;
-  documents: Document[];
-  policies?: Array<{
-    id: string;
-    [key: string]: any;
-  }>;
-}
+import type { Client as UnifiedClient, Document } from "@/types";
 
 interface ClientDetailViewProps {
   client: UnifiedClient;
@@ -128,7 +65,7 @@ export function ClientDetailView({
   const getClientType = (): {
     type: string;
     icon: any;
-    variant: unknown;
+    variant: "default" | "outline" | "secondary" | "destructive";
     color: string;
   } => {
     if (client.companyName) {
@@ -215,13 +152,6 @@ export function ClientDetailView({
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h1 className="text-2xl font-bold">{clientName}</h1>
-                  <Badge
-                    variant={typeInfo.variant}
-                    className="flex items-center gap-1"
-                  >
-                    <TypeIcon className="h-3 w-3" />
-                    {typeInfo.type}
-                  </Badge>
                 </div>
                 <div className="text-sm text-gray-500 space-y-1">
                   <div>Client ID: {client.id.slice(0, 8)}...</div>

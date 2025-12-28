@@ -649,7 +649,7 @@ export function PersonalDetailsSection({
           )}
         </Button>
       </CollapsibleTrigger>
-      <CollapsibleContent className="px-4 pb-4">
+      <CollapsibleContent className="px-0 pb-0">
         {SectionContent}
       </CollapsibleContent>
     </Collapsible>

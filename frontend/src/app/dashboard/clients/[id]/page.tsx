@@ -37,9 +37,7 @@ import { formatCurrency } from "@/utils/currencyUtils";
 import Link from "next/link";
 import { Breadcrumb, breadcrumbItems } from "@/components/common/Breadcrumb";
 import { useAuthErrorHandler } from "@/hooks/useAuthErrorHandler";
-
-// Import the UnifiedClient type from ClientDetailView
-import type { UnifiedClient } from "@/components/clients/ClientDetailView";
+import type { Client as UnifiedClient, Document } from "@/types";
 
 
 export default function ClientDetailPage() {

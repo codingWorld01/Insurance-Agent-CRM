@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   Users, 
@@ -18,109 +17,183 @@ interface PolicyDetailStatsProps {
   loading: boolean;
 }
 
+interface StatCardProps {
+  title: string;
+  value: number | string;
+  subtitle?: string;
+  isLoading: boolean;
+  icon: React.ComponentType<{ className?: string }>;
+  bgColor: string;
+  borderColor: string;
+  iconBg: string;
+  iconColor: string;
+  textColor: string;
+}
+
+const StatCard = ({ 
+  title, 
+  value, 
+  subtitle, 
+  isLoading, 
+  icon: Icon, 
+  bgColor, 
+  borderColor, 
+  iconBg, 
+  iconColor, 
+  textColor 
+}: StatCardProps) => {
+  if (isLoading) {
+    return (
+      <div className={`${bgColor} p-4 rounded-lg border ${borderColor}`}>
+        <div className="flex items-center gap-3">
+          <div className={`p-2 ${iconBg} rounded-lg`}>
+            <div className="h-5 w-5 bg-gray-300 rounded animate-pulse" />
+          </div>
+          <div className="flex-1">
+            <div className="h-6 bg-gray-300 rounded animate-pulse w-20 mb-2" />
+            <div className="h-4 bg-gray-300 rounded animate-pulse w-16 mb-1" />
+            {subtitle && (
+              <div className="h-3 bg-gray-300 rounded animate-pulse w-24" />
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`${bgColor} p-4 rounded-lg border ${borderColor}`}>
+      <div className="flex items-center gap-3">
+      
+        <div>
+          <div className={`text-2xl font-bold ${textColor}`}>
+            {value}
+          </div>
+          <div className={`text-sm font-medium ${textColor}`}>
+            {title}
+          </div>
+          {subtitle && (
+            <div className="text-xs text-gray-500 mt-1">
+              {subtitle}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export function PolicyDetailStats({ stats, loading }: PolicyDetailStatsProps) {
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {[...Array(6)].map((_, i) => (
-          <Card key={i} className="animate-pulse">
-            <CardContent className="p-4">
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-6 bg-gray-200 rounded w-1/2"></div>
-            </CardContent>
-          </Card>
+          <StatCard
+            key={i}
+            title=""
+            value={0}
+            isLoading={true}
+            icon={Users}
+            bgColor="bg-gray-50"
+            borderColor="border-gray-200"
+            iconBg="bg-gray-100"
+            iconColor="text-gray-600"
+            textColor="text-gray-600"
+          />
         ))}
       </div>
     );
   }
 
-  const statCards = [
-    {
-      title: "Total Clients",
-      value: stats.totalClients,
-      icon: Users,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-      description: "Clients with this policy",
-    },
-    {
-      title: "Active Policies",
-      value: stats.activeInstances,
-      icon: CheckCircle,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-      description: "Currently active",
-    },
-    {
-      title: "Expired Policies",
-      value: stats.expiredInstances,
-      icon: XCircle,
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-      description: "No longer active",
-    },
-    {
-      title: "Total Premium",
-      value: formatCurrency(stats.totalPremium),
-      icon: DollarSign,
-      color: "text-purple-600",
-      bgColor: "bg-purple-50",
-      description: "Combined premium value",
-    },
-    {
-      title: "Total Commission",
-      value: formatCurrency(stats.totalCommission),
-      icon: TrendingUp,
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
-      description: "Total commission earned",
-    },
-    {
-      title: "Expiring This Month",
-      value: stats.expiringThisMonth,
-      icon: AlertTriangle,
-      color: stats.expiringThisMonth > 0 ? "text-amber-600" : "text-gray-600",
-      bgColor: stats.expiringThisMonth > 0 ? "bg-amber-50" : "bg-gray-50",
-      description: "Require attention",
-    },
-  ];
-
   return (
     <div className="space-y-4">
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {statCards.map((stat, index) => (
-          <Card key={index} className="relative overflow-hidden">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-600 truncate">
-                    {stat.title}
-                  </p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">
-                    {stat.value}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1 truncate">
-                    {stat.description}
-                  </p>
-                </div>
-                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                  <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <StatCard
+          title="Total Clients"
+          value={stats.totalClients}
+          subtitle="Clients with this policy"
+          isLoading={loading}
+          icon={Users}
+          bgColor="bg-blue-50"
+          borderColor="border-blue-200"
+          iconBg="bg-blue-100"
+          iconColor="text-blue-600"
+          textColor="text-blue-600"
+        />
+        
+        <StatCard
+          title="Active Policies"
+          value={stats.activeInstances}
+          subtitle="Currently active"
+          isLoading={loading}
+          icon={CheckCircle}
+          bgColor="bg-green-50"
+          borderColor="border-green-200"
+          iconBg="bg-green-100"
+          iconColor="text-green-600"
+          textColor="text-green-600"
+        />
+        
+        <StatCard
+          title="Expired Policies"
+          value={stats.expiredInstances}
+          subtitle="No longer active"
+          isLoading={loading}
+          icon={XCircle}
+          bgColor="bg-red-50"
+          borderColor="border-red-200"
+          iconBg="bg-red-100"
+          iconColor="text-red-600"
+          textColor="text-red-600"
+        />
+        
+        <StatCard
+          title="Total Premium"
+          value={formatCurrency(stats.totalPremium)}
+          subtitle="Combined premium value"
+          isLoading={loading}
+          icon={DollarSign}
+          bgColor="bg-purple-50"
+          borderColor="border-purple-200"
+          iconBg="bg-purple-100"
+          iconColor="text-purple-600"
+          textColor="text-purple-600"
+        />
+        
+        <StatCard
+          title="Total Commission"
+          value={formatCurrency(stats.totalCommission)}
+          subtitle="Total commission earned"
+          isLoading={loading}
+          icon={TrendingUp}
+          bgColor="bg-emerald-50"
+          borderColor="border-emerald-200"
+          iconBg="bg-emerald-100"
+          iconColor="text-emerald-600"
+          textColor="text-emerald-600"
+        />
+        
+        <StatCard
+          title="Expiring This Month"
+          value={stats.expiringThisMonth}
+          subtitle="Require attention"
+          isLoading={loading}
+          icon={AlertTriangle}
+          bgColor={stats.expiringThisMonth > 0 ? "bg-amber-50" : "bg-gray-50"}
+          borderColor={stats.expiringThisMonth > 0 ? "border-amber-200" : "border-gray-200"}
+          iconBg={stats.expiringThisMonth > 0 ? "bg-amber-100" : "bg-gray-100"}
+          iconColor={stats.expiringThisMonth > 0 ? "text-amber-600" : "text-gray-600"}
+          textColor={stats.expiringThisMonth > 0 ? "text-amber-600" : "text-gray-600"}
+        />
       </div>
 
       {/* Additional Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Performance Summary */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Performance Summary</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Performance Summary</h3>
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Average Premium</span>
               <span className="font-medium">{formatCurrency(stats.averagePremium)}</span>
@@ -159,15 +232,13 @@ export function PolicyDetailStats({ stats, loading }: PolicyDetailStatsProps) {
                   : 0}%
               </span>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Alerts & Notifications */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Alerts & Notifications</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="bg-white p-4 rounded-lg border border-gray-200">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">Alerts & Notifications</h3>
+          <div className="space-y-3">
             {stats.expiringThisMonth > 0 ? (
               <div className="flex items-start gap-3 p-3 bg-amber-50 rounded-lg">
                 <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
@@ -221,8 +292,8 @@ export function PolicyDetailStats({ stats, loading }: PolicyDetailStatsProps) {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
