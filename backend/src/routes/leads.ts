@@ -1,12 +1,21 @@
 import { Router } from 'express';
-import { authenticateToken } from '../middleware/auth';
+import { authenticateToken, optionalAuth } from '../middleware/auth';
 import { validateRequest, leadSchema, uuidSchema, paginationSchema } from '../middleware/validation';
 import { asyncHandler } from '../middleware/errorHandler';
 import { LeadsController } from '../controllers/leadsController';
 
 const router = Router();
 
-// All leads routes require authentication
+/**
+ * POST /api/leads
+ * Create a new lead (public endpoint - no authentication required)
+ */
+router.post('/',
+  validateRequest({ body: leadSchema }),
+  asyncHandler(LeadsController.createLead)
+);
+
+// All other leads routes require authentication
 router.use(authenticateToken);
 
 /**
@@ -16,15 +25,6 @@ router.use(authenticateToken);
 router.get('/',
   validateRequest({ query: paginationSchema }),
   asyncHandler(LeadsController.getLeads)
-);
-
-/**
- * POST /api/leads
- * Create a new lead
- */
-router.post('/',
-  validateRequest({ body: leadSchema }),
-  asyncHandler(LeadsController.createLead)
 );
 
 /**

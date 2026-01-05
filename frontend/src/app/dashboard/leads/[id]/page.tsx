@@ -236,6 +236,31 @@ export default function LeadDetailPage() {
                 <label className="text-sm font-medium text-gray-500">Phone</label>
                 <p className="text-sm">{lead.phone}</p>
               </div>
+              {lead.whatsappNumber && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">WhatsApp Number</label>
+                  <p className="text-sm">{lead.whatsappNumber}</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Personal Information */}
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {lead.dateOfBirth && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Date of Birth</label>
+                  <p className="text-sm">{new Date(lead.dateOfBirth).toLocaleDateString()}</p>
+                </div>
+              )}
+              {lead.age !== undefined && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Age</label>
+                  <p className="text-sm">{lead.age} years</p>
+                </div>
+              )}
             </div>
           </div>
 

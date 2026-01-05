@@ -57,7 +57,9 @@ export const leadSchema = z.object({
   insuranceInterest: z.enum(['Life', 'Health', 'Auto', 'Home', 'Business']),
   status: z.enum(['New', 'Contacted', 'Qualified', 'Won', 'Lost']).optional(),
   priority: z.enum(['Hot', 'Warm', 'Cold']).optional(),
-  notes: z.string().optional()
+  notes: z.string().optional(),
+  whatsappNumber: z.string().optional(),
+  dateOfBirth: z.string().optional()
 });
 
 // Legacy client schema for backward compatibility

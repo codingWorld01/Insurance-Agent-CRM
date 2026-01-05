@@ -50,6 +50,9 @@ export interface Lead {
   id: string;
   name: string;
   phone: string;
+  whatsappNumber?: string;
+  dateOfBirth?: string;
+  age?: number;
   insuranceInterest: InsuranceType;
   status: LeadStatus;
   priority: Priority;
@@ -61,6 +64,8 @@ export interface Lead {
 export interface CreateLeadRequest {
   name: string;
   phone: string;
+  whatsappNumber?: string;
+  dateOfBirth?: string;
   insuranceInterest: InsuranceType;
   status?: LeadStatus;
   priority?: Priority;

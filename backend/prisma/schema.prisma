@@ -16,15 +16,21 @@ model Settings {
 }
 
 model Lead {
-  id                String   @id @default(uuid())
+  id                String    @id @default(uuid())
   name              String
   phone             String
+  whatsappNumber    String?
+  dateOfBirth       DateTime?
+  age               Int?      // Calculated from DOB
   insuranceInterest String
-  status            String   @default("New")
-  priority          String   @default("Warm")
+  status            String    @default("New")
+  priority          String    @default("Warm")
   notes             String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([dateOfBirth])
+  @@index([age])
 }
 
 model Client {

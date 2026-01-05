@@ -17,6 +17,33 @@ const insuranceTypes: InsuranceType[] = ['Life', 'Health', 'Auto', 'Home', 'Busi
 const leadStatuses: LeadStatus[] = ['New', 'Contacted', 'Qualified', 'Won', 'Lost'];
 const priorities: Priority[] = ['Hot', 'Warm', 'Cold'];
 
+// Utility function to calculate age from date of birth
+const calculateAge = (dateOfBirth: string): number => {
+  const birthDate = new Date(dateOfBirth);
+  const today = new Date();
+  
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+  
+  // Adjust age if birthday hasn't occurred yet this year
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  
+  return age;
+};
+
+// Utility function to validate WhatsApp number
+const validateWhatsAppNumber = (phone: string): boolean => {
+  const cleanPhone = phone.replace(/\D/g, '');
+  return cleanPhone.length >= 10 && cleanPhone.length <= 15 && /^\d+$/.test(cleanPhone);
+};
+
+// Utility function to format WhatsApp number
+const formatWhatsAppNumber = (phone: string): string => {
+  return phone.replace(/\D/g, '');
+};
+
 export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadFormProps) {
   const [formData, setFormData] = useState<CreateLeadRequest>({
     name: '',
@@ -37,6 +64,8 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
       setFormData({
         name: lead.name,
         phone: lead.phone,
+        whatsappNumber: lead.whatsappNumber || '',
+        dateOfBirth: lead.dateOfBirth ? new Date(lead.dateOfBirth).toISOString().split('T')[0] : '',
         insuranceInterest: lead.insuranceInterest,
         status: lead.status,
         priority: lead.priority,
@@ -47,6 +76,8 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
       setFormData({
         name: '',
         phone: '',
+        whatsappNumber: '',
+        dateOfBirth: '',
         insuranceInterest: 'Life',
         status: 'New',
         priority: 'Warm',
@@ -70,6 +101,28 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
       newErrors.phone = 'Phone must be a valid 10-digit Indian mobile number';
     }
 
+    // WhatsApp number validation (optional but if provided must be valid)
+    if (formData.whatsappNumber && !validateWhatsAppNumber(formData.whatsappNumber)) {
+      newErrors.whatsappNumber = 'WhatsApp number must be valid (10-15 digits)';
+    }
+
+    // Date of birth validation (optional but if provided must be valid)
+    if (formData.dateOfBirth) {
+      const birthDate = new Date(formData.dateOfBirth);
+      const today = new Date();
+      
+      if (isNaN(birthDate.getTime())) {
+        newErrors.dateOfBirth = 'Please enter a valid date';
+      } else if (birthDate > today) {
+        newErrors.dateOfBirth = 'Date of birth cannot be in the future';
+      } else {
+        const age = calculateAge(formData.dateOfBirth);
+        if (age < 0 || age > 120) {
+          newErrors.dateOfBirth = 'Please enter a valid date of birth';
+        }
+      }
+    }
+
     if (!formData.insuranceInterest) {
       newErrors.insuranceInterest = 'Insurance interest is required';
     }
@@ -87,10 +140,11 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
 
     setSubmitting(true);
     try {
-      // Clean phone number (remove non-digits)
+      // Clean phone numbers (remove non-digits)
       const cleanedData = {
         ...formData,
-        phone: formData.phone.replace(/\D/g, '')
+        phone: formData.phone.replace(/\D/g, ''),
+        whatsappNumber: formData.whatsappNumber ? formatWhatsAppNumber(formData.whatsappNumber) : undefined
       };
       
       await onSubmit(cleanedData);
@@ -157,6 +211,46 @@ export function LeadForm({ onSubmit, onCancel, lead, loading = false }: LeadForm
             <p id="phone-error" className="text-sm text-red-600" role="alert">{errors.phone}</p>
           )}
           <p className="text-xs text-gray-500">Enter 10-digit mobile number</p>
+        </div>
+
+        {/* WhatsApp Number Field */}
+        <div className="space-y-2">
+          <Label htmlFor="whatsappNumber">WhatsApp Number</Label>
+          <Input
+            id="whatsappNumber"
+            type="tel"
+            value={formData.whatsappNumber || ''}
+            onChange={(e) => handleInputChange('whatsappNumber', e.target.value)}
+            placeholder="8600777024"
+            className={errors.whatsappNumber ? 'border-red-500' : ''}
+            aria-invalid={!!errors.whatsappNumber}
+            aria-describedby={errors.whatsappNumber ? 'whatsapp-error' : undefined}
+          />
+          {errors.whatsappNumber && (
+            <p id="whatsapp-error" className="text-sm text-red-600" role="alert">{errors.whatsappNumber}</p>
+          )}
+          <p className="text-xs text-gray-500">Optional: Enter WhatsApp number for notifications</p>
+        </div>
+
+        {/* Date of Birth Field */}
+        <div className="space-y-2">
+          <Label htmlFor="dateOfBirth">Date of Birth</Label>
+          <Input
+            id="dateOfBirth"
+            type="date"
+            value={formData.dateOfBirth || ''}
+            onChange={(e) => handleInputChange('dateOfBirth', e.target.value)}
+            max={new Date().toISOString().split('T')[0]}
+            className={errors.dateOfBirth ? 'border-red-500' : ''}
+            aria-invalid={!!errors.dateOfBirth}
+            aria-describedby={errors.dateOfBirth ? 'dob-error' : undefined}
+          />
+          {errors.dateOfBirth && (
+            <p id="dob-error" className="text-sm text-red-600" role="alert">{errors.dateOfBirth}</p>
+          )}
+          {formData.dateOfBirth && !errors.dateOfBirth && (
+            <p className="text-xs text-gray-500">Age: {calculateAge(formData.dateOfBirth)} years</p>
+          )}
         </div>
 
         {/* Insurance Interest Field */}

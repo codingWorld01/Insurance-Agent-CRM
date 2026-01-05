@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { prisma } from '../services/database';
 import { ActivityService } from '../services/activityService';
 import { Prisma } from '@prisma/client';
+import { calculateAge, validateDateOfBirth, validateWhatsAppNumber, formatWhatsAppNumber } from '../utils/leadUtils';
 
 export class LeadsController {
   /**
@@ -68,11 +69,45 @@ export class LeadsController {
    */
   static async createLead(req: Request, res: Response): Promise<void> {
     try {
-      const leadData = {
-        ...req.body,
-        status: req.body.status || 'New',
-        priority: req.body.priority || 'Warm'
+      const { whatsappNumber, dateOfBirth, ...otherData } = req.body;
+      
+      // Validate WhatsApp number if provided
+      if (whatsappNumber && !validateWhatsAppNumber(whatsappNumber)) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid WhatsApp number format',
+          statusCode: 400
+        });
+        return;
+      }
+      
+      // Validate date of birth if provided
+      if (dateOfBirth && !validateDateOfBirth(dateOfBirth)) {
+        res.status(400).json({
+          success: false,
+          message: 'Invalid date of birth. Must be a valid date and not in the future.',
+          statusCode: 400
+        });
+        return;
+      }
+      
+      // Prepare lead data with calculated age
+      const leadData: any = {
+        ...otherData,
+        status: otherData.status || 'New',
+        priority: otherData.priority || 'Warm'
       };
+      
+      // Add formatted WhatsApp number if provided
+      if (whatsappNumber) {
+        leadData.whatsappNumber = formatWhatsAppNumber(whatsappNumber);
+      }
+      
+      // Add date of birth and calculate age if provided
+      if (dateOfBirth) {
+        leadData.dateOfBirth = new Date(dateOfBirth);
+        leadData.age = calculateAge(dateOfBirth);
+      }
 
       const lead = await prisma.lead.create({
         data: leadData
