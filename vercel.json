@@ -1,0 +1,13 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/email-automation",
+      "schedule": "0 9 * * *"
+    }
+  ],
+  "functions": {
+    "backend/src/**/*.ts": {
+      "runtime": "nodejs18.x"
+    }
+  }
+}

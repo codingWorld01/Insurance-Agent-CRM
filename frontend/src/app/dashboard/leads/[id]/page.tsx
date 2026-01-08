@@ -236,6 +236,12 @@ export default function LeadDetailPage() {
                 <label className="text-sm font-medium text-gray-500">Phone</label>
                 <p className="text-sm">{lead.phone}</p>
               </div>
+              {lead.email && (
+                <div>
+                  <label className="text-sm font-medium text-gray-500">Email</label>
+                  <p className="text-sm">{lead.email}</p>
+                </div>
+              )}
               {lead.whatsappNumber && (
                 <div>
                   <label className="text-sm font-medium text-gray-500">WhatsApp Number</label>

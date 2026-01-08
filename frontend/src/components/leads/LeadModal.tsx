@@ -49,6 +49,7 @@ const formatWhatsAppNumber = (phone: string): string => {
 export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: LeadModalProps) {
   const [formData, setFormData] = useState<CreateLeadRequest>({
     name: '',
+    email: '',
     phone: '',
     whatsappNumber: '',
     dateOfBirth: '',
@@ -68,6 +69,7 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
         // Edit mode - populate with existing lead data
         setFormData({
           name: lead.name,
+          email: lead.email || '',
           phone: lead.phone,
           whatsappNumber: lead.whatsappNumber || '',
           dateOfBirth: lead.dateOfBirth ? new Date(lead.dateOfBirth).toISOString().split('T')[0] : '',
@@ -80,6 +82,7 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
         // Add mode - reset to defaults
         setFormData({
           name: '',
+          email: '',
           phone: '',
           whatsappNumber: '',
           dateOfBirth: '',
@@ -105,6 +108,14 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
       newErrors.phone = 'Phone is required';
     } else if (!/^[6-9]\d{9}$/.test(formData.phone.replace(/\D/g, ''))) {
       newErrors.phone = 'Phone must be a valid 10-digit Indian mobile number';
+    }
+
+    // Email validation (optional but if provided must be valid)
+    if (formData.email && formData.email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email.trim())) {
+        newErrors.email = 'Please enter a valid email address';
+      }
     }
 
     // WhatsApp number validation (optional but if provided must be valid)
@@ -204,6 +215,25 @@ export function LeadModal({ open, onClose, onSubmit, lead, loading = false }: Le
             {errors.name && (
               <p id="name-error" className="text-sm text-red-600" role="alert">{errors.name}</p>
             )}
+          </div>
+
+          {/* Email Field */}
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={formData.email || ''}
+              onChange={(e) => handleInputChange('email', e.target.value)}
+              placeholder="Enter email address"
+              className={errors.email ? 'border-red-500' : ''}
+              aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+            />
+            {errors.email && (
+              <p id="email-error" className="text-sm text-red-600" role="alert">{errors.email}</p>
+            )}
+            <p className="text-xs text-gray-500">Optional: For email notifications</p>
           </div>
 
           {/* Phone Field */}

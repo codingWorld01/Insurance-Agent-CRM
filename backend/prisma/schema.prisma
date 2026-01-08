@@ -18,6 +18,7 @@ model Settings {
 model Lead {
   id                String    @id @default(uuid())
   name              String
+  email             String?   // Optional email field
   phone             String
   whatsappNumber    String?
   dateOfBirth       DateTime?
@@ -28,7 +29,11 @@ model Lead {
   notes             String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+  
+  // Email relationships
+  emailLogs         EmailLog[]
 
+  @@index([email])
   @@index([dateOfBirth])
   @@index([age])
 }
@@ -84,6 +89,9 @@ model Client {
   // Policy relationships
   policies        Policy[]
   policyInstances PolicyInstance[]
+  
+  // Email relationships
+  emailLogs       EmailLog[]
   
   @@index([email])
   @@index([phoneNumber])
@@ -160,6 +168,9 @@ model PolicyInstance {
   updatedAt        DateTime       @updatedAt
   client           Client         @relation(fields: [clientId], references: [id], onDelete: Cascade)
   policyTemplate   PolicyTemplate @relation(fields: [policyTemplateId], references: [id], onDelete: Cascade)
+  
+  // Email relationships
+  emailLogs        EmailLog[]
 
   @@unique([policyTemplateId, clientId])
   @@index([policyTemplateId])
@@ -202,6 +213,69 @@ model Activity {
 
 
 
+model EmailTemplate {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  subject     String
+  htmlContent String
+  textContent String?
+  type        EmailType
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  emailLogs   EmailLog[]
+
+  @@index([type])
+  @@index([isActive])
+}
+
+model EmailLog {
+  id               String        @id @default(uuid())
+  emailTemplateId  String
+  recipientEmail   String
+  recipientName    String
+  subject          String
+  emailType        EmailType
+  status           EmailStatus   @default(PENDING)
+  sentAt           DateTime?
+  errorMessage     String?
+  clientId         String?
+  leadId           String?
+  policyInstanceId String?
+  createdAt        DateTime      @default(now())
+  
+  emailTemplate    EmailTemplate @relation(fields: [emailTemplateId], references: [id])
+  client           Client?       @relation(fields: [clientId], references: [id])
+  lead             Lead?         @relation(fields: [leadId], references: [id])
+  policyInstance   PolicyInstance? @relation(fields: [policyInstanceId], references: [id])
+
+  @@index([emailType])
+  @@index([status])
+  @@index([sentAt])
+  @@index([createdAt])
+  @@index([clientId])
+  @@index([leadId])
+  @@index([recipientEmail])
+}
+
+model EmailAutomation {
+  id                String              @id @default(uuid())
+  name              String
+  emailType         EmailType
+  isActive          Boolean             @default(true)
+  triggerCondition  AutomationTrigger
+  daysBefore        Int?                // For policy renewal reminders
+  lastRunAt         DateTime?
+  nextRunAt         DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([emailType, triggerCondition])
+  @@index([emailType])
+  @@index([isActive])
+  @@index([nextRunAt])
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -232,4 +306,28 @@ enum DocumentType {
   MEDICAL_REPORT
   POLICY_DOCUMENT
   OTHER
+}
+
+enum EmailType {
+  BIRTHDAY_WISH
+  POLICY_RENEWAL
+  WELCOME
+  FOLLOW_UP
+  CUSTOM
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  OPENED
+  CLICKED
+}
+
+enum AutomationTrigger {
+  BIRTHDAY
+  POLICY_EXPIRY
+  MANUAL
+  SCHEDULED
 }

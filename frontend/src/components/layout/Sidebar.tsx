@@ -14,6 +14,7 @@ import {
   X,
   LogOut,
   User,
+  Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
@@ -40,6 +41,11 @@ const navigation = [
     name: "Policy Templates",
     href: "/dashboard/policy-templates",
     icon: ClipboardList,
+  },
+  {
+    name: "Email Automation",
+    href: "/dashboard/email-automation",
+    icon: Mail,
   },
   {
     name: "Settings",

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import DatabaseService from './services/database';
+import { CronService } from './services/cronService';
 import { globalErrorHandler, notFoundHandler } from './middleware/errorHandler';
 
 // Import route modules
@@ -17,6 +18,7 @@ import settingsRoutes from './routes/settings';
 import uploadRoutes from './routes/upload';
 import healthRoutes from './routes/health';
 import auditRoutes from './routes/audit';
+import emailAutomationRoutes from './routes/emailAutomation';
 
 const app = express();
 
@@ -48,9 +50,13 @@ app.use('/api/policy-instances', policyInstancesRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api', auditRoutes);
+app.use('/api/email-automation', emailAutomationRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);
 app.use(globalErrorHandler);
+
+// Initialize cron jobs
+CronService.initialize();
 
 export default app;

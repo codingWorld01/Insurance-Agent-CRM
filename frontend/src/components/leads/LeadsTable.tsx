@@ -62,6 +62,9 @@ export function LeadsTable({ leads, loading, onView, onEdit, onDelete }: LeadsTa
                 <div className="min-w-0 flex-1">
                   <h3 className="font-medium text-foreground truncate">{lead.name}</h3>
                   <p className="text-sm text-muted-foreground">{lead.phone}</p>
+                  {lead.email && (
+                    <p className="text-sm text-muted-foreground truncate">{lead.email}</p>
+                  )}
                 </div>
                 <div className="flex gap-1 ml-2" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
@@ -121,6 +124,7 @@ export function LeadsTable({ leads, loading, onView, onEdit, onDelete }: LeadsTa
             <TableRow>
               <TableHead scope="col">Name</TableHead>
               <TableHead scope="col">Phone</TableHead>
+              <TableHead scope="col" className="hidden xl:table-cell">Email</TableHead>
               <TableHead scope="col" className="hidden lg:table-cell">Insurance Interest</TableHead>
               <TableHead scope="col">Status</TableHead>
               <TableHead scope="col" className="hidden md:table-cell">Priority</TableHead>
@@ -139,6 +143,9 @@ export function LeadsTable({ leads, loading, onView, onEdit, onDelete }: LeadsTa
                   <div className="truncate max-w-32">{lead.name}</div>
                 </TableCell>
                 <TableCell>{lead.phone}</TableCell>
+                <TableCell className="hidden xl:table-cell">
+                  <div className="truncate max-w-40">{lead.email || '-'}</div>
+                </TableCell>
                 <TableCell className="hidden lg:table-cell">{lead.insuranceInterest}</TableCell>
                 <TableCell>
                   <StatusBadge status={lead.status} />

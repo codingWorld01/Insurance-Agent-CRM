@@ -31,6 +31,7 @@ async function minimalSeed() {
     const sampleLeads = [
       {
         name: 'John Smith',
+        email: 'john.smith@email.com',
         phone: '(555) 123-4567',
         insuranceInterest: 'Auto Insurance',
         status: 'New',
@@ -39,6 +40,7 @@ async function minimalSeed() {
       },
       {
         name: 'Sarah Johnson',
+        email: 'sarah.johnson@email.com',
         phone: '(555) 234-5678',
         insuranceInterest: 'Home Insurance',
         status: 'Contacted',
@@ -47,6 +49,7 @@ async function minimalSeed() {
       },
       {
         name: 'Michael Brown',
+        email: 'michael.brown@email.com',
         phone: '(555) 345-6789',
         insuranceInterest: 'Life Insurance',
         status: 'Qualified',

@@ -1,0 +1,21 @@
+name: Daily Email Automation
+
+on:
+  schedule:
+    # Runs at 9:00 AM IST (3:30 AM UTC)
+    - cron: '30 3 * * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  email-automation:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger Email Automation
+        run: |
+          curl -X GET \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.VERCEL_APP_URL }}/api/cron/email-automation"
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          VERCEL_APP_URL: ${{ secrets.VERCEL_APP_URL }}

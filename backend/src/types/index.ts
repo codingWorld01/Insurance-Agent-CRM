@@ -42,7 +42,10 @@ export type InsuranceType = 'Life' | 'Health' | 'Auto' | 'Home' | 'Business';
 
 export interface CreateLeadRequest {
   name: string;
+  email?: string;
   phone: string;
+  whatsappNumber?: string;
+  dateOfBirth?: string;
   insuranceInterest: InsuranceType;
   status?: LeadStatus;
   priority?: Priority;
