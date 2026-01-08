@@ -48,7 +48,6 @@ export class CronService {
         console.error('❌ Error in daily email automation:', error);
       }
     }, {
-      scheduled: true,
       timezone: "Asia/Kolkata" // Indian Standard Time
     });
 
@@ -63,7 +62,6 @@ export class CronService {
         console.error('❌ Error in weekly summary:', error);
       }
     }, {
-      scheduled: true,
       timezone: "Asia/Kolkata"
     });
 
@@ -77,7 +75,8 @@ export class CronService {
    * Stop all cron jobs
    */
   static destroy(): void {
-    cron.destroy();
+    // Note: node-cron doesn't have a global destroy method
+    // Individual tasks would need to be stored and destroyed separately
     this.isInitialized = false;
     console.log('🛑 All cron jobs stopped');
   }

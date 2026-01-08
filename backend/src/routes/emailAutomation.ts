@@ -27,7 +27,7 @@ router.post('/run-all', EmailAutomationController.runAllTasks);
 router.post('/send-custom-email', EmailAutomationController.sendCustomEmail);
 
 // Internal automation endpoint for cron jobs
-router.post('/run-automation', async (req, res) => {
+router.post('/run-automation', async (req: any, res: any) => {
   try {
     // Optional: Verify internal API key
     const authHeader = req.headers.authorization;
@@ -67,7 +67,7 @@ router.post('/run-automation', async (req, res) => {
 router.get('/templates', EmailAutomationController.getEmailTemplates);
 
 // Cron status
-router.get('/cron-status', (req, res) => {
+router.get('/cron-status', (req: any, res: any) => {
   const status = require('../services/cronService').CronService.getStatus();
   res.json({ success: true, data: status });
 });
