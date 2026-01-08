@@ -53,7 +53,7 @@ export const loginSchema = z.object({
 
 export const leadSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email format'),
+  email: z.string().email('Invalid email format').optional(),
   phone: z.string().regex(/^[6-9]\d{9}$/, 'Phone must be a valid 10-digit Indian mobile number'),
   insuranceInterest: z.enum(['Life', 'Health', 'Auto', 'Home', 'Business']),
   status: z.enum(['New', 'Contacted', 'Qualified', 'Won', 'Lost']).optional(),
