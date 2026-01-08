@@ -11,7 +11,7 @@ const router = Router();
  * Create a new lead (public endpoint - no authentication required)
  */
 router.post('/',
-  validateRequest({ body: leadSchema }),
+  // validateRequest({ body: leadSchema }),
   asyncHandler(LeadsController.createLead)
 );
 
