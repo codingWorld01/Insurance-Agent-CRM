@@ -19,6 +19,7 @@ import uploadRoutes from './routes/upload';
 import healthRoutes from './routes/health';
 import auditRoutes from './routes/audit';
 import emailAutomationRoutes from './routes/emailAutomation';
+import whatsappAutomationRoutes from './routes/whatsappAutomation';
 
 const app = express();
 
@@ -51,6 +52,7 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api', auditRoutes);
 app.use('/api/email-automation', emailAutomationRoutes);
+app.use('/api/whatsapp-automation', whatsappAutomationRoutes);
 
 // Error handling middleware (must be last)
 app.use(notFoundHandler);

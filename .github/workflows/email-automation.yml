@@ -1,4 +1,4 @@
-name: Daily Email Automation
+name: Daily Communication Automation
 
 on:
   schedule:
@@ -7,15 +7,15 @@ on:
   workflow_dispatch: # Allow manual trigger
 
 jobs:
-  email-automation:
+  automation:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Trigger Email Automation
+      - name: Trigger Communication Automation (Email + WhatsApp)
         run: |
           curl -X GET \
             -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
-            "${{ secrets.VERCEL_APP_URL }}/api/cron/email-automation"
+            "${{ secrets.VERCEL_APP_URL }}/api/cron/automation"
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           VERCEL_APP_URL: ${{ secrets.VERCEL_APP_URL }}

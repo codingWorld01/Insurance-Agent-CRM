@@ -32,6 +32,7 @@ model Lead {
   
   // Email relationships
   emailLogs         EmailLog[]
+  whatsappLogs      WhatsAppLog[]
 
   @@index([email])
   @@index([dateOfBirth])
@@ -92,6 +93,7 @@ model Client {
   
   // Email relationships
   emailLogs       EmailLog[]
+  whatsappLogs    WhatsAppLog[]
   
   @@index([email])
   @@index([phoneNumber])
@@ -171,6 +173,7 @@ model PolicyInstance {
   
   // Email relationships
   emailLogs        EmailLog[]
+  whatsappLogs     WhatsAppLog[]
 
   @@unique([policyTemplateId, clientId])
   @@index([policyTemplateId])
@@ -276,6 +279,71 @@ model EmailAutomation {
   @@index([nextRunAt])
 }
 
+model WhatsAppTemplate {
+  id          String      @id @default(uuid())
+  name        String      @unique
+  templateName String     // MSG91 template name
+  namespace   String      // MSG91 namespace
+  language    String      @default("en")
+  messageType MessageType
+  isActive    Boolean     @default(true)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  whatsappLogs WhatsAppLog[]
+
+  @@index([messageType])
+  @@index([isActive])
+}
+
+model WhatsAppLog {
+  id                  String           @id @default(uuid())
+  whatsappTemplateId  String
+  recipientPhone      String
+  recipientName       String
+  messageType         MessageType
+  status              MessageStatus    @default(PENDING)
+  sentAt              DateTime?
+  errorMessage        String?
+  clientId            String?
+  leadId              String?
+  policyInstanceId    String?
+  msg91MessageId      String?          // MSG91 message ID for tracking
+  createdAt           DateTime         @default(now())
+  
+  whatsappTemplate    WhatsAppTemplate @relation(fields: [whatsappTemplateId], references: [id])
+  client              Client?          @relation(fields: [clientId], references: [id])
+  lead                Lead?            @relation(fields: [leadId], references: [id])
+  policyInstance      PolicyInstance?  @relation(fields: [policyInstanceId], references: [id])
+
+  @@index([messageType])
+  @@index([status])
+  @@index([sentAt])
+  @@index([createdAt])
+  @@index([clientId])
+  @@index([leadId])
+  @@index([recipientPhone])
+}
+
+model MessageAutomation {
+  id                String              @id @default(uuid())
+  name              String
+  messageType       MessageType
+  channel           MessageChannel
+  isActive          Boolean             @default(true)
+  triggerCondition  AutomationTrigger
+  daysBefore        Int?                // For policy renewal reminders
+  lastRunAt         DateTime?
+  nextRunAt         DateTime?
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([messageType, channel, triggerCondition])
+  @@index([messageType])
+  @@index([channel])
+  @@index([isActive])
+  @@index([nextRunAt])
+}
+
 enum Gender {
   MALE
   FEMALE
@@ -330,4 +398,26 @@ enum AutomationTrigger {
   POLICY_EXPIRY
   MANUAL
   SCHEDULED
+}
+
+enum MessageType {
+  BIRTHDAY_WISH
+  POLICY_RENEWAL
+  WELCOME
+  FOLLOW_UP
+  CUSTOM
+}
+
+enum MessageStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+  READ
+}
+
+enum MessageChannel {
+  EMAIL
+  WHATSAPP
+  SMS
 }

@@ -14,7 +14,7 @@ import {
   X,
   LogOut,
   User,
-  Mail,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect, useRef } from "react";
@@ -43,9 +43,9 @@ const navigation = [
     icon: ClipboardList,
   },
   {
-    name: "Email Automation",
-    href: "/dashboard/email-automation",
-    icon: Mail,
+    name: "Automation",
+    href: "/dashboard/automation",
+    icon: MessageSquare,
   },
   {
     name: "Settings",

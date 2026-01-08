@@ -39,7 +39,14 @@
     "db:reset-and-seed": "tsx src/scripts/resetAndSeedDatabase.ts",
     "db:dummy-data": "tsx src/scripts/resetAndSeedDatabase.ts",
     "db:quick-seed": "tsx src/scripts/quickSeed.ts",
-    "email-automation": "tsx src/scripts/runEmailAutomation.ts"
+    "email-automation": "tsx src/scripts/runEmailAutomation.ts",
+    "setup-whatsapp-templates": "tsx src/scripts/setupWhatsAppTemplates.ts",
+    "test-whatsapp": "tsx src/scripts/testWhatsAppIntegration.ts",
+    "setup-test-data": "tsx src/scripts/setupTestData.ts",
+    "test-automation": "tsx src/scripts/testAutomation.ts",
+    "setup-complete": "tsx src/scripts/setupCompleteAutomation.ts",
+    "update-credentials": "tsx src/scripts/updateCredentials.ts",
+    "setup-test-data": "tsx src/scripts/setupTestData.ts"
   },
   "keywords": [
     "crm",

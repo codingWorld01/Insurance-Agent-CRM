@@ -29,6 +29,7 @@ export function DashboardLayout({ children, title }: DashboardLayoutProps) {
     if (pathname.startsWith('/dashboard/clients')) return 'Clients';
     if (pathname.startsWith('/dashboard/policy-templates')) return 'Policy Templates';
     if (pathname.startsWith('/dashboard/email-automation')) return 'Email Automation';
+    if (pathname.startsWith('/dashboard/automation')) return 'Automation';
     
     // Fallback to capitalizing the last segment of the path
     const segments = pathname.split('/').filter(Boolean);
