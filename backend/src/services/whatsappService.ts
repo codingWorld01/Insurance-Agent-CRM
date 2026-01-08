@@ -6,7 +6,7 @@ export interface WhatsAppMessageData {
   recipientName: string;
   messageType: MessageType;
   templateName: string;
-  components: Record<string, string>;
+  components: Record<string, { type: string; value: string }>;
   clientId?: string;
   leadId?: string;
   policyInstanceId?: string;
@@ -75,7 +75,7 @@ export class WhatsAppService {
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
+      const result: any = await response.json();
 
       if (response.ok && (result.status === 'success' || result.type === 'success')) {
         // Update WhatsApp log with success

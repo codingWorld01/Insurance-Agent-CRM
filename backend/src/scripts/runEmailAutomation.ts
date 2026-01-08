@@ -27,11 +27,11 @@ async function runEmailAutomation() {
     const results = await AutomationService.runAutomatedTasks();
     
     console.log('\n📊 Results:');
-    console.log(`🎂 Birthday Wishes: ${results.birthdayWishes.sent} sent, ${results.birthdayWishes.failed} failed`);
-    console.log(`📋 Policy Renewals: ${results.policyRenewals.sent} sent, ${results.policyRenewals.failed} failed`);
+    console.log(`🎂 Birthday Wishes: ${results.birthdayWishes.email.sent} sent, ${results.birthdayWishes.email.failed} failed`);
+    console.log(`📋 Policy Renewals: ${results.policyRenewals.email.sent} sent, ${results.policyRenewals.email.failed} failed`);
     
-    const totalSent = results.birthdayWishes.sent + results.policyRenewals.sent;
-    const totalFailed = results.birthdayWishes.failed + results.policyRenewals.failed;
+    const totalSent = results.birthdayWishes.email.sent + results.policyRenewals.email.sent;
+    const totalFailed = results.birthdayWishes.email.failed + results.policyRenewals.email.failed;
     
     console.log(`\n✅ Total: ${totalSent} emails sent, ${totalFailed} failed`);
     

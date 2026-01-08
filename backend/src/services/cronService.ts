@@ -39,8 +39,8 @@ export class CronService {
         });
         
         // Log summary
-        const totalSent = result.birthdayWishes.sent + result.policyRenewals.sent;
-        const totalFailed = result.birthdayWishes.failed + result.policyRenewals.failed;
+        const totalSent = result.birthdayWishes.email.sent + result.policyRenewals.email.sent;
+        const totalFailed = result.birthdayWishes.email.failed + result.policyRenewals.email.failed;
         
         console.log(`📊 Daily Summary: ${totalSent} emails sent, ${totalFailed} failed`);
         

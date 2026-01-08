@@ -137,7 +137,7 @@ export class EmailAutomationController {
       res.json({
         success: true,
         data: result,
-        message: `Birthday wishes processed: ${result.sent} sent, ${result.failed} failed`
+        message: `Birthday wishes processed: ${result.email.sent} sent, ${result.email.failed} failed`
       });
     } catch (error) {
       console.error('Error sending birthday wishes:', error);
@@ -161,7 +161,7 @@ export class EmailAutomationController {
       res.json({
         success: true,
         data: result,
-        message: `Renewal reminders processed: ${result.sent} sent, ${result.failed} failed`
+        message: `Renewal reminders processed: ${result.email.sent} sent, ${result.email.failed} failed`
       });
     } catch (error) {
       console.error('Error sending renewal reminders:', error);
